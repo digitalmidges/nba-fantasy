@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Barchashim — Points per Position</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 40px 20px;
+        }
+        .container { max-width: 1100px; margin: 0 auto; }
+        h1 {
+            text-align: center;
+            color: white;
+            margin-bottom: 8px;
+            font-size: 2.5em;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+        }
+        .subtitle {
+            text-align: center;
+            color: rgba(255,255,255,0.9);
+            margin-bottom: 16px;
+            font-size: 1.05em;
+        }
+        .toolbar {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 28px;
+        }
+        .last-refresh {
+            color: white;
+            font-size: 0.95em;
+            background: rgba(255,255,255,0.15);
+            padding: 10px 16px;
+            border-radius: 8px;
+        }
+        .btn {
+            padding: 10px 22px;
+            background: white;
+            color: #5a4fcf;
+            border: none;
+            border-radius: 8px;
+            font-weight: 700;
+            cursor: pointer;
+            font-size: 0.95em;
+            box-shadow: 0 4px 14px rgba(0,0,0,0.15);
+        }
+        .btn:hover { transform: translateY(-1px); }
+        .btn:disabled { opacity: 0.7; cursor: wait; }
+        .formula {
+            text-align: center;
+            color: white;
+            font-weight: 600;
+            margin-bottom: 28px;
+            font-size: 1.05em;
+        }
+        .table-section {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            padding: 30px;
+            margin-bottom: 28px;
+            overflow-x: auto;
+        }
+        .table-section h2 {
+            font-size: 1.35em;
+            color: #333;
+            margin-bottom: 8px;
+            padding-bottom: 10px;
+            border-bottom: 3px solid #667eea;
+        }
+        .table-section .hint {
+            color: #666;
+            font-size: 0.9em;
+            margin-bottom: 16px;
+        }
+        table { width: 100%; border-collapse: collapse; }
+        thead {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        th {
+            padding: 12px 8px;
+            text-align: left;
+            font-weight: 600;
+            font-size: 0.82em;
+            letter-spacing: 0.2px;
+            white-space: nowrap;
+        }
+        th.number, td.number { text-align: right; }
+        td {
+            padding: 10px 8px;
+            border-bottom: 1px solid #eee;
+            font-size: 0.9em;
+        }
+        tbody tr:hover { background-color: #f5f5f5; }
+        tbody tr:last-child td { border-bottom: none; }
+        tbody tr.highlight { background-color: #f3eefe; }
+        .rank { font-weight: 600; color: #667eea; }
+        .team { font-weight: 500; color: #333; white-space: nowrap; }
+        .number { font-variant-numeric: tabular-nums; }
+        .tot { font-weight: 700; }
+        .controls {
+            display: flex;
+            gap: 24px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+        .control-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .control-group label { font-weight: 500; color: #333; font-size: 0.95em; }
+        .control-group select {
+            padding: 8px 12px;
+            border: 2px solid #667eea;
+            border-radius: 6px;
+            font-size: 0.95em;
+            background: white;
+            color: #333;
+        }
+        .toast {
+            display: none;
+            position: fixed;
+            bottom: 24px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #333;
+            color: white;
+            padding: 14px 20px;
+            border-radius: 10px;
+            max-width: 90%;
+            z-index: 50;
+            font-size: 0.95em;
+            text-align: center;
+        }
+        .toast.show { display: block; }
+        .footer {
+            text-align: center;
+            color: rgba(255,255,255,0.85);
+            font-size: 0.9em;
+            margin-top: 8px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Barchashim League</h1>
+        <p class="subtitle">2027 · Points per position</p>
+        <div class="toolbar">
+            <div class="last-refresh">Last refresh: <span id="lastRefreshLabel">—</span></div>
+            <button type="button" class="btn" id="refreshBtn">Refresh now</button>
+        </div>
+        <p class="formula">Avg Pts/Pos = Season Points (TOT) ÷ GP</p>
+
+        <div class="table-section">
+            <h2>ESPN Season Points</h2>
+            <p class="hint">Official ESPN standings — category points and season TOT (same order as ESPN).</p>
+            <table>
+                <thead>
+                    <tr>
+                        <th>RK</th>
+                        <th>Team</th>
+                        <th class="number">FGM</th>
+                        <th class="number">FGA</th>
+                        <th class="number">FTM</th>
+                        <th class="number">FTA</th>
+                        <th class="number">3PM</th>
+                        <th class="number">REB</th>
+                        <th class="number">AST</th>
+                        <th class="number">STL</th>
+                        <th class="number">BLK</th>
+                        <th class="number">TO</th>
+                        <th class="number">PTS</th>
+                        <th class="number">TOT</th>
+                        <th class="number">GP</th>
+                        <th class="number">Avg</th>
+                    </tr>
+                </thead>
+                <tbody id="tableEspn"></tbody>
+            </table>
+        </div>
+
+        <div class="table-section">
+            <h2>Sorted by Avg Pts/Pos (highest → lowest)</h2>
+            <p class="hint">Efficiency board — TOT ÷ GP.</p>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Eff RK</th>
+                        <th>Team</th>
+                        <th class="number">TOT</th>
+                        <th class="number">GP</th>
+                        <th class="number">Avg Pts/Pos</th>
+                    </tr>
+                </thead>
+                <tbody id="tableEff"></tbody>
+            </table>
+        </div>
+
+        <div class="table-section">
+            <h2>Custom sort</h2>
+            <div class="controls">
+                <div class="control-group">
+                    <label for="sortColumn">Sort by:</label>
+                    <select id="sortColumn">
+                        <option value="seasonRk">Season rank</option>
+                        <option value="team">Team</option>
+                        <option value="tot">Total Points (TOT)</option>
+                        <option value="gp">GP</option>
+                        <option value="avgPts" selected>Avg Pts/Pos</option>
+                    </select>
+                </div>
+                <div class="control-group">
+                    <label for="sortOrder">Order:</label>
+                    <select id="sortOrder">
+                        <option value="asc">Ascending</option>
+                        <option value="desc" selected>Descending</option>
+                    </select>
+                </div>
+            </div>
+            <table>
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Team</th>
+                        <th class="number">TOT</th>
+                        <th class="number">GP</th>
+                        <th class="number">Avg Pts/Pos</th>
+                    </tr>
+                </thead>
+                <tbody id="tableCustom"></tbody>
+            </table>
+        </div>
+
+        <p class="footer">Source: ESPN Fantasy league 683874011 · Times show in your device timezone</p>
+    </div>
+    <div class="toast" id="toast"></div>
+
+    <script>
+        const LAST_REFRESH_ISO = "2026-10-25T11:13:32-05:00";
+
+        const currentData = [
+            { seasonRk: 1, team: "The Pigs orsurf", fgm: 428, fga: -457, ftm: 111, fta: -147, tpm: 61, reb: 209, ast: 236, stl: 224, blk: 48, to: -150, pts: 600, tot: 1163, gp: 31 },
+            { seasonRk: 2, team: "ER", fgm: 308, fga: -349, ftm: 101, fta: -129, tpm: 27, reb: 211, ast: 332, stl: 140, blk: 44, to: -134, pts: 436, tot: 987, gp: 27 },
+            { seasonRk: 3, team: "Naim Merlon", fgm: 420, fga: -408, ftm: 130, fta: -164, tpm: 56, reb: 161, ast: 144, stl: 132, blk: 60, to: -154, pts: 606, tot: 983, gp: 30 },
+            { seasonRk: 4, team: "Omer's Team", fgm: 358, fga: -418, ftm: 102, fta: -121, tpm: 46, reb: 187, ast: 228, stl: 124, blk: 88, to: -140, pts: 506, tot: 960, gp: 27 },
+            { seasonRk: 5, team: "Team Mamba Mentality", fgm: 360, fga: -355, ftm: 75, fta: -100, tpm: 60, reb: 160, ast: 216, stl: 96, blk: 76, to: -128, pts: 495, tot: 955, gp: 26 },
+            { seasonRk: 6, team: "Israel Samson", fgm: 326, fga: -384, ftm: 107, fta: -138, tpm: 32, reb: 161, ast: 228, stl: 104, blk: 112, to: -116, pts: 465, tot: 897, gp: 25 },
+            { seasonRk: 7, team: "DanKen", fgm: 336, fga: -353, ftm: 104, fta: -134, tpm: 55, reb: 97, ast: 184, stl: 152, blk: 64, to: -124, pts: 495, tot: 876, gp: 25 },
+            { seasonRk: 8, team: "Team The Mushroom", fgm: 320, fga: -365, ftm: 95, fta: -115, tpm: 40, reb: 163, ast: 222, stl: 80, blk: 88, to: -144, pts: 455, tot: 839, gp: 28 }
+        ].map(t => ({ ...t, avgPts: t.tot / t.gp }));
+
+        const MUSHROOM = "Team The Mushroom";
+
+        function fmtAvg(n) { return n.toFixed(2); }
+        function num(n) { return n.toLocaleString(); }
+
+        function espnRow(item) {
+            const hl = item.team === MUSHROOM ? ' class="highlight"' : '';
+            return '<tr' + hl + '>' +
+                '<td class="rank">' + item.seasonRk + '</td>' +
+                '<td class="team">' + item.team + '</td>' +
+                '<td class="number">' + num(item.fgm) + '</td>' +
+                '<td class="number">' + num(item.fga) + '</td>' +
+                '<td class="number">' + num(item.ftm) + '</td>' +
+                '<td class="number">' + num(item.fta) + '</td>' +
+                '<td class="number">' + num(item.tpm) + '</td>' +
+                '<td class="number">' + num(item.reb) + '</td>' +
+                '<td class="number">' + num(item.ast) + '</td>' +
+                '<td class="number">' + num(item.stl) + '</td>' +
+                '<td class="number">' + num(item.blk) + '</td>' +
+                '<td class="number">' + num(item.to) + '</td>' +
+                '<td class="number">' + num(item.pts) + '</td>' +
+                '<td class="number tot">' + num(item.tot) + '</td>' +
+                '<td class="number">' + item.gp + '</td>' +
+                '<td class="number tot">' + fmtAvg(item.avgPts) + '</td>' +
+                '</tr>';
+        }
+
+        function simpleRow(item, displayRank) {
+            const hl = item.team === MUSHROOM ? ' class="highlight"' : '';
+            return '<tr' + hl + '>' +
+                '<td class="rank">' + displayRank + '</td>' +
+                '<td class="team">' + item.team + '</td>' +
+                '<td class="number">' + num(item.tot) + '</td>' +
+                '<td class="number">' + item.gp + '</td>' +
+                '<td class="number">' + fmtAvg(item.avgPts) + '</td>' +
+                '</tr>';
+        }
+
+        function renderEspn() {
+            document.getElementById('tableEspn').innerHTML =
+                currentData.map(espnRow).join('');
+        }
+
+        function renderEff() {
+            const sorted = [...currentData].sort((a, b) => b.avgPts - a.avgPts);
+            document.getElementById('tableEff').innerHTML =
+                sorted.map((item, i) => simpleRow(item, i + 1)).join('');
+        }
+
+        function renderCustom() {
+            const sortBy = document.getElementById('sortColumn').value;
+            const order = document.getElementById('sortOrder').value;
+            let sorted = [...currentData];
+            sorted.sort((a, b) => {
+                if (sortBy === 'team') {
+                    return order === 'asc' ? a.team.localeCompare(b.team) : b.team.localeCompare(a.team);
+                }
+                let valA, valB;
+                if (sortBy === 'tot') { valA = a.tot; valB = b.tot; }
+                else if (sortBy === 'gp') { valA = a.gp; valB = b.gp; }
+                else if (sortBy === 'avgPts') { valA = a.avgPts; valB = b.avgPts; }
+                else { valA = a.seasonRk; valB = b.seasonRk; }
+                return order === 'asc' ? valA - valB : valB - valA;
+            });
+            document.getElementById('tableCustom').innerHTML =
+                sorted.map((item, i) => simpleRow(item, i + 1)).join('');
+        }
+
+        function showLastRefresh() {
+            const el = document.getElementById('lastRefreshLabel');
+            try {
+                el.textContent = new Date(LAST_REFRESH_ISO).toLocaleString(undefined, {
+                    dateStyle: 'medium',
+                    timeStyle: 'short'
+                });
+            } catch (e) {
+                el.textContent = LAST_REFRESH_ISO;
+            }
+        }
+
+        function showToast(msg) {
+            const t = document.getElementById('toast');
+            t.textContent = msg;
+            t.classList.add('show');
+            clearTimeout(showToast._timer);
+            showToast._timer = setTimeout(() => t.classList.remove('show'), 4500);
+        }
+
+        document.getElementById('refreshBtn').addEventListener('click', function () {
+            this.disabled = true;
+            this.textContent = 'Refreshing…';
+            showToast('Reloading page. For fresh ESPN numbers, ask NBA Fantasy Bot — or wait for the daily 9am CT update.');
+            setTimeout(() => location.reload(), 600);
+        });
+
+        document.getElementById('sortColumn').addEventListener('change', renderCustom);
+        document.getElementById('sortOrder').addEventListener('change', renderCustom);
+
+        showLastRefresh();
+        renderEspn();
+        renderEff();
+        renderCustom();
+    </script>
+</body>
+</html>
