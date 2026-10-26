@@ -254,3 +254,39 @@ html=html.replace('        showLastRefresh();\n', js+'\n        showLastRefresh(
 html=html.replace('        renderCustom();\n    </script>','        renderCustom();\n        renderValue();\n        renderByRound();\n        renderBoard();\n        renderGrades();\n        renderUndrafted();\n    </script>',1)
 open(B+'index.html','w').write(html)
 print('ok',now,len(html))
+
+# ---- tabs: Leaderboard / Draft value ----
+html=open(B+'index.html').read()
+if 'id="panel-leaderboard"' not in html:
+    tab_css='''        .tabs { display: flex; gap: 8px; margin: 6px 0 22px; padding: 6px; background: #f3f0fb; border-radius: 999px; width: fit-content; max-width: 100%; overflow-x: auto; }
+        .tab { border: none; background: transparent; color: #764ba2; font-weight: 700; font-size: 0.95em; padding: 10px 20px; border-radius: 999px; cursor: pointer; white-space: nowrap; font-family: inherit; }
+        .tab:hover { background: rgba(118,75,162,0.1); }
+        .tab.active { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: #fff; box-shadow: 0 2px 8px rgba(118,75,162,0.3); }
+        .tab-panel[hidden] { display: none; }
+        @media (max-width: 600px) { .tabs { width: 100%; } .tab { flex: 1; padding: 10px 8px; font-size: 0.9em; } }
+'''
+    html=html.replace('        .footer {', tab_css+'        .footer {',1)
+    bar='''
+        <nav class="tabs" role="tablist">
+            <button type="button" class="tab active" role="tab" data-tab="leaderboard" aria-selected="true">🏆 Leaderboard</button>
+            <button type="button" class="tab" role="tab" data-tab="draft" aria-selected="false">💎 Draft value</button>
+        </nav>
+        <div class="tab-panel" id="panel-leaderboard" role="tabpanel">
+        <p class="formula">'''
+    html=html.replace('\n        <p class="formula">',bar,1)
+    html=html.replace('\n        <div class="table-section" id="bangForBuck">','\n        </div>\n        <div class="tab-panel" id="panel-draft" role="tabpanel" hidden>\n        <div class="table-section" id="bangForBuck">',1)
+    html=html.replace('\n        <p class="footer">','\n        </div>\n\n        <p class="footer">',1)
+    tab_js='''
+        function showTab(name) {
+            if (name !== 'draft') name = 'leaderboard';
+            document.querySelectorAll('.tab').forEach(b => { const on = b.dataset.tab === name; b.classList.toggle('active', on); b.setAttribute('aria-selected', on); });
+            document.getElementById('panel-leaderboard').hidden = name !== 'leaderboard';
+            document.getElementById('panel-draft').hidden = name !== 'draft';
+            document.title = 'Barchashim League — ' + (name === 'draft' ? 'Draft value' : 'Leaderboard');
+        }
+        document.querySelectorAll('.tab').forEach(b => b.addEventListener('click', () => { history.replaceState(null, '', '#' + b.dataset.tab); showTab(b.dataset.tab); }));
+        window.addEventListener('hashchange', () => showTab(location.hash.slice(1)));
+        showTab(location.hash.slice(1));
+    </script>'''
+    html=html.replace('\n    </script>',tab_js,1) if html.count('</script>')==1 else html.replace('        renderUndrafted();\n    </script>','        renderUndrafted();'+tab_js,1)
+    open(B+'index.html','w').write(html)
