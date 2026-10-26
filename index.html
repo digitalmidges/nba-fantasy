@@ -143,6 +143,25 @@
             text-align: center;
         }
         .toast.show { display: block; }
+        .badge { display: inline-block; padding: 2px 8px; border-radius: 999px; font-size: 0.72em; font-weight: 700; letter-spacing: 0.4px; margin-left: 6px; vertical-align: middle; }
+        .badge.steal { background: #e6f7ee; color: #127a43; }
+        .badge.bust { background: #fdecec; color: #b42318; }
+        .badge.dnp { background: #f0f0f0; color: #666; }
+        .pos { color: #2a8a55; font-weight: 700; }
+        .neg { color: #c0392b; font-weight: 700; }
+        .muted { color: #888; font-size: 0.85em; }
+        .note { background: #f6f3ff; border-left: 4px solid #764ba2; padding: 10px 14px; border-radius: 6px; color: #444; font-size: 0.88em; margin-bottom: 16px; }
+        .board { width: 100%; border-collapse: separate; border-spacing: 4px; }
+        .board th { background: none; color: #333; font-size: 0.75em; white-space: normal; text-align: center; padding: 6px 4px; }
+        .board thead { background: none; }
+        .board td { border: none; border-radius: 6px; padding: 6px 6px; font-size: 0.74em; text-align: center; line-height: 1.25; min-width: 86px; }
+        .board td .p { font-weight: 600; color: #222; }
+        .board td .v { font-size: 0.92em; }
+        .board td.rd { background: none; font-weight: 700; color: #667eea; min-width: 30px; }
+        .board tbody tr:hover { background: none; }
+        .legend { display: flex; flex-wrap: wrap; gap: 10px; font-size: 0.8em; color: #555; margin-bottom: 12px; }
+        .legend span { display: inline-flex; align-items: center; gap: 6px; }
+        .legend i { width: 14px; height: 14px; border-radius: 4px; display: inline-block; }
         .footer {
             text-align: center;
             color: rgba(255,255,255,0.85);
@@ -154,7 +173,7 @@
 <body>
     <div class="container">
         <h1>Barchashim League</h1>
-        <p class="subtitle">2027 · Points per position</p>
+        <p class="subtitle">2027 · Points per position · Draft value</p>
         <div class="toolbar">
             <div class="last-refresh">Last refresh: <span id="lastRefreshLabel">—</span></div>
             <button type="button" class="btn" id="refreshBtn">Refresh now</button>
@@ -241,25 +260,142 @@
             </table>
         </div>
 
-        <p class="footer">Source: ESPN Fantasy league 683874011 · Times show in your device timezone</p>
+        <div class="table-section" id="bangForBuck">
+            <h2>Best bang for the buck</h2>
+            <p class="hint">Who returned the most fantasy points for where they were drafted.</p>
+            <div class="note">Value = overall pick # minus production rank. Production rank orders all drafted players who have played by the average of their FPts-total rank and FPts/G rank (1 = best). +40 means a player is producing about 40 spots better than his draft slot. <b>STEAL</b> = round 4 or later and a top-20 producer, or value +40 and up. <b>BUST</b> = rounds 1–3 and value −25 or worse. Early season: most players have only 2–3 games, so expect big swings.</div>
+            <div class="controls">
+                <div class="control-group">
+                    <label for="valueView">Show:</label>
+                    <select id="valueView">
+                        <option value="steals" selected>Top 15 steals</option>
+                        <option value="busts">Biggest early-round busts</option>
+                        <option value="all">All drafted players</option>
+                    </select>
+                </div>
+                <div class="control-group">
+                    <label for="valueTeam">Team:</label>
+                    <select id="valueTeam"><option value="">All teams</option></select>
+                </div>
+            </div>
+            <table>
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Player</th>
+                        <th>Drafted by</th>
+                        <th class="number">Pick</th>
+                        <th class="number">Rd</th>
+                        <th class="number">FPts</th>
+                        <th class="number">FPts/G</th>
+                        <th class="number">Prod RK</th>
+                        <th class="number">Value</th>
+                    </tr>
+                </thead>
+                <tbody id="tableValue"></tbody>
+            </table>
+        </div>
+
+        <div class="table-section" id="stealsByRound">
+            <h2>Steals by round</h2>
+            <p class="hint">Best and worst return in every round. A low production rank in a late round is the "4th-rounder playing like a 1st-rounder" pick.</p>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Rd</th>
+                        <th>Best pick</th>
+                        <th>Drafted by</th>
+                        <th class="number">Pick</th>
+                        <th class="number">FPts</th>
+                        <th class="number">Prod RK</th>
+                        <th>Worst pick</th>
+                        <th class="number">FPts</th>
+                        <th class="number">Rd avg FPts</th>
+                    </tr>
+                </thead>
+                <tbody id="tableByRound"></tbody>
+            </table>
+        </div>
+
+        <div class="table-section" id="draftBoard">
+            <h2>Draft board</h2>
+            <p class="hint">Every pick by round and team, shaded by value. Green = outperforming the draft slot, red = underperforming.</p>
+            <div class="legend">
+                <span><i style="background:#2a8a55"></i>Value +40 or better</span>
+                <span><i style="background:#9fdcb8"></i>+10 to +39</span>
+                <span><i style="background:#f1f1f1"></i>−9 to +9</span>
+                <span><i style="background:#f6b5ad"></i>−10 to −39</span>
+                <span><i style="background:#d9534f"></i>−40 or worse</span>
+                <span><i style="background:#fff;border:1px dashed #bbb"></i>No games yet</span>
+            </div>
+            <table class="board">
+                <thead><tr id="boardHead"></tr></thead>
+                <tbody id="boardBody"></tbody>
+            </table>
+        </div>
+
+        <div class="table-section" id="draftGrades">
+            <h2>Draft report card</h2>
+            <p class="hint">Fantasy points produced so far by each team's 13 draft picks (including players since dropped). Net value adds up every pick's value score.</p>
+            <table>
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Team</th>
+                        <th class="number">Draft FPts</th>
+                        <th class="number">Net value</th>
+                        <th class="number">Steals</th>
+                        <th class="number">Busts</th>
+                        <th>Best value pick</th>
+                    </tr>
+                </thead>
+                <tbody id="tableGrades"></tbody>
+            </table>
+        </div>
+
+        <div class="table-section" id="undrafted">
+            <h2>Best undrafted pickups</h2>
+            <p class="hint">Waiver adds who weren't drafted, with where they'd rank among the 100 drafted players who have played (by FPts total).</p>
+            <table>
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Player</th>
+                        <th>Team</th>
+                        <th>Pos</th>
+                        <th class="number">FPts</th>
+                        <th class="number">FPts/G</th>
+                        <th class="number">Would rank</th>
+                    </tr>
+                </thead>
+                <tbody id="tableUndrafted"></tbody>
+            </table>
+        </div>
+
+        <p class="footer">Source: ESPN Fantasy league 683874011 · Fantasy points = ESPN points-league scoring · Times show in your device timezone</p>
     </div>
     <div class="toast" id="toast"></div>
 
     <script>
-        const LAST_REFRESH_ISO = "2026-10-25T11:13:32-05:00";
+        const LAST_REFRESH_ISO = "2026-10-25T19:49:27-05:00";
 
         const currentData = [
-            { seasonRk: 1, team: "The Pigs orsurf", fgm: 428, fga: -457, ftm: 111, fta: -147, tpm: 61, reb: 209, ast: 236, stl: 224, blk: 48, to: -150, pts: 600, tot: 1163, gp: 31 },
-            { seasonRk: 2, team: "ER", fgm: 308, fga: -349, ftm: 101, fta: -129, tpm: 27, reb: 211, ast: 332, stl: 140, blk: 44, to: -134, pts: 436, tot: 987, gp: 27 },
-            { seasonRk: 3, team: "Naim Merlon", fgm: 420, fga: -408, ftm: 130, fta: -164, tpm: 56, reb: 161, ast: 144, stl: 132, blk: 60, to: -154, pts: 606, tot: 983, gp: 30 },
-            { seasonRk: 4, team: "Omer's Team", fgm: 358, fga: -418, ftm: 102, fta: -121, tpm: 46, reb: 187, ast: 228, stl: 124, blk: 88, to: -140, pts: 506, tot: 960, gp: 27 },
-            { seasonRk: 5, team: "Team Mamba Mentality", fgm: 360, fga: -355, ftm: 75, fta: -100, tpm: 60, reb: 160, ast: 216, stl: 96, blk: 76, to: -128, pts: 495, tot: 955, gp: 26 },
-            { seasonRk: 6, team: "Israel Samson", fgm: 326, fga: -384, ftm: 107, fta: -138, tpm: 32, reb: 161, ast: 228, stl: 104, blk: 112, to: -116, pts: 465, tot: 897, gp: 25 },
-            { seasonRk: 7, team: "DanKen", fgm: 336, fga: -353, ftm: 104, fta: -134, tpm: 55, reb: 97, ast: 184, stl: 152, blk: 64, to: -124, pts: 495, tot: 876, gp: 25 },
-            { seasonRk: 8, team: "Team The Mushroom", fgm: 320, fga: -365, ftm: 95, fta: -115, tpm: 40, reb: 163, ast: 222, stl: 80, blk: 88, to: -144, pts: 455, tot: 839, gp: 28 }
+            { seasonRk: 1, team: "The Pigs orsurf", fgm: 464, fga: -494, ftm: 123, fta: -166, tpm: 66, reb: 229, ast: 258, stl: 232, blk: 56, to: -166, pts: 653, tot: 1255, gp: 35 },
+            { seasonRk: 2, team: "Omer's Team", fgm: 420, fga: -478, ftm: 124, fta: -146, tpm: 58, reb: 202, ast: 252, stl: 132, blk: 100, to: -150, pts: 602, tot: 1116, gp: 31 },
+            { seasonRk: 3, team: "ER", fgm: 342, fga: -383, ftm: 104, fta: -141, tpm: 32, reb: 235, ast: 342, stl: 156, blk: 48, to: -148, pts: 478, tot: 1065, gp: 32 },
+            { seasonRk: 4, team: "Team Mamba Mentality", fgm: 414, fga: -404, ftm: 86, fta: -115, tpm: 64, reb: 173, ast: 236, stl: 108, blk: 76, to: -150, pts: 564, tot: 1052, gp: 31 },
+            { seasonRk: 5, team: "DanKen", fgm: 398, fga: -418, ftm: 118, fta: -151, tpm: 66, reb: 123, ast: 254, stl: 168, blk: 76, to: -170, pts: 582, tot: 1046, gp: 33 },
+            { seasonRk: 6, team: "Team The Mushroom", fgm: 388, fga: -442, ftm: 112, fta: -136, tpm: 52, reb: 185, ast: 266, stl: 96, blk: 96, to: -168, pts: 552, tot: 1001, gp: 33 },
+            { seasonRk: 7, team: "Naim Merlon", fgm: 428, fga: -421, ftm: 132, fta: -167, tpm: 56, reb: 161, ast: 144, stl: 140, blk: 60, to: -156, pts: 616, tot: 993, gp: 31 },
+            { seasonRk: 8, team: "Israel Samson", fgm: 346, fga: -418, ftm: 111, fta: -143, tpm: 36, reb: 183, ast: 270, stl: 124, blk: 120, to: -132, pts: 493, tot: 990, gp: 29 }
         ].map(t => ({ ...t, avgPts: t.tot / t.gp }));
 
         const MUSHROOM = "Team The Mushroom";
+        const DRAFT = [{"pick":1,"round":1,"pick_in_round":1,"drafted_by":"The Pigs orsurf","current_team":"The Pigs orsurf","player":"Nikola Jokic","position":"C","nba_team":"DEN","status":"rostered","fpts_tot":106.0,"fpts_avg":53.0,"gp_est":2,"prod_rank":15,"value":-14,"steal":false,"bust":false,"played":true},{"pick":2,"round":1,"pick_in_round":2,"drafted_by":"Omer's Team","current_team":"Omer's Team","player":"Shai Gilgeous-Alexander","position":"PG","nba_team":"OKC","status":"rostered","fpts_tot":144.0,"fpts_avg":48.0,"gp_est":3,"prod_rank":5,"value":-3,"steal":false,"bust":false,"played":true},{"pick":3,"round":1,"pick_in_round":3,"drafted_by":"Team The Mushroom","current_team":"Team The Mushroom","player":"Luka Doncic","position":"PG","nba_team":"LAL","status":"rostered","fpts_tot":162.0,"fpts_avg":54.0,"gp_est":3,"prod_rank":1,"value":2,"steal":false,"bust":false,"played":true},{"pick":4,"round":1,"pick_in_round":4,"drafted_by":"Israel Samson","current_team":"Israel Samson","player":"Victor Wembanyama","position":"C","nba_team":"SA","status":"rostered","fpts_tot":130.0,"fpts_avg":43.3,"gp_est":3,"prod_rank":12,"value":-8,"steal":false,"bust":false,"played":true},{"pick":5,"round":1,"pick_in_round":5,"drafted_by":"Naim Merlon","current_team":"Naim Merlon","player":"Giannis Antetokounmpo","position":"PF","nba_team":"MIA","status":"rostered","fpts_tot":128.0,"fpts_avg":42.7,"gp_est":3,"prod_rank":16,"value":-11,"steal":false,"bust":false,"played":true},{"pick":6,"round":1,"pick_in_round":6,"drafted_by":"ER","current_team":"ER","player":"Jalen Johnson","position":"PF","nba_team":"ATL","status":"rostered","fpts_tot":158.0,"fpts_avg":52.7,"gp_est":3,"prod_rank":2,"value":4,"steal":false,"bust":false,"played":true},{"pick":7,"round":1,"pick_in_round":7,"drafted_by":"Team Mamba Mentality","current_team":"Team Mamba Mentality","player":"Cade Cunningham","position":"PG","nba_team":"DET","status":"rostered","fpts_tot":108.0,"fpts_avg":36.0,"gp_est":3,"prod_rank":34,"value":-27,"steal":false,"bust":true,"played":true},{"pick":8,"round":1,"pick_in_round":8,"drafted_by":"DanKen","current_team":"DanKen","player":"Cooper Flagg","position":"SF","nba_team":"DAL","status":"rostered","fpts_tot":96.0,"fpts_avg":48.0,"gp_est":2,"prod_rank":25,"value":-17,"steal":false,"bust":false,"played":true},{"pick":9,"round":2,"pick_in_round":1,"drafted_by":"DanKen","current_team":"DanKen","player":"Tyrese Maxey","position":"PG","nba_team":"PHI","status":"rostered","fpts_tot":157.0,"fpts_avg":39.3,"gp_est":4,"prod_rank":13,"value":-4,"steal":false,"bust":false,"played":true},{"pick":10,"round":2,"pick_in_round":2,"drafted_by":"Team Mamba Mentality","current_team":"Team Mamba Mentality","player":"Anthony Edwards","position":"SG","nba_team":"MIN","status":"rostered","fpts_tot":128.0,"fpts_avg":42.7,"gp_est":3,"prod_rank":18,"value":-8,"steal":false,"bust":false,"played":true},{"pick":11,"round":2,"pick_in_round":3,"drafted_by":"ER","current_team":"ER","player":"Jayson Tatum","position":"PF","nba_team":"BOS","status":"rostered","fpts_tot":96.0,"fpts_avg":48.0,"gp_est":2,"prod_rank":28,"value":-17,"steal":false,"bust":false,"played":true},{"pick":12,"round":2,"pick_in_round":4,"drafted_by":"Naim Merlon","current_team":"Naim Merlon","player":"Donovan Mitchell","position":"SG","nba_team":"CLE","status":"rostered","fpts_tot":88.0,"fpts_avg":44.0,"gp_est":2,"prod_rank":36,"value":-24,"steal":false,"bust":false,"played":true},{"pick":13,"round":2,"pick_in_round":5,"drafted_by":"Israel Samson","current_team":"Israel Samson","player":"Scottie Barnes","position":"SF","nba_team":"TOR","status":"rostered","fpts_tot":97.0,"fpts_avg":32.3,"gp_est":3,"prod_rank":51,"value":-38,"steal":false,"bust":true,"played":true},{"pick":14,"round":2,"pick_in_round":6,"drafted_by":"Team The Mushroom","current_team":"Team The Mushroom","player":"Jalen Brunson","position":"PG","nba_team":"NY","status":"rostered","fpts_tot":73.0,"fpts_avg":24.3,"gp_est":3,"prod_rank":71,"value":-57,"steal":false,"bust":true,"played":true},{"pick":15,"round":2,"pick_in_round":7,"drafted_by":"Omer's Team","current_team":"Omer's Team","player":"Deni Avdija","position":"SF","nba_team":"POR","status":"rostered","fpts_tot":79.0,"fpts_avg":39.5,"gp_est":2,"prod_rank":47,"value":-32,"steal":false,"bust":true,"played":true},{"pick":16,"round":2,"pick_in_round":8,"drafted_by":"The Pigs orsurf","current_team":"The Pigs orsurf","player":"Karl-Anthony Towns","position":"C","nba_team":"NY","status":"rostered","fpts_tot":106.0,"fpts_avg":35.3,"gp_est":3,"prod_rank":37,"value":-21,"steal":false,"bust":false,"played":true},{"pick":17,"round":3,"pick_in_round":1,"drafted_by":"The Pigs orsurf","current_team":"The Pigs orsurf","player":"Alperen Sengun","position":"C","nba_team":"HOU","status":"rostered","fpts_tot":126.0,"fpts_avg":42.0,"gp_est":3,"prod_rank":19,"value":-2,"steal":false,"bust":false,"played":true},{"pick":18,"round":3,"pick_in_round":2,"drafted_by":"Omer's Team","current_team":"Omer's Team","player":"Amen Thompson","position":"SF","nba_team":"HOU","status":"rostered","fpts_tot":125.0,"fpts_avg":41.7,"gp_est":3,"prod_rank":20,"value":-2,"steal":false,"bust":false,"played":true},{"pick":19,"round":3,"pick_in_round":3,"drafted_by":"Team The Mushroom","current_team":"Team The Mushroom","player":"Devin Booker","position":"PG","nba_team":"PHX","status":"rostered","fpts_tot":106.0,"fpts_avg":53.0,"gp_est":2,"prod_rank":17,"value":2,"steal":false,"bust":false,"played":true},{"pick":20,"round":3,"pick_in_round":4,"drafted_by":"Israel Samson","current_team":"Israel Samson","player":"Tyrese Haliburton","position":"PG","nba_team":"IND","status":"rostered","fpts_tot":151.0,"fpts_avg":50.3,"gp_est":3,"prod_rank":3,"value":17,"steal":false,"bust":false,"played":true},{"pick":21,"round":3,"pick_in_round":5,"drafted_by":"Naim Merlon","current_team":"Naim Merlon","player":"Kevin Durant","position":"PF","nba_team":"HOU","status":"rostered","fpts_tot":114.0,"fpts_avg":38.0,"gp_est":3,"prod_rank":27,"value":-6,"steal":false,"bust":false,"played":true},{"pick":22,"round":3,"pick_in_round":6,"drafted_by":"ER","current_team":"ER","player":"Domantas Sabonis","position":"C","nba_team":"SAC","status":"rostered","fpts_tot":114.0,"fpts_avg":57.0,"gp_est":2,"prod_rank":9,"value":13,"steal":false,"bust":false,"played":true},{"pick":23,"round":3,"pick_in_round":7,"drafted_by":"Team Mamba Mentality","current_team":"Team Mamba Mentality","player":"Evan Mobley","position":"PF","nba_team":"CLE","status":"rostered","fpts_tot":87.0,"fpts_avg":43.5,"gp_est":2,"prod_rank":38,"value":-15,"steal":false,"bust":false,"played":true},{"pick":24,"round":3,"pick_in_round":8,"drafted_by":"DanKen","current_team":"DanKen","player":"LaMelo Ball","position":"PG","nba_team":"MIN","status":"rostered","fpts_tot":80.0,"fpts_avg":26.7,"gp_est":3,"prod_rank":67,"value":-43,"steal":false,"bust":true,"played":true},{"pick":25,"round":4,"pick_in_round":1,"drafted_by":"DanKen","current_team":"DanKen","player":"Jalen Williams","position":"PF","nba_team":"OKC","status":"rostered","fpts_tot":64.0,"fpts_avg":21.3,"gp_est":3,"prod_rank":86,"value":-61,"steal":false,"bust":false,"played":true},{"pick":26,"round":4,"pick_in_round":2,"drafted_by":"Team Mamba Mentality","current_team":"Team Mamba Mentality","player":"Paolo Banchero","position":"PF","nba_team":"ORL","status":"rostered","fpts_tot":90.0,"fpts_avg":45.0,"gp_est":2,"prod_rank":32,"value":-6,"steal":false,"bust":false,"played":true},{"pick":27,"round":4,"pick_in_round":3,"drafted_by":"ER","current_team":"ER","player":"Anthony Davis","position":"C","nba_team":"WSH","status":"rostered","fpts_tot":99.0,"fpts_avg":33.0,"gp_est":3,"prod_rank":46,"value":-19,"steal":false,"bust":false,"played":true},{"pick":28,"round":4,"pick_in_round":4,"drafted_by":"Naim Merlon","current_team":"Naim Merlon","player":"Bam Adebayo","position":"C","nba_team":"MIA","status":"rostered","fpts_tot":91.0,"fpts_avg":30.3,"gp_est":3,"prod_rank":58,"value":-30,"steal":false,"bust":false,"played":true},{"pick":29,"round":4,"pick_in_round":5,"drafted_by":"Israel Samson","current_team":"Israel Samson","player":"Trae Young","position":"PG","nba_team":"WSH","status":"rostered","fpts_tot":129.0,"fpts_avg":43.0,"gp_est":3,"prod_rank":14,"value":15,"steal":true,"bust":false,"played":true},{"pick":30,"round":4,"pick_in_round":6,"drafted_by":"Team The Mushroom","current_team":"Team The Mushroom","player":"Jalen Duren","position":"C","nba_team":"DET","status":"rostered","fpts_tot":63.0,"fpts_avg":31.5,"gp_est":2,"prod_rank":73,"value":-43,"steal":false,"bust":false,"played":true},{"pick":31,"round":4,"pick_in_round":7,"drafted_by":"Omer's Team","current_team":"Omer's Team","player":"Austin Reaves","position":"SG","nba_team":"LAL","status":"rostered","fpts_tot":146.0,"fpts_avg":48.7,"gp_est":3,"prod_rank":4,"value":27,"steal":true,"bust":false,"played":true},{"pick":32,"round":4,"pick_in_round":8,"drafted_by":"The Pigs orsurf","current_team":"The Pigs orsurf","player":"Pascal Siakam","position":"PF","nba_team":"IND","status":"rostered","fpts_tot":106.0,"fpts_avg":35.3,"gp_est":3,"prod_rank":39,"value":-7,"steal":false,"bust":false,"played":true},{"pick":33,"round":5,"pick_in_round":1,"drafted_by":"The Pigs orsurf","current_team":"The Pigs orsurf","player":"Jaylen Brown","position":"SF","nba_team":"PHI","status":"rostered","fpts_tot":136.0,"fpts_avg":34.0,"gp_est":4,"prod_rank":26,"value":7,"steal":false,"bust":false,"played":true},{"pick":34,"round":5,"pick_in_round":2,"drafted_by":"Omer's Team","current_team":"Omer's Team","player":"Naz Reid","position":"C","nba_team":"CHA","status":"rostered","fpts_tot":106.0,"fpts_avg":35.3,"gp_est":3,"prod_rank":40,"value":-6,"steal":false,"bust":false,"played":true},{"pick":35,"round":5,"pick_in_round":3,"drafted_by":"Team The Mushroom","current_team":"Team The Mushroom","player":"Josh Giddey","position":"PG","nba_team":"CHI","status":"rostered","fpts_tot":65.0,"fpts_avg":21.7,"gp_est":3,"prod_rank":82,"value":-47,"steal":false,"bust":false,"played":true},{"pick":36,"round":5,"pick_in_round":4,"drafted_by":"Israel Samson","current_team":"Israel Samson","player":"Kawhi Leonard","position":"SF","nba_team":"TOR","status":"rostered","fpts_tot":75.0,"fpts_avg":37.5,"gp_est":2,"prod_rank":53,"value":-17,"steal":false,"bust":false,"played":true},{"pick":37,"round":5,"pick_in_round":5,"drafted_by":"Naim Merlon","current_team":"Naim Merlon","player":"Jamal Murray","position":"PG","nba_team":"DEN","status":"rostered","fpts_tot":74.0,"fpts_avg":37.0,"gp_est":2,"prod_rank":54,"value":-17,"steal":false,"bust":false,"played":true},{"pick":38,"round":5,"pick_in_round":6,"drafted_by":"ER","current_team":"ER","player":"James Harden","position":"PG","nba_team":"CLE","status":"rostered","fpts_tot":48.0,"fpts_avg":24.0,"gp_est":2,"prod_rank":85,"value":-47,"steal":false,"bust":false,"played":true},{"pick":39,"round":5,"pick_in_round":7,"drafted_by":"Team Mamba Mentality","current_team":"Team Mamba Mentality","player":"Derrick White","position":"SG","nba_team":"BOS","status":"rostered","fpts_tot":65.0,"fpts_avg":32.5,"gp_est":2,"prod_rank":66,"value":-27,"steal":false,"bust":false,"played":true},{"pick":40,"round":5,"pick_in_round":8,"drafted_by":"DanKen","current_team":"DanKen","player":"Darius Garland","position":"PG","nba_team":"LAC","status":"rostered","fpts_tot":90.0,"fpts_avg":30.0,"gp_est":3,"prod_rank":60,"value":-20,"steal":false,"bust":false,"played":true},{"pick":41,"round":6,"pick_in_round":1,"drafted_by":"DanKen","current_team":"DanKen","player":"Zion Williamson","position":"PF","nba_team":"NO","status":"rostered","fpts_tot":113.0,"fpts_avg":37.7,"gp_est":3,"prod_rank":29,"value":12,"steal":false,"bust":false,"played":true},{"pick":42,"round":6,"pick_in_round":2,"drafted_by":"Team Mamba Mentality","current_team":"Team Mamba Mentality","player":"Onyeka Okongwu","position":"C","nba_team":"ATL","status":"rostered","fpts_tot":58.0,"fpts_avg":19.3,"gp_est":3,"prod_rank":91,"value":-49,"steal":false,"bust":false,"played":true},{"pick":43,"round":6,"pick_in_round":3,"drafted_by":"ER","current_team":"ER","player":"LeBron James","position":"SF","nba_team":"PHI","status":"rostered","fpts_tot":71.0,"fpts_avg":23.7,"gp_est":3,"prod_rank":77,"value":-34,"steal":false,"bust":false,"played":true},{"pick":44,"round":6,"pick_in_round":4,"drafted_by":"Naim Merlon","current_team":"Naim Merlon","player":"Stephen Curry","position":"PG","nba_team":"GS","status":"rostered","fpts_tot":64.0,"fpts_avg":32.0,"gp_est":2,"prod_rank":69,"value":-25,"steal":false,"bust":false,"played":true},{"pick":45,"round":6,"pick_in_round":5,"drafted_by":"Israel Samson","current_team":"Israel Samson","player":"Kon Knueppel","position":"SF","nba_team":"CHA","status":"rostered","fpts_tot":null,"fpts_avg":null,"gp_est":null,"prod_rank":null,"value":null,"steal":false,"bust":false,"played":false},{"pick":46,"round":6,"pick_in_round":6,"drafted_by":"Team The Mushroom","current_team":"Team The Mushroom","player":"Desmond Bane","position":"SG","nba_team":"ORL","status":"rostered","fpts_tot":48.0,"fpts_avg":16.0,"gp_est":3,"prod_rank":92,"value":-46,"steal":false,"bust":false,"played":true},{"pick":47,"round":6,"pick_in_round":7,"drafted_by":"Omer's Team","current_team":"Omer's Team","player":"Joel Embiid","position":"C","nba_team":"PHI","status":"rostered","fpts_tot":121.0,"fpts_avg":40.3,"gp_est":3,"prod_rank":22,"value":25,"steal":false,"bust":false,"played":true},{"pick":48,"round":6,"pick_in_round":8,"drafted_by":"The Pigs orsurf","current_team":"The Pigs orsurf","player":"Stephon Castle","position":"PG","nba_team":"SA","status":"rostered","fpts_tot":108.0,"fpts_avg":36.0,"gp_est":3,"prod_rank":35,"value":13,"steal":false,"bust":false,"played":true},{"pick":49,"round":7,"pick_in_round":1,"drafted_by":"The Pigs orsurf","current_team":"The Pigs orsurf","player":"Dyson Daniels","position":"SG","nba_team":"ATL","status":"rostered","fpts_tot":144.0,"fpts_avg":48.0,"gp_est":3,"prod_rank":6,"value":43,"steal":true,"bust":false,"played":true},{"pick":50,"round":7,"pick_in_round":2,"drafted_by":"Omer's Team","current_team":"Omer's Team","player":"Lauri Markkanen","position":"PF","nba_team":"UTAH","status":"rostered","fpts_tot":96.0,"fpts_avg":32.0,"gp_est":3,"prod_rank":55,"value":-5,"steal":false,"bust":false,"played":true},{"pick":51,"round":7,"pick_in_round":3,"drafted_by":"Team The Mushroom","current_team":"Team The Mushroom","player":"Julius Randle","position":"PF","nba_team":"BKN","status":"rostered","fpts_tot":110.0,"fpts_avg":36.7,"gp_est":3,"prod_rank":33,"value":18,"steal":false,"bust":false,"played":true},{"pick":52,"round":7,"pick_in_round":4,"drafted_by":"Israel Samson","current_team":"Israel Samson","player":"Franz Wagner","position":"SF","nba_team":"ORL","status":"rostered","fpts_tot":71.0,"fpts_avg":23.7,"gp_est":3,"prod_rank":78,"value":-26,"steal":false,"bust":false,"played":true},{"pick":53,"round":7,"pick_in_round":5,"drafted_by":"Naim Merlon","current_team":"Naim Merlon","player":"Michael Porter Jr.","position":"SF","nba_team":"BKN","status":"rostered","fpts_tot":111.0,"fpts_avg":37.0,"gp_est":3,"prod_rank":30,"value":23,"steal":false,"bust":false,"played":true},{"pick":54,"round":7,"pick_in_round":6,"drafted_by":"ER","current_team":"ER","player":"De'Aaron Fox","position":"PG","nba_team":"SA","status":"rostered","fpts_tot":132.0,"fpts_avg":44.0,"gp_est":3,"prod_rank":11,"value":43,"steal":true,"bust":false,"played":true},{"pick":55,"round":7,"pick_in_round":7,"drafted_by":"Team Mamba Mentality","current_team":"Team Mamba Mentality","player":"Trey Murphy III","position":"SF","nba_team":"NO","status":"rostered","fpts_tot":80.0,"fpts_avg":26.7,"gp_est":3,"prod_rank":68,"value":-13,"steal":false,"bust":false,"played":true},{"pick":56,"round":7,"pick_in_round":8,"drafted_by":"DanKen","current_team":"DanKen","player":"Nickeil Alexander-Walker","position":"SG","nba_team":"ATL","status":"rostered","fpts_tot":121.0,"fpts_avg":40.3,"gp_est":3,"prod_rank":23,"value":33,"steal":false,"bust":false,"played":true},{"pick":57,"round":8,"pick_in_round":1,"drafted_by":"DanKen","current_team":"DanKen","player":"Keyonte George","position":"PG","nba_team":"UTAH","status":"rostered","fpts_tot":117.0,"fpts_avg":39.0,"gp_est":3,"prod_rank":24,"value":33,"steal":false,"bust":false,"played":true},{"pick":58,"round":8,"pick_in_round":2,"drafted_by":"Team Mamba Mentality","current_team":"Team Mamba Mentality","player":"Damian Lillard","position":"PG","nba_team":"POR","status":"rostered","fpts_tot":80.0,"fpts_avg":40.0,"gp_est":2,"prod_rank":45,"value":13,"steal":false,"bust":false,"played":true},{"pick":59,"round":8,"pick_in_round":3,"drafted_by":"ER","current_team":"Waivers/FA","player":"Mikal Bridges","position":"SF","nba_team":"NY","status":"dropped","fpts_tot":28.0,"fpts_avg":9.3,"gp_est":3,"prod_rank":99,"value":-40,"steal":false,"bust":false,"played":true},{"pick":60,"round":8,"pick_in_round":4,"drafted_by":"Naim Merlon","current_team":"Naim Merlon","player":"Jarrett Allen","position":"C","nba_team":"CLE","status":"rostered","fpts_tot":67.0,"fpts_avg":33.5,"gp_est":2,"prod_rank":64,"value":-4,"steal":false,"bust":false,"played":true},{"pick":61,"round":8,"pick_in_round":5,"drafted_by":"Israel Samson","current_team":"Israel Samson","player":"Walker Kessler","position":"C","nba_team":"LAL","status":"rostered","fpts_tot":135.0,"fpts_avg":45.0,"gp_est":3,"prod_rank":10,"value":51,"steal":true,"bust":false,"played":true},{"pick":62,"round":8,"pick_in_round":6,"drafted_by":"Team The Mushroom","current_team":"Team The Mushroom","player":"Chet Holmgren","position":"C","nba_team":"OKC","status":"rostered","fpts_tot":91.0,"fpts_avg":30.3,"gp_est":3,"prod_rank":59,"value":3,"steal":false,"bust":false,"played":true},{"pick":63,"round":8,"pick_in_round":7,"drafted_by":"Omer's Team","current_team":"Omer's Team","player":"Dejounte Murray","position":"SG","nba_team":"NO","status":"rostered","fpts_tot":141.0,"fpts_avg":47.0,"gp_est":3,"prod_rank":7,"value":56,"steal":true,"bust":false,"played":true},{"pick":64,"round":8,"pick_in_round":8,"drafted_by":"The Pigs orsurf","current_team":"The Pigs orsurf","player":"AJ Dybantsa","position":"SF","nba_team":"WSH","status":"rostered","fpts_tot":null,"fpts_avg":null,"gp_est":null,"prod_rank":null,"value":null,"steal":false,"bust":false,"played":false},{"pick":65,"round":9,"pick_in_round":1,"drafted_by":"The Pigs orsurf","current_team":"The Pigs orsurf","player":"Norman Powell","position":"SG","nba_team":"CHI","status":"rostered","fpts_tot":81.0,"fpts_avg":27.0,"gp_est":3,"prod_rank":65,"value":0,"steal":false,"bust":false,"played":true},{"pick":66,"round":9,"pick_in_round":2,"drafted_by":"Omer's Team","current_team":"Omer's Team","player":"Brandon Miller","position":"SF","nba_team":"CHA","status":"rostered","fpts_tot":61.0,"fpts_avg":20.3,"gp_est":3,"prod_rank":88,"value":-22,"steal":false,"bust":false,"played":true},{"pick":67,"round":9,"pick_in_round":3,"drafted_by":"Team The Mushroom","current_team":"Team The Mushroom","player":"Tyler Herro","position":"SG","nba_team":"MIL","status":"rostered","fpts_tot":111.0,"fpts_avg":37.0,"gp_est":3,"prod_rank":31,"value":36,"steal":false,"bust":false,"played":true},{"pick":68,"round":9,"pick_in_round":4,"drafted_by":"Israel Samson","current_team":"Israel Samson","player":"Cameron Boozer","position":"PF","nba_team":"MEM","status":"rostered","fpts_tot":63.0,"fpts_avg":31.5,"gp_est":2,"prod_rank":74,"value":-6,"steal":false,"bust":false,"played":true},{"pick":69,"round":9,"pick_in_round":5,"drafted_by":"Naim Merlon","current_team":"Naim Merlon","player":"Kyrie Irving","position":"PG","nba_team":"DAL","status":"rostered","fpts_tot":64.0,"fpts_avg":32.0,"gp_est":2,"prod_rank":70,"value":-1,"steal":false,"bust":false,"played":true},{"pick":70,"round":9,"pick_in_round":6,"drafted_by":"ER","current_team":"ER","player":"Rudy Gobert","position":"C","nba_team":"MIN","status":"rostered","fpts_tot":48.0,"fpts_avg":16.0,"gp_est":3,"prod_rank":94,"value":-24,"steal":false,"bust":false,"played":true},{"pick":71,"round":9,"pick_in_round":7,"drafted_by":"Team Mamba Mentality","current_team":"Team Mamba Mentality","player":"Jaren Jackson Jr.","position":"C","nba_team":"UTAH","status":"rostered","fpts_tot":90.0,"fpts_avg":30.0,"gp_est":3,"prod_rank":61,"value":10,"steal":false,"bust":false,"played":true},{"pick":72,"round":9,"pick_in_round":8,"drafted_by":"DanKen","current_team":"Waivers/FA","player":"Kel'el Ware","position":"C","nba_team":"MIL","status":"dropped","fpts_tot":68.0,"fpts_avg":22.7,"gp_est":3,"prod_rank":80,"value":-8,"steal":false,"bust":false,"played":true},{"pick":73,"round":10,"pick_in_round":1,"drafted_by":"DanKen","current_team":"DanKen","player":"Matas Buzelis","position":"SF","nba_team":"CHI","status":"rostered","fpts_tot":61.0,"fpts_avg":20.3,"gp_est":3,"prod_rank":89,"value":-16,"steal":false,"bust":false,"played":true},{"pick":74,"round":10,"pick_in_round":2,"drafted_by":"Team Mamba Mentality","current_team":"Team Mamba Mentality","player":"Ty Jerome","position":"SG","nba_team":"MEM","status":"rostered","fpts_tot":116.0,"fpts_avg":58.0,"gp_est":2,"prod_rank":8,"value":66,"steal":true,"bust":false,"played":true},{"pick":75,"round":10,"pick_in_round":3,"drafted_by":"ER","current_team":"ER","player":"Ja Morant","position":"PG","nba_team":"POR","status":"rostered","fpts_tot":77.0,"fpts_avg":38.5,"gp_est":2,"prod_rank":50,"value":25,"steal":false,"bust":false,"played":true},{"pick":76,"round":10,"pick_in_round":4,"drafted_by":"Naim Merlon","current_team":"Naim Merlon","player":"DeMar DeRozan","position":"SF","nba_team":"DEN","status":"rostered","fpts_tot":20.0,"fpts_avg":10.0,"gp_est":2,"prod_rank":100,"value":-24,"steal":false,"bust":false,"played":true},{"pick":77,"round":10,"pick_in_round":5,"drafted_by":"Israel Samson","current_team":"Israel Samson","player":"Dylan Harper","position":"PG","nba_team":"SA","status":"rostered","fpts_tot":94.0,"fpts_avg":31.3,"gp_est":3,"prod_rank":56,"value":21,"steal":false,"bust":false,"played":true},{"pick":78,"round":10,"pick_in_round":6,"drafted_by":"Team The Mushroom","current_team":"Team The Mushroom","player":"Miles Bridges","position":"SF","nba_team":"PHX","status":"rostered","fpts_tot":49.0,"fpts_avg":24.5,"gp_est":2,"prod_rank":83,"value":-5,"steal":false,"bust":false,"played":true},{"pick":79,"round":10,"pick_in_round":7,"drafted_by":"Omer's Team","current_team":"Omer's Team","player":"OG Anunoby","position":"SF","nba_team":"NY","status":"rostered","fpts_tot":72.0,"fpts_avg":24.0,"gp_est":3,"prod_rank":75,"value":4,"steal":false,"bust":false,"played":true},{"pick":80,"round":10,"pick_in_round":8,"drafted_by":"The Pigs orsurf","current_team":"The Pigs orsurf","player":"Fred VanVleet","position":"PG","nba_team":"HOU","status":"rostered","fpts_tot":83.0,"fpts_avg":41.5,"gp_est":2,"prod_rank":42,"value":38,"steal":false,"bust":false,"played":true},{"pick":81,"round":11,"pick_in_round":1,"drafted_by":"The Pigs orsurf","current_team":"The Pigs orsurf","player":"Caleb Wilson","position":"SF","nba_team":"CHI","status":"rostered","fpts_tot":104.0,"fpts_avg":34.7,"gp_est":3,"prod_rank":41,"value":40,"steal":true,"bust":false,"played":true},{"pick":82,"round":11,"pick_in_round":2,"drafted_by":"Omer's Team","current_team":"Omer's Team","player":"Alex Sarr","position":"C","nba_team":"WSH","status":"rostered","fpts_tot":73.0,"fpts_avg":24.3,"gp_est":3,"prod_rank":72,"value":10,"steal":false,"bust":false,"played":true},{"pick":83,"round":11,"pick_in_round":3,"drafted_by":"Team The Mushroom","current_team":"Waivers/FA","player":"Kristaps Porzingis","position":"C","nba_team":"GS","status":"dropped","fpts_tot":null,"fpts_avg":null,"gp_est":null,"prod_rank":null,"value":null,"steal":false,"bust":false,"played":false},{"pick":84,"round":11,"pick_in_round":4,"drafted_by":"Israel Samson","current_team":"Israel Samson","player":"Donovan Clingan","position":"C","nba_team":"POR","status":"rostered","fpts_tot":57.0,"fpts_avg":28.5,"gp_est":2,"prod_rank":81,"value":3,"steal":false,"bust":false,"played":true},{"pick":85,"round":11,"pick_in_round":5,"drafted_by":"Naim Merlon","current_team":"Naim Merlon","player":"CJ McCollum","position":"SG","nba_team":"ATL","status":"rostered","fpts_tot":71.0,"fpts_avg":23.7,"gp_est":3,"prod_rank":79,"value":6,"steal":false,"bust":false,"played":true},{"pick":86,"round":11,"pick_in_round":6,"drafted_by":"ER","current_team":"ER","player":"Coby White","position":"PG","nba_team":"CHA","status":"rostered","fpts_tot":null,"fpts_avg":null,"gp_est":null,"prod_rank":null,"value":null,"steal":false,"bust":false,"played":false},{"pick":87,"round":11,"pick_in_round":7,"drafted_by":"Team Mamba Mentality","current_team":"Team Mamba Mentality","player":"Ivica Zubac","position":"C","nba_team":"IND","status":"rostered","fpts_tot":65.0,"fpts_avg":21.7,"gp_est":3,"prod_rank":84,"value":3,"steal":false,"bust":false,"played":true},{"pick":88,"round":11,"pick_in_round":8,"drafted_by":"DanKen","current_team":"DanKen","player":"Jaden McDaniels","position":"SF","nba_team":"MIN","status":"rostered","fpts_tot":101.0,"fpts_avg":33.7,"gp_est":3,"prod_rank":44,"value":44,"steal":true,"bust":false,"played":true},{"pick":89,"round":12,"pick_in_round":1,"drafted_by":"DanKen","current_team":"Waivers/FA","player":"Jalen Green","position":"SG","nba_team":"PHX","status":"dropped","fpts_tot":27.0,"fpts_avg":13.5,"gp_est":2,"prod_rank":98,"value":-9,"steal":false,"bust":false,"played":true},{"pick":90,"round":12,"pick_in_round":2,"drafted_by":"Team Mamba Mentality","current_team":"Team Mamba Mentality","player":"VJ Edgecombe","position":"SG","nba_team":"PHI","status":"rostered","fpts_tot":99.0,"fpts_avg":33.0,"gp_est":3,"prod_rank":48,"value":42,"steal":true,"bust":false,"played":true},{"pick":91,"round":12,"pick_in_round":3,"drafted_by":"ER","current_team":"ER","player":"Immanuel Quickley","position":"PG","nba_team":"TOR","status":"rostered","fpts_tot":90.0,"fpts_avg":30.0,"gp_est":3,"prod_rank":63,"value":28,"steal":false,"bust":false,"played":true},{"pick":92,"round":12,"pick_in_round":4,"drafted_by":"Naim Merlon","current_team":"Naim Merlon","player":"Zach LaVine","position":"SG","nba_team":"SAC","status":"rostered","fpts_tot":68.0,"fpts_avg":34.0,"gp_est":2,"prod_rank":62,"value":30,"steal":false,"bust":false,"played":true},{"pick":93,"round":12,"pick_in_round":5,"drafted_by":"Israel Samson","current_team":"Israel Samson","player":"Darius Acuff Jr.","position":"PG","nba_team":"SAC","status":"rostered","fpts_tot":40.0,"fpts_avg":20.0,"gp_est":2,"prod_rank":93,"value":0,"steal":false,"bust":false,"played":true},{"pick":94,"round":12,"pick_in_round":6,"drafted_by":"Team The Mushroom","current_team":"Waivers/FA","player":"Andrew Wiggins","position":"SF","nba_team":"MIA","status":"dropped","fpts_tot":46.0,"fpts_avg":15.3,"gp_est":3,"prod_rank":95,"value":-1,"steal":false,"bust":false,"played":true},{"pick":95,"round":12,"pick_in_round":7,"drafted_by":"Omer's Team","current_team":"Omer's Team","player":"Ausar Thompson","position":"SF","nba_team":"DET","status":"rostered","fpts_tot":48.0,"fpts_avg":24.0,"gp_est":2,"prod_rank":87,"value":8,"steal":false,"bust":false,"played":true},{"pick":96,"round":12,"pick_in_round":8,"drafted_by":"The Pigs orsurf","current_team":"The Pigs orsurf","player":"Paul George","position":"SF","nba_team":"BOS","status":"rostered","fpts_tot":104.0,"fpts_avg":52.0,"gp_est":2,"prod_rank":21,"value":75,"steal":true,"bust":false,"played":true},{"pick":97,"round":13,"pick_in_round":1,"drafted_by":"The Pigs orsurf","current_team":"The Pigs orsurf","player":"Derik Queen","position":"C","nba_team":"NO","status":"rostered","fpts_tot":93.0,"fpts_avg":31.0,"gp_est":3,"prod_rank":57,"value":40,"steal":true,"bust":false,"played":true},{"pick":98,"round":13,"pick_in_round":2,"drafted_by":"Omer's Team","current_team":"Omer's Team","player":"Jaime Jaquez Jr.","position":"SF","nba_team":"MIL","status":"rostered","fpts_tot":97.0,"fpts_avg":32.3,"gp_est":3,"prod_rank":52,"value":46,"steal":true,"bust":false,"played":true},{"pick":99,"round":13,"pick_in_round":3,"drafted_by":"Team The Mushroom","current_team":"Team The Mushroom","player":"Ryan Rollins","position":"SG","nba_team":"MIL","status":"rostered","fpts_tot":72.0,"fpts_avg":24.0,"gp_est":3,"prod_rank":76,"value":23,"steal":false,"bust":false,"played":true},{"pick":100,"round":13,"pick_in_round":4,"drafted_by":"Israel Samson","current_team":"Israel Samson","player":"Payton Pritchard","position":"PG","nba_team":"BOS","status":"rostered","fpts_tot":29.0,"fpts_avg":14.5,"gp_est":2,"prod_rank":96,"value":4,"steal":false,"bust":false,"played":true},{"pick":101,"round":13,"pick_in_round":5,"drafted_by":"Naim Merlon","current_team":"Naim Merlon","player":"Jabari Smith Jr.","position":"PF","nba_team":"HOU","status":"rostered","fpts_tot":102.0,"fpts_avg":34.0,"gp_est":3,"prod_rank":43,"value":58,"steal":true,"bust":false,"played":true},{"pick":102,"round":13,"pick_in_round":6,"drafted_by":"ER","current_team":"ER","player":"Josh Hart","position":"SF","nba_team":"NY","status":"rostered","fpts_tot":98.0,"fpts_avg":32.7,"gp_est":3,"prod_rank":49,"value":53,"steal":true,"bust":false,"played":true},{"pick":103,"round":13,"pick_in_round":7,"drafted_by":"Team Mamba Mentality","current_team":"Waivers/FA","player":"Darryn Peterson","position":"SG","nba_team":"UTAH","status":"dropped","fpts_tot":60.0,"fpts_avg":20.0,"gp_est":3,"prod_rank":90,"value":13,"steal":false,"bust":false,"played":true},{"pick":104,"round":13,"pick_in_round":8,"drafted_by":"DanKen","current_team":"DanKen","player":"Rui Hachimura","position":"PF","nba_team":"LAC","status":"rostered","fpts_tot":36.0,"fpts_avg":12.0,"gp_est":3,"prod_rank":97,"value":7,"steal":false,"bust":false,"played":true}];
+        const DRAFT_TEAMS = ["The Pigs orsurf", "Omer's Team", "Team The Mushroom", "Israel Samson", "Naim Merlon", "ER", "Team Mamba Mentality", "DanKen"];
+        const BY_ROUND = [{"round":1,"best":"Luka Doncic","best_team":"Team The Mushroom","best_pick":3,"best_fpts":162.0,"best_rank":1,"worst":"Cade Cunningham","worst_pick":7,"worst_fpts":108.0,"round_avg_fpts":129.0},{"round":2,"best":"Tyrese Maxey","best_team":"DanKen","best_pick":9,"best_fpts":157.0,"best_rank":13,"worst":"Jalen Brunson","worst_pick":14,"worst_fpts":73.0,"round_avg_fpts":103.0},{"round":3,"best":"Tyrese Haliburton","best_team":"Israel Samson","best_pick":20,"best_fpts":151.0,"best_rank":3,"worst":"LaMelo Ball","worst_pick":24,"worst_fpts":80.0,"round_avg_fpts":112.9},{"round":4,"best":"Austin Reaves","best_team":"Omer's Team","best_pick":31,"best_fpts":146.0,"best_rank":4,"worst":"Jalen Williams","worst_pick":25,"worst_fpts":64.0,"round_avg_fpts":98.5},{"round":5,"best":"Jaylen Brown","best_team":"The Pigs orsurf","best_pick":33,"best_fpts":136.0,"best_rank":26,"worst":"James Harden","worst_pick":38,"worst_fpts":48.0,"round_avg_fpts":82.4},{"round":6,"best":"Joel Embiid","best_team":"Omer's Team","best_pick":47,"best_fpts":121.0,"best_rank":22,"worst":"Desmond Bane","worst_pick":46,"worst_fpts":48.0,"round_avg_fpts":83.3},{"round":7,"best":"Dyson Daniels","best_team":"The Pigs orsurf","best_pick":49,"best_fpts":144.0,"best_rank":6,"worst":"Franz Wagner","worst_pick":52,"worst_fpts":71.0,"round_avg_fpts":108.1},{"round":8,"best":"Dejounte Murray","best_team":"Omer's Team","best_pick":63,"best_fpts":141.0,"best_rank":7,"worst":"Mikal Bridges","worst_pick":59,"worst_fpts":28.0,"round_avg_fpts":94.1},{"round":9,"best":"Tyler Herro","best_team":"Team The Mushroom","best_pick":67,"best_fpts":111.0,"best_rank":31,"worst":"Rudy Gobert","worst_pick":70,"worst_fpts":48.0,"round_avg_fpts":73.2},{"round":10,"best":"Ty Jerome","best_team":"Team Mamba Mentality","best_pick":74,"best_fpts":116.0,"best_rank":8,"worst":"DeMar DeRozan","worst_pick":76,"worst_fpts":20.0,"round_avg_fpts":71.5},{"round":11,"best":"Caleb Wilson","best_team":"The Pigs orsurf","best_pick":81,"best_fpts":104.0,"best_rank":41,"worst":"Ivica Zubac","worst_pick":87,"worst_fpts":65.0,"round_avg_fpts":78.5},{"round":12,"best":"Paul George","best_team":"The Pigs orsurf","best_pick":96,"best_fpts":104.0,"best_rank":21,"worst":"Jalen Green","worst_pick":89,"worst_fpts":27.0,"round_avg_fpts":65.2},{"round":13,"best":"Jabari Smith Jr.","best_team":"Naim Merlon","best_pick":101,"best_fpts":102.0,"best_rank":43,"worst":"Rui Hachimura","worst_pick":104,"worst_fpts":36.0,"round_avg_fpts":73.4}];
+        const TEAM_GRADES = [{"team":"Omer's Team","draft_fpts":1309.0,"value_sum":106,"steals":3,"busts":1,"dnp":0,"best_value_pick":"Dejounte Murray","best_value":56},{"team":"The Pigs orsurf","draft_fpts":1297.0,"value_sum":212,"steals":4,"busts":0,"dnp":1,"best_value_pick":"Paul George","best_value":75},{"team":"DanKen","draft_fpts":1131.0,"value_sum":-49,"steals":1,"busts":1,"dnp":0,"best_value_pick":"Jaden McDaniels","best_value":44},{"team":"Team Mamba Mentality","draft_fpts":1126.0,"value_sum":2,"steals":2,"busts":1,"dnp":0,"best_value_pick":"Ty Jerome","best_value":66},{"team":"Israel Samson","draft_fpts":1071.0,"value_sum":16,"steals":2,"busts":1,"dnp":1,"best_value_pick":"Walker Kessler","best_value":51},{"team":"Naim Merlon","draft_fpts":1062.0,"value_sum":-25,"steals":1,"busts":0,"dnp":0,"best_value_pick":"Jabari Smith Jr.","best_value":58},{"team":"ER","draft_fpts":1059.0,"value_sum":-15,"steals":2,"busts":0,"dnp":1,"best_value_pick":"Josh Hart","best_value":53},{"team":"Team The Mushroom","draft_fpts":996.0,"value_sum":-115,"steals":0,"busts":1,"dnp":1,"best_value_pick":"Tyler Herro","best_value":36}];
+        const UNDRAFTED = [{"player":"Davion Mitchell","fantasy_team":"Team The Mushroom","position":"PG","fpts_tot":112.0,"fpts_avg":37.3,"would_rank":25},{"player":"Yaxel Lendeborg","fantasy_team":"DanKen","position":"SF, PF","fpts_tot":108.0,"fpts_avg":36.0,"would_rank":28},{"player":"Wendell Carter Jr.","fantasy_team":"DanKen","position":"C","fpts_tot":103.0,"fpts_avg":34.3,"would_rank":37},{"player":"Jaxson Hayes","fantasy_team":"ER","position":"C","fpts_tot":102.0,"fpts_avg":34.0,"would_rank":37},{"player":"RJ Barrett","fantasy_team":"Team Mamba Mentality","position":"SF, SG","fpts_tot":100.0,"fpts_avg":33.3,"would_rank":39},{"player":"Andrew Nembhard","fantasy_team":"DanKen","position":"PG, SG","fpts_tot":94.0,"fpts_avg":31.3,"would_rank":47},{"player":"Naji Marshall","fantasy_team":"Team Mamba Mentality","position":"SF, PF","fpts_tot":93.0,"fpts_avg":31.0,"would_rank":48},{"player":"Moussa Diabate","fantasy_team":"Team The Mushroom","position":"PF, C","fpts_tot":88.0,"fpts_avg":29.3,"would_rank":55},{"player":"Ayo Dosunmu","fantasy_team":"The Pigs orsurf","position":"SG, PG","fpts_tot":84.0,"fpts_avg":28.0,"would_rank":57}];
 
         function fmtAvg(n) { return n.toFixed(2); }
         function num(n) { return n.toLocaleString(); }
@@ -357,10 +493,108 @@
         document.getElementById('sortColumn').addEventListener('change', renderCustom);
         document.getElementById('sortOrder').addEventListener('change', renderCustom);
 
+
+        function esc(s) { return String(s == null ? '' : s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
+        function fmtVal(v) { if (v == null) return '<span class="muted">—</span>'; return '<span class="' + (v > 0 ? 'pos' : v < 0 ? 'neg' : '') + '">' + (v > 0 ? '+' : '') + v + '</span>'; }
+        function fnum(n, d) { return n == null ? '<span class="muted">—</span>' : (d ? n.toFixed(d) : num(n)); }
+        function badges(p) {
+            let b = '';
+            if (p.steal) b += '<span class="badge steal">STEAL</span>';
+            if (p.bust) b += '<span class="badge bust">BUST</span>';
+            if (!p.played) b += '<span class="badge dnp">NO GAMES</span>';
+            if (p.status === 'dropped') b += '<span class="badge dnp">DROPPED</span>';
+            return b;
+        }
+        function renderValue() {
+            const view = document.getElementById('valueView').value;
+            const team = document.getElementById('valueTeam').value;
+            let list = DRAFT.filter(p => !team || p.drafted_by === team);
+            if (view === 'steals') list = list.filter(p => p.played).sort((a, b) => b.value - a.value).slice(0, 15);
+            else if (view === 'busts') list = list.filter(p => p.played && p.round <= 4).sort((a, b) => a.value - b.value).slice(0, 10);
+            else list = list.sort((a, b) => (b.value == null ? -999 : b.value) - (a.value == null ? -999 : a.value));
+            document.getElementById('tableValue').innerHTML = list.map((p, i) =>
+                '<tr><td class="rank">' + (i + 1) + '</td>' +
+                '<td class="team">' + esc(p.player) + ' <span class="muted">' + esc(p.position) + ' · ' + esc(p.nba_team) + '</span>' + badges(p) + '</td>' +
+                '<td>' + esc(p.drafted_by) + '</td>' +
+                '<td class="number">' + p.pick + '</td>' +
+                '<td class="number">' + p.round + '</td>' +
+                '<td class="number">' + fnum(p.fpts_tot) + '</td>' +
+                '<td class="number">' + fnum(p.fpts_avg, 1) + '</td>' +
+                '<td class="number">' + (p.prod_rank == null ? '<span class="muted">—</span>' : p.prod_rank) + '</td>' +
+                '<td class="number tot">' + fmtVal(p.value) + '</td></tr>').join('');
+        }
+        function renderByRound() {
+            document.getElementById('tableByRound').innerHTML = BY_ROUND.map(r =>
+                '<tr><td class="rank">' + r.round + '</td>' +
+                '<td class="team">' + esc(r.best) + (r.round >= 4 && r.best_rank <= 20 ? '<span class="badge steal">STEAL</span>' : '') + '</td>' +
+                '<td>' + esc(r.best_team) + '</td>' +
+                '<td class="number">' + r.best_pick + '</td>' +
+                '<td class="number">' + num(r.best_fpts) + '</td>' +
+                '<td class="number tot">' + r.best_rank + '</td>' +
+                '<td>' + esc(r.worst) + ' <span class="muted">#' + r.worst_pick + '</span></td>' +
+                '<td class="number">' + num(r.worst_fpts) + '</td>' +
+                '<td class="number">' + r.round_avg_fpts.toFixed(1) + '</td></tr>').join('');
+        }
+        function cellColor(p) {
+            if (!p.played) return 'background:#fff;border:1px dashed #bbb';
+            const v = p.value;
+            if (v >= 40) return 'background:#2a8a55;color:#fff';
+            if (v >= 10) return 'background:#9fdcb8';
+            if (v > -10) return 'background:#f1f1f1';
+            if (v > -40) return 'background:#f6b5ad';
+            return 'background:#d9534f;color:#fff';
+        }
+        function renderBoard() {
+            document.getElementById('boardHead').innerHTML = '<th>Rd</th>' + DRAFT_TEAMS.map(t => '<th>' + esc(t) + '</th>').join('');
+            let body = '';
+            for (let r = 1; r <= 13; r++) {
+                body += '<tr><td class="rd">' + r + '</td>' + DRAFT_TEAMS.map(t => {
+                    const p = DRAFT.find(x => x.round === r && x.drafted_by === t);
+                    if (!p) return '<td></td>';
+                    const strong = p.played && p.value >= 40 || p.played && p.value <= -40;
+                    return '<td style="' + cellColor(p) + '" title="#' + p.pick + ' ' + esc(p.player) + ' — ' + (p.played ? p.fpts_tot + ' FPts, value ' + (p.value > 0 ? '+' : '') + p.value : 'no games yet') + '">' +
+                        '<div class="p"' + (strong ? ' style="color:#fff"' : '') + '>' + esc(p.player) + '</div>' +
+                        '<div class="v">#' + p.pick + ' · ' + (p.played ? (p.value > 0 ? '+' : '') + p.value : '—') + '</div></td>';
+                }).join('') + '</tr>';
+            }
+            document.getElementById('boardBody').innerHTML = body;
+        }
+        function renderGrades() {
+            document.getElementById('tableGrades').innerHTML = TEAM_GRADES.map((t, i) =>
+                '<tr' + (t.team === MUSHROOM ? ' class="highlight"' : '') + '><td class="rank">' + (i + 1) + '</td>' +
+                '<td class="team">' + esc(t.team) + '</td>' +
+                '<td class="number tot">' + num(t.draft_fpts) + '</td>' +
+                '<td class="number">' + fmtVal(t.value_sum) + '</td>' +
+                '<td class="number">' + t.steals + '</td>' +
+                '<td class="number">' + t.busts + '</td>' +
+                '<td>' + esc(t.best_value_pick) + ' <span class="muted">(' + (t.best_value > 0 ? '+' : '') + t.best_value + ')</span></td></tr>').join('');
+        }
+        function renderUndrafted() {
+            document.getElementById('tableUndrafted').innerHTML = UNDRAFTED.map((u, i) =>
+                '<tr><td class="rank">' + (i + 1) + '</td>' +
+                '<td class="team">' + esc(u.player) + '</td>' +
+                '<td>' + esc(u.fantasy_team) + '</td>' +
+                '<td>' + esc(u.position) + '</td>' +
+                '<td class="number tot">' + num(u.fpts_tot) + '</td>' +
+                '<td class="number">' + u.fpts_avg.toFixed(1) + '</td>' +
+                '<td class="number">' + u.would_rank + '</td></tr>').join('');
+        }
+        (function initTeamFilter() {
+            const sel = document.getElementById('valueTeam');
+            DRAFT_TEAMS.slice().sort().forEach(t => { const o = document.createElement('option'); o.value = t; o.textContent = t; sel.appendChild(o); });
+        })();
+        document.getElementById('valueView').addEventListener('change', renderValue);
+        document.getElementById('valueTeam').addEventListener('change', renderValue);
+
         showLastRefresh();
         renderEspn();
         renderEff();
         renderCustom();
+        renderValue();
+        renderByRound();
+        renderBoard();
+        renderGrades();
+        renderUndrafted();
     </script>
 </body>
 </html>
