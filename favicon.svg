@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="Basketball">
+  <defs>
+    <clipPath id="clip">
+      <circle cx="32" cy="32" r="28"/>
+    </clipPath>
+  </defs>
+  <circle cx="32" cy="32" r="30" fill="#f26a1b"/>
+  <g clip-path="url(#clip)" fill="none" stroke="#1a120e" stroke-width="4" stroke-linecap="round">
+    <path d="M32 2 V62"/>
+    <path d="M2 32 H62"/>
+    <path d="M17 4 C6 16 6 48 17 60"/>
+    <path d="M47 4 C58 16 58 48 47 60"/>
+  </g>
+  <circle cx="32" cy="32" r="30" fill="none" stroke="#1a120e" stroke-width="3.2"/>
+</svg>

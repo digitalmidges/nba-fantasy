@@ -3,6 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="favicon.svg" type="image/svg+xml">
+    <link rel="icon" href="favicon.ico" sizes="any">
+    <link rel="apple-touch-icon" href="apple-touch-icon.png">
     <title>Barchashim — Points per Position</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -19,6 +22,13 @@
             margin-bottom: 8px;
             font-size: 2.5em;
             text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+        }
+        h1 .ball {
+            display: inline-block;
+            width: 0.82em;
+            height: 0.82em;
+            vertical-align: middle;
+            margin-right: 0.22em;
         }
         .subtitle {
             text-align: center;
@@ -178,7 +188,7 @@
 </head>
 <body>
     <div class="container">
-        <h1>Barchashim League</h1>
+        <h1><img class="ball" src="favicon.svg" alt="" width="46" height="46">Barchashim League</h1>
         <p class="subtitle">2027 · Points per position · Draft value</p>
         <div class="toolbar">
             <div class="last-refresh">Last refresh: <span id="lastRefreshLabel">—</span></div>

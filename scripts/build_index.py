@@ -290,3 +290,28 @@ if 'id="panel-leaderboard"' not in html:
     </script>'''
     html=html.replace('\n    </script>',tab_js,1) if html.count('</script>')==1 else html.replace('        renderUndrafted();\n    </script>','        renderUndrafted();'+tab_js,1)
     open(B+'index.html','w').write(html)
+
+# ---- favicon: keep the basketball icon across PPG rebuilds ----
+html=open(B+'index.html').read()
+changed=False
+if 'href="favicon.svg"' not in html:
+    icon_links=('    <link rel="icon" href="favicon.svg" type="image/svg+xml">\n'
+                '    <link rel="icon" href="favicon.ico" sizes="any">\n'
+                '    <link rel="apple-touch-icon" href="apple-touch-icon.png">\n')
+    if '    <title>' in html:
+        html=html.replace('    <title>', icon_links+'    <title>', 1)
+    else:
+        html=html.replace('<title>', icon_links+'<title>', 1)
+    changed=True
+if 'h1 .ball' not in html:
+    ball_css='        h1 .ball { display: inline-block; width: 0.82em; height: 0.82em; vertical-align: middle; margin-right: 0.22em; }\n'
+    if '        .footer {' in html:
+        html=html.replace('        .footer {', ball_css+'        .footer {', 1)
+    else:
+        html=html.replace('    </style>', ball_css+'    </style>', 1)
+    changed=True
+if 'class="ball"' not in html:
+    html=html.replace('<h1>Barchashim League</h1>', '<h1><img class="ball" src="favicon.svg" alt="" width="46" height="46">Barchashim League</h1>', 1)
+    changed=True
+if changed:
+    open(B+'index.html','w').write(html)
