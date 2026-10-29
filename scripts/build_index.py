@@ -785,7 +785,64 @@ def ensure_controls(html):
     </script>''', 1)
     return html
 
+def ensure_retro(html):
+    # Draft retro reads the baked DRAFT + UNDRAFTED snapshot. Live ESPN player stats are not scraped here.
+    if 'data-tab="retro"' not in html:
+        html = html.replace(
+            '<button type="button" class="tab" role="tab" data-tab="draft" aria-selected="false">Draft value</button>',
+            '<button type="button" class="tab" role="tab" data-tab="draft" aria-selected="false">Draft value</button>\n            <button type="button" class="tab" role="tab" data-tab="retro" aria-selected="false">Draft retro</button>',
+            1)
+    if 'id="panel-retro"' not in html and '<p class="footer">' in html:
+        html = html.replace('<p class="footer">', '''<div class="tab-panel" id="panel-retro" role="tabpanel" hidden>
+        <div class="draft-refresh"><span>Draft stats <span class="draftRefreshLabel">—</span></span>
+            <button type="button" class="icon-btn draft-refresh-btn" aria-label="Refresh draft stats" title="Refresh draft stats">↻</button></div>
+        <div class="view-pills" id="retroTeams" role="tablist"></div>
+        <div class="section-head"><h2 id="retroTeamName">Team The Mushroom</h2><p class="formula" id="retroSummary">—</p></div>
+        <div class="retro-list" id="retroCards"></div>
+        </div>
+        <p class="footer">''', 1)
+    if 'DRAFT_REFRESH_ISO' not in html:
+        html = html.replace('const LAST_REFRESH_ISO = "', 'const DRAFT_REFRESH_ISO = "";\n        // Filled from draft_value.json generated_at when the rebuild embeds picks.\n        const LAST_REFRESH_ISO = "', 1)
+    if 'function renderRetro(' not in html and 'function showTab(' in html:
+        html = html.replace('function showTab(name) {', '''function renderRetro() {
+            const teams = [MUSHROOM].concat((typeof DRAFT_TEAMS === 'undefined' ? [] : DRAFT_TEAMS).filter(t => t !== MUSHROOM));
+            const picker = document.getElementById('retroTeams');
+            if (!picker || typeof DRAFT === 'undefined') return;
+            let retroTeam = (picker.querySelector('.pill.active') || {}).dataset ? picker.querySelector('.pill.active').dataset.team : MUSHROOM;
+            if (!retroTeam) retroTeam = MUSHROOM;
+            picker.innerHTML = teams.map(t => '<button type="button" class="pill' + (t === retroTeam ? ' active' : '') + '" data-team="' + esc(t) + '">' + esc(t) + '</button>').join('');
+            const picks = DRAFT.filter(p => p.drafted_by === retroTeam).sort((a, b) => a.pick - b.pick);
+            let hits = 0, biggest = null;
+            const poolOf = (n) => DRAFT.filter(p => p.pick >= n).concat((typeof UNDRAFTED === 'undefined' ? [] : UNDRAFTED).map(u => ({ player: u.player, fpts_tot: u.fpts_tot, fpts_avg: u.fpts_avg, prod_rank: null, would_rank: u.would_rank, played: u.fpts_tot != null, drafted_by: null })));
+            const rankOf = (p) => p.prod_rank != null ? p.prod_rank : (p.would_rank != null ? p.would_rank : null);
+            const better = (a, b) => { if (a.played && !b.played) return true; if (b.played && !a.played) return false; const ar = rankOf(a), br = rankOf(b); if (ar != null && br != null && ar !== br) return ar < br; return (a.fpts_avg || -1) > (b.fpts_avg || -1); };
+            document.getElementById('retroCards').innerHTML = picks.map(p => {
+                const pool = poolOf(p.pick);
+                const best = pool.reduce((b, x) => b && !better(x, b) ? b : x, null);
+                const hit = best && best.player === p.player;
+                if (hit) hits++; else if (!biggest || (rankOf(p) || 999) - (rankOf(best) || 0) > biggest.gap) biggest = { gap: (rankOf(p) || 999) - (rankOf(best) || 0), pick: p.pick, took: p.player, best: best.player };
+                return '<article class="retro-card ' + (hit ? 'hit' : 'miss') + '"><div class="retro-kicker">Round ' + p.round + ' · Pick ' + p.pick + '</div><div class="retro-name">You took ' + esc(p.player) + '</div><div class="retro-meta">' + (best ? ('Best available: ' + esc(best.player) + (best.drafted_by ? (' · drafted by ' + esc(best.drafted_by)) : ' · Undrafted')) : '') + '</div><div class="' + (hit ? 'tag-hit' : 'tag-miss') + '">' + (hit ? 'Took the best available' : 'Left value on the board') + '</div></article>';
+            }).join('');
+            const sum = document.getElementById('retroSummary');
+            if (sum) sum.textContent = hits + ' of ' + picks.length + ' picks were the best available.' + (biggest ? (' Biggest miss: pick ' + biggest.pick + ', you took ' + biggest.took + ', best available was ' + biggest.best + '.') : '');
+            const name = document.getElementById('retroTeamName');
+            if (name) name.textContent = retroTeam;
+        }
+        document.getElementById('retroTeams') && document.getElementById('retroTeams').addEventListener('click', function (e) {
+            const btn = e.target.closest('[data-team]'); if (!btn) return;
+            this.querySelectorAll('.pill').forEach(p => p.classList.toggle('active', p === btn));
+            renderRetro();
+        });
+        function showTab(name) {''', 1)
+        html = html.replace("if (name !== 'draft') name = 'leaderboard';", "if (name !== 'draft' && name !== 'retro') name = 'leaderboard';", 1)
+        if "getElementById('panel-retro')" not in html:
+            html = html.replace("document.getElementById('panel-draft').hidden = name !== 'draft';",
+                                "document.getElementById('panel-draft').hidden = name !== 'draft';\n            const retro = document.getElementById('panel-retro'); if (retro) retro.hidden = name !== 'retro';", 1)
+        if 'renderRetro();' not in html.split('function renderRetro')[-1]:
+            html = html.replace('showTab(location.hash.slice(1));', 'renderRetro();\n        showTab(location.hash.slice(1));', 1)
+    return html
+
 html=open(B+'index.html').read()
-_layout=ensure_controls(ensure_draft_mobile(ensure_responsive_layout(html)))
+_layout=ensure_retro(ensure_controls(ensure_draft_mobile(ensure_responsive_layout(html))))
 if _layout!=html:
     open(B+'index.html','w').write(_layout)
