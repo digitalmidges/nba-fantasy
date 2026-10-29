@@ -328,15 +328,23 @@ HEADER = '''    <header class="topbar">
                 <p class="tagline">Season points ÷ games</p>
             </div>
         </div>
-        <button type="button" class="chip" id="refreshBtn" aria-label="Refresh standings">
-            <svg class="chip-icon" viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><circle cx="12" cy="12" r="8" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 8.5V12l2.4 1.6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-            <span class="chip-label"><span class="chip-prefix-short">Updated </span><span class="chip-prefix-long">Last updated: </span><span id="lastRefreshLabel">—</span></span>
-            <svg class="chip-refresh" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M20 12a8 8 0 1 1-2.3-5.7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M20 4v5h-5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-        </button>
+        <div class="stamp">
+            <span class="stamp-text"><span class="chip-prefix-short">Updated </span><span class="chip-prefix-long">Updated </span><span id="lastRefreshLabel">—</span></span>
+            <button type="button" class="icon-btn" id="refreshBtn" aria-label="Refresh">
+                <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M20 12a8 8 0 1 1-2.3-5.7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M20 4v5h-5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </button>
+        </div>
     </header>
 '''
 
-LEADERBOARD = '''        <p class="formula">Avg = season points ÷ games</p>
+LEADERBOARD = '''        <div class="section-head">
+            <h2>Leaderboard</h2>
+            <p class="formula">Avg = season points ÷ games</p>
+        </div>
+        <div class="mode-pills" id="rankMode" role="tablist">
+            <button type="button" class="pill active" data-mode="avg" aria-selected="true">Avg</button>
+            <button type="button" class="pill" data-mode="total" aria-selected="false">Total</button>
+        </div>
         <div class="cards" id="teamCards"></div>
         <div class="board-wrap">
             <table class="slim">
@@ -351,6 +359,25 @@ LEADERBOARD = '''        <p class="formula">Avg = season points ÷ games</p>
                     </tr>
                 </thead>
                 <tbody id="tableSlim"></tbody>
+            </table>
+        </div>
+        <div class="section-head spaced">
+            <h2>Season totals</h2>
+            <p class="formula">ESPN order · season points and games</p>
+        </div>
+        <div class="cards" id="seasonCards"></div>
+        <div class="board-wrap">
+            <table class="slim">
+                <thead>
+                    <tr>
+                        <th>Rank</th>
+                        <th>Team</th>
+                        <th>Owner</th>
+                        <th class="number">Total</th>
+                        <th class="number">Games</th>
+                    </tr>
+                </thead>
+                <tbody id="tableSeason"></tbody>
             </table>
         </div>
 '''
@@ -631,7 +658,134 @@ def ensure_draft_mobile(html):
             html = html.replace('renderUndrafted();\n', 'renderUndrafted();\n        renderWorst();\n', 1)
     return html
 
+def ensure_controls(html):
+    if 'id="rankMode"' not in html and 'id="teamCards"' in html and '<p class="formula">Avg = season points ÷ games</p>' in html:
+        html = html.replace('<p class="formula">Avg = season points ÷ games</p>\n        <div class="cards" id="teamCards"></div>',
+                            LEADERBOARD.split('<div class="cards" id="teamCards"></div>')[0] + '<div class="cards" id="teamCards"></div>', 1)
+        old_tail = '''                <tbody id="tableSlim"></tbody>
+            </table>
+        </div>
+
+        </div>'''
+        new_tail = '''                <tbody id="tableSlim"></tbody>
+            </table>
+        </div>
+''' + LEADERBOARD.split('<tbody id="tableSlim"></tbody>')[1]
+        # LEADERBOARD tail includes season board but not the panel close. Keep panel close.
+        if 'id="tableSeason"' not in html and 'id="tableSlim"' in html:
+            season = '''
+        <div class="section-head spaced">
+            <h2>Season totals</h2>
+            <p class="formula">ESPN order · season points and games</p>
+        </div>
+        <div class="cards" id="seasonCards"></div>
+        <div class="board-wrap">
+            <table class="slim">
+                <thead><tr><th>Rank</th><th>Team</th><th>Owner</th><th class="number">Total</th><th class="number">Games</th></tr></thead>
+                <tbody id="tableSeason"></tbody>
+            </table>
+        </div>
+'''
+            needle = '                <tbody id="tableSlim"></tbody>\n            </table>\n        </div>\n'
+            if needle in html:
+                html = html.replace(needle, needle + season, 1)
+    if 'class="icon-btn"' not in html and '<button type="button" class="chip" id="refreshBtn"' in html:
+        i = html.find('<button type="button" class="chip" id="refreshBtn"')
+        j = html.find('</button>', i)
+        stamp = HEADER[HEADER.find('<div class="stamp">'):HEADER.find('    </header>')].strip()
+        html = html[:i] + stamp + html[j+len('</button>'):]
+    if '.mode-pills' not in html and '    </style>' in html:
+        html = html.replace('    </style>', '''        .stamp { display: flex; align-items: center; gap: 8px; color: #fff; font-size: 0.75rem; font-weight: 650; }
+        .icon-btn { width: 34px; height: 34px; border-radius: 999px; border: 1px solid rgba(255,255,255,0.5); background: transparent; color: #fff; display: inline-flex; align-items: center; justify-content: center; cursor: pointer; padding: 0; }
+        .section-head h2 { margin: 0 0 2px; font-size: 1.45rem; color: #1c1730; }
+        .section-head.spaced { margin-top: 28px; }
+        .mode-pills, .view-pills { display: flex; flex-wrap: wrap; gap: 8px; margin: 0 0 14px; }
+        .pill { border: none; background: #fff; color: #5c5678; font-weight: 700; border-radius: 999px; padding: 8px 12px; cursor: pointer; font-family: inherit; }
+        .pill.active { background: #6841c9; color: #fff; }
+        .card .subtot { color: #a39eb6; font-size: 0.75rem; }
+        table.slim td.hot { color: #6236d4; font-weight: 800; }
+        table.slim td.muted-num { color: #9a94ad; font-weight: 500; }
+        #panel-draft .table-section[hidden] { display: none !important; }
+    </style>''', 1)
+    if 'id="draftPills"' not in html and 'id="panel-draft"' in html:
+        pills = '''        <div class="view-pills" id="draftPills" role="tablist">
+            <button type="button" class="pill" data-view="worst">Worst drafts</button>
+            <button type="button" class="pill active" data-view="steals" aria-selected="true">Top 15 steals</button>
+            <button type="button" class="pill" data-view="busts">Biggest busts</button>
+            <button type="button" class="pill" data-view="all">All drafted</button>
+            <button type="button" class="pill" data-view="rounds">Steals by round</button>
+            <button type="button" class="pill" data-view="board">Draft board</button>
+            <button type="button" class="pill" data-view="grades">Team grades</button>
+            <button type="button" class="pill" data-view="undrafted">Undrafted</button>
+        </div>
+'''
+        html = html.replace('<div class="tab-panel" id="panel-draft" role="tabpanel" hidden>\n',
+                            '<div class="tab-panel" id="panel-draft" role="tabpanel" hidden>\n' + pills, 1)
+        start = html.find('id="panel-draft"')
+        end = html.find('<p class="footer">')
+        if start != -1 and end != -1:
+            mid = html[start:end]
+            mid = re.sub(r'\s*<div class="note">.*?</div>', '', mid, flags=re.S)
+            mid = re.sub(r'\s*<p class="hint">.*?</p>', '', mid)
+            mid = re.sub(r'\s*<div class="controls">[\s\S]*?\n            <div class="m-only" id="valueCards">', '\n            <div class="m-only" id="valueCards">', mid, count=1)
+            mid = mid.replace('<h2>Best bang for the buck</h2>', '<h2 id="valueTitle">Top 15 steals</h2>')
+            for sid in ['worstDrafts', 'stealsByRound', 'draftBoard', 'draftGrades', 'undrafted']:
+                mid = mid.replace('<div class="table-section" id="%s">' % sid, '<div class="table-section" id="%s" hidden>' % sid)
+            html = html[:start] + mid + html[end:]
+        html = html.replace("        document.getElementById('valueView').addEventListener('change', renderValue);\n", '')
+        html = html.replace("        document.getElementById('valueTeam').addEventListener('change', renderValue);\n", '')
+        html = re.sub(r'\n        \(function initTeamFilter\(\) \{.*?\}\)\(\);\n', '\n', html, flags=re.S)
+    if 'function showDraftView(' not in html and 'function renderValue(' in html:
+        html = html.replace('\n    </script>', '''
+        var rankMode = 'avg';
+        var draftListMode = 'steals';
+        function renderStandings() {
+            const mode = rankMode === 'total' ? 'total' : 'avg';
+            const sorted = [...currentData].sort((a, b) => mode === 'total' ? (b.tot - a.tot || a.seasonRk - b.seasonRk) : (b.avgPts - a.avgPts || a.seasonRk - b.seasonRk));
+            const cards = document.getElementById('teamCards');
+            const slim = document.getElementById('tableSlim');
+            if (cards) cards.innerHTML = sorted.map((t, i) => '<article class="card"><div class="rk' + (i === 0 ? ' gold' : '') + '">#' + (i + 1) + '</div><div class="who"><div class="name">' + esc(t.team) + '</div><div class="owner">' + esc(t.owner || '') + '</div></div><div class="stat"><div class="lbl">' + (mode === 'total' ? 'TOTAL' : 'AVG') + '</div><div class="avg">' + (mode === 'total' ? num(t.tot) : fmtAvg(t.avgPts)) + '</div><div class="games">' + t.gp + ' games</div>' + (mode === 'avg' ? '<div class="subtot">' + num(t.tot) + ' total</div>' : '') + '</div></article>').join('');
+            if (slim) slim.innerHTML = sorted.map((t, i) => '<tr><td class="rank">' + (i + 1) + '</td><td class="team">' + esc(t.team) + '</td><td>' + esc(t.owner || '') + '</td><td class="number' + (mode === 'total' ? ' hot' : ' muted-num') + '">' + num(t.tot) + '</td><td class="number">' + t.gp + '</td><td class="number' + (mode === 'avg' ? ' hot' : ' muted-num') + '">' + fmtAvg(t.avgPts) + '</td></tr>').join('');
+            const espn = [...currentData].sort((a, b) => a.seasonRk - b.seasonRk);
+            const sc = document.getElementById('seasonCards');
+            const st = document.getElementById('tableSeason');
+            if (sc) sc.innerHTML = espn.map(t => '<article class="card"><div class="rk">#' + t.seasonRk + '</div><div class="who"><div class="name">' + esc(t.team) + '</div><div class="owner">' + esc(t.owner || '') + '</div></div><div class="stat"><div class="lbl">TOTAL</div><div class="avg">' + num(t.tot) + '</div><div class="games">' + t.gp + ' games</div></div></article>').join('');
+            if (st) st.innerHTML = espn.map(t => '<tr><td class="rank">' + t.seasonRk + '</td><td class="team">' + esc(t.team) + '</td><td>' + esc(t.owner || '') + '</td><td class="number hot">' + num(t.tot) + '</td><td class="number">' + t.gp + '</td></tr>').join('');
+        }
+        function showDraftView(name) {
+            const map = { worst: 'worstDrafts', steals: 'bangForBuck', busts: 'bangForBuck', all: 'bangForBuck', rounds: 'stealsByRound', board: 'draftBoard', grades: 'draftGrades', undrafted: 'undrafted' };
+            const id = map[name] || 'bangForBuck';
+            document.querySelectorAll('#draftPills .pill').forEach(p => p.classList.toggle('active', p.dataset.view === name));
+            document.querySelectorAll('#panel-draft .table-section').forEach(s => { s.hidden = s.id !== id; });
+            if (id === 'bangForBuck') { draftListMode = (name === 'busts' || name === 'all') ? name : 'steals'; if (typeof renderValue === 'function') renderValue(); }
+        }
+        function renderValue() {
+            const view = draftListMode;
+            let list = DRAFT.slice();
+            if (view === 'steals') list = list.filter(p => p.played).sort((a, b) => b.value - a.value).slice(0, 15);
+            else if (view === 'busts') list = list.filter(p => p.played && p.round <= 4).sort((a, b) => a.value - b.value).slice(0, 10);
+            else list = list.filter(p => p.value != null).sort((a, b) => b.value - a.value);
+            const cards = document.getElementById('valueCards');
+            const body = document.getElementById('tableValue');
+            if (cards) cards.innerHTML = list.map((p, i) => '<article class="pick-card"><div class="rk">#' + (i + 1) + '</div><div class="mid"><div class="name">' + esc(p.player) + '</div><div class="meta">' + esc(p.drafted_by) + ' · Pick ' + p.pick + ' · Rd ' + p.round + '</div></div><div class="val">' + (p.value > 0 ? '+' : '') + p.value + '</div></article>').join('');
+            if (body) body.innerHTML = list.map((p, i) => '<tr><td>' + (i + 1) + '</td><td>' + esc(p.player) + '</td><td>' + esc(p.drafted_by) + '</td><td class="number">' + p.pick + '</td><td class="number">' + p.round + '</td><td class="number">' + fnum(p.fpts_tot) + '</td><td class="number">' + fnum(p.fpts_avg, 1) + '</td><td class="number">' + (p.prod_rank == null ? '—' : p.prod_rank) + '</td><td class="number">' + fmtVal(p.value) + '</td></tr>').join('');
+            const title = document.getElementById('valueTitle');
+            if (title) title.textContent = view === 'busts' ? 'Biggest busts' : view === 'all' ? 'All drafted' : 'Top 15 steals';
+        }
+        document.getElementById('rankMode') && document.getElementById('rankMode').addEventListener('click', function (e) {
+            const btn = e.target.closest('[data-mode]'); if (!btn) return;
+            rankMode = btn.dataset.mode === 'total' ? 'total' : 'avg';
+            this.querySelectorAll('.pill').forEach(p => p.classList.toggle('active', p === btn));
+            renderStandings();
+        });
+        document.getElementById('draftPills') && document.getElementById('draftPills').addEventListener('click', function (e) {
+            const btn = e.target.closest('[data-view]'); if (!btn) return; showDraftView(btn.dataset.view);
+        });
+        showDraftView('steals');
+    </script>''', 1)
+    return html
+
 html=open(B+'index.html').read()
-_layout=ensure_draft_mobile(ensure_responsive_layout(html))
+_layout=ensure_controls(ensure_draft_mobile(ensure_responsive_layout(html)))
 if _layout!=html:
     open(B+'index.html','w').write(_layout)

@@ -202,7 +202,28 @@
         .chip:disabled { opacity: 0.7; cursor: wait; }
         .chip-icon, .chip-refresh { flex: none; }
         .chip-refresh, .when-short { display: none; }
-        .formula { text-align: left; color: #7c7694; font-weight: 500; font-size: 0.82rem; margin: 2px 0 12px; }
+        .stamp { display: flex; align-items: center; gap: 8px; flex: none; color: #fff; font-size: 0.75rem; font-weight: 650; }
+        .icon-btn {
+            width: 34px; height: 34px; border-radius: 999px; border: 1px solid rgba(255,255,255,0.5);
+            background: transparent; color: #fff; display: inline-flex; align-items: center; justify-content: center;
+            cursor: pointer; flex: none; padding: 0;
+        }
+        .icon-btn:disabled { opacity: 0.65; cursor: wait; }
+        .section-head { margin: 2px 0 10px; }
+        .section-head h2 { margin: 0 0 2px; font-size: 1.45rem; color: #1c1730; font-weight: 800; }
+        .section-head.spaced { margin-top: 28px; }
+        .formula { text-align: left; color: #7c7694; font-weight: 500; font-size: 0.82rem; margin: 0 0 10px; }
+        .mode-pills, .view-pills { display: flex; flex-wrap: wrap; gap: 8px; margin: 0 0 14px; }
+        .pill {
+            border: none; background: #fff; color: #5c5678; font-weight: 700; font-size: 0.86rem;
+            border-radius: 999px; padding: 8px 12px; cursor: pointer; font-family: inherit;
+            box-shadow: 0 2px 8px rgba(70,40,120,0.06);
+        }
+        .pill.active { background: #6841c9; color: #fff; }
+        .card .subtot { margin-top: 2px; color: #a39eb6; font-size: 0.75rem; }
+        table.slim td.hot { color: #6236d4; font-weight: 800; font-size: 1.05rem; }
+        table.slim td.muted-num { color: #9a94ad; font-weight: 500; }
+        #panel-draft .table-section[hidden] { display: none !important; }
         .footer { color: #8d87a3; }
         .cards { display: none; }
         .board-wrap {
@@ -295,11 +316,12 @@
                 <p class="tagline">Season points ÷ games</p>
             </div>
         </div>
-        <button type="button" class="chip" id="refreshBtn" aria-label="Refresh standings">
-            <svg class="chip-icon" viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><circle cx="12" cy="12" r="8" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 8.5V12l2.4 1.6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-            <span class="chip-label"><span class="chip-prefix-short">Updated </span><span class="chip-prefix-long">Last updated: </span><span id="lastRefreshLabel">—</span></span>
-            <svg class="chip-refresh" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M20 12a8 8 0 1 1-2.3-5.7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M20 4v5h-5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-        </button>
+        <div class="stamp">
+            <span class="stamp-text"><span class="chip-prefix-short">Updated </span><span class="chip-prefix-long">Updated </span><span id="lastRefreshLabel">—</span></span>
+            <button type="button" class="icon-btn" id="refreshBtn" aria-label="Refresh">
+                <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M20 12a8 8 0 1 1-2.3-5.7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M20 4v5h-5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </button>
+        </div>
     </header>
 
     <div class="container">
@@ -308,7 +330,14 @@
             <button type="button" class="tab" role="tab" data-tab="draft" aria-selected="false">Draft value</button>
         </nav>
         <div class="tab-panel" id="panel-leaderboard" role="tabpanel">
-        <p class="formula">Avg = season points ÷ games</p>
+        <div class="section-head">
+            <h2>Leaderboard</h2>
+            <p class="formula">Avg = season points ÷ games</p>
+        </div>
+        <div class="mode-pills" id="rankMode" role="tablist">
+            <button type="button" class="pill active" data-mode="avg" aria-selected="true">Avg</button>
+            <button type="button" class="pill" data-mode="total" aria-selected="false">Total</button>
+        </div>
         <div class="cards" id="teamCards"></div>
         <div class="board-wrap">
             <table class="slim">
@@ -326,27 +355,41 @@
             </table>
         </div>
 
+        <div class="section-head spaced">
+            <h2>Season totals</h2>
+            <p class="formula">ESPN order · season points and games</p>
+        </div>
+        <div class="cards" id="seasonCards"></div>
+        <div class="board-wrap">
+            <table class="slim">
+                <thead>
+                    <tr>
+                        <th>Rank</th>
+                        <th>Team</th>
+                        <th>Owner</th>
+                        <th class="number">Total</th>
+                        <th class="number">Games</th>
+                    </tr>
+                </thead>
+                <tbody id="tableSeason"></tbody>
+            </table>
+        </div>
+
         </div>
 
         <div class="tab-panel" id="panel-draft" role="tabpanel" hidden>
+        <div class="view-pills" id="draftPills" role="tablist">
+            <button type="button" class="pill" data-view="worst">Worst drafts</button>
+            <button type="button" class="pill active" data-view="steals" aria-selected="true">Top 15 steals</button>
+            <button type="button" class="pill" data-view="busts">Biggest busts</button>
+            <button type="button" class="pill" data-view="all">All drafted</button>
+            <button type="button" class="pill" data-view="rounds">Steals by round</button>
+            <button type="button" class="pill" data-view="board">Draft board</button>
+            <button type="button" class="pill" data-view="grades">Team grades</button>
+            <button type="button" class="pill" data-view="undrafted">Undrafted</button>
+        </div>
         <div class="table-section" id="bangForBuck">
-            <h2>Best bang for the buck</h2>
-            <p class="hint">Who returned the most fantasy points for where they were drafted.</p>
-            <div class="note">Value = overall pick # minus production rank. Production rank orders all drafted players who have played by the average of their FPts-total rank and FPts/G rank (1 = best). +40 means a player is producing about 40 spots better than his draft slot. <b>STEAL</b> = round 4 or later and a top-20 producer, or value +40 and up. <b>BUST</b> = rounds 1–3 and value −25 or worse. Early season: most players have only 2–3 games, so expect big swings.</div>
-            <div class="controls">
-                <div class="control-group">
-                    <label for="valueView">Show:</label>
-                    <select id="valueView">
-                        <option value="steals" selected>Top 15 steals</option>
-                        <option value="busts">Biggest early-round busts</option>
-                        <option value="all">All drafted players</option>
-                    </select>
-                </div>
-                <div class="control-group">
-                    <label for="valueTeam">Team:</label>
-                    <select id="valueTeam"><option value="">All teams</option></select>
-                </div>
-            </div>
+            <h2 id="valueTitle">Top 15 steals</h2>
             <div class="m-only" id="valueCards"></div>
             <table>
                 <thead>
@@ -366,9 +409,8 @@
             </table>
         </div>
 
-        <div class="table-section" id="worstDrafts">
+        <div class="table-section" id="worstDrafts" hidden>
             <h2>Worst drafts</h2>
-            <p class="hint">Biggest misses among picks that have played, worst value first. Value = pick number minus production rank.</p>
             <div class="m-only" id="worstCards"></div>
             <table class="slim">
                 <thead>
@@ -388,9 +430,8 @@
             </table>
         </div>
 
-        <div class="table-section" id="stealsByRound">
+        <div class="table-section" id="stealsByRound" hidden>
             <h2>Steals by round</h2>
-            <p class="hint">Best and worst return in every round. A low production rank in a late round is the "4th-rounder playing like a 1st-rounder" pick.</p>
             <div class="m-only" id="roundCards"></div>
             <table>
                 <thead>
@@ -410,9 +451,8 @@
             </table>
         </div>
 
-        <div class="table-section" id="draftBoard">
+        <div class="table-section" id="draftBoard" hidden>
             <h2>Draft board</h2>
-            <p class="hint">Every pick by round and team, shaded by value. Green = outperforming the draft slot, red = underperforming.</p>
             <div class="legend">
                 <span><i style="background:#2a8a55"></i>Value +40 or better</span>
                 <span><i style="background:#9fdcb8"></i>+10 to +39</span>
@@ -428,9 +468,8 @@
             </table>
         </div>
 
-        <div class="table-section" id="draftGrades">
+        <div class="table-section" id="draftGrades" hidden>
             <h2>Draft report card</h2>
-            <p class="hint">Fantasy points produced so far by each team's 13 draft picks (including players since dropped). Net value adds up every pick's value score.</p>
             <div class="m-only" id="gradeCards"></div>
             <table>
                 <thead>
@@ -448,9 +487,8 @@
             </table>
         </div>
 
-        <div class="table-section" id="undrafted">
+        <div class="table-section" id="undrafted" hidden>
             <h2>Best undrafted pickups</h2>
-            <p class="hint">Waiver adds who weren't drafted, with where they'd rank among the 100 drafted players who have played (by FPts total).</p>
             <div class="m-only" id="undraftedCards"></div>
             <table>
                 <thead>
@@ -621,16 +659,18 @@
                 '<td class="number">' + (p.prod_rank == null ? '<span class="muted">—</span>' : p.prod_rank) + '</td>' +
                 '<td class="number tot">' + fmtVal(p.value) + '</td></tr>';
         }
+        let draftListMode = 'steals';
         function renderValue() {
-            const view = document.getElementById('valueView').value;
-            const team = document.getElementById('valueTeam').value;
-            let list = DRAFT.filter(p => !team || p.drafted_by === team);
+            const view = draftListMode;
+            let list = DRAFT.slice();
             if (view === 'steals') list = list.filter(p => p.played).sort((a, b) => b.value - a.value).slice(0, 15);
             else if (view === 'busts') list = list.filter(p => p.played && p.round <= 4).sort((a, b) => a.value - b.value).slice(0, 10);
             else list = list.sort((a, b) => (b.value == null ? -999 : b.value) - (a.value == null ? -999 : a.value));
             document.getElementById('tableValue').innerHTML = list.map(valueRow).join('');
             const cards = document.getElementById('valueCards');
             if (cards) cards.innerHTML = list.map(pickCard).join('');
+            const title = document.getElementById('valueTitle');
+            if (title) title.textContent = view === 'busts' ? 'Biggest busts' : view === 'all' ? 'All drafted' : 'Top 15 steals';
         }
         function renderWorst() {
             const list = DRAFT.filter(p => p.played && p.value != null).sort((a, b) => a.value - b.value || a.pick - b.pick).slice(0, 12);
@@ -729,39 +769,93 @@
                 '<div class="meta">' + esc(u.fantasy_team) + ' · ' + esc(u.position) + '</div>' +
                 '<div class="meta">' + num(u.fpts_tot) + ' FPts · ' + u.fpts_avg.toFixed(1) + '/G · would rank ' + u.would_rank + '</div></div></article>').join('');
         }
-        (function initTeamFilter() {
-            const sel = document.getElementById('valueTeam');
-            DRAFT_TEAMS.slice().sort().forEach(t => { const o = document.createElement('option'); o.value = t; o.textContent = t; sel.appendChild(o); });
-        })();
-        document.getElementById('valueView').addEventListener('change', renderValue);
-        document.getElementById('valueTeam').addEventListener('change', renderValue);
-
+        let rankMode = 'avg';
         function renderStandings() {
-            const sorted = [...currentData].sort((a, b) => b.avgPts - a.avgPts || a.seasonRk - b.seasonRk);
+            const mode = rankMode === 'total' ? 'total' : 'avg';
+            const sorted = [...currentData].sort((a, b) => mode === 'total'
+                ? (b.tot - a.tot || a.seasonRk - b.seasonRk)
+                : (b.avgPts - a.avgPts || a.seasonRk - b.seasonRk));
             const cards = document.getElementById('teamCards');
             const slim = document.getElementById('tableSlim');
-            if (!cards || !slim) return;
-            cards.innerHTML = sorted.map((t, i) => {
+            if (cards) cards.innerHTML = sorted.map((t, i) => {
                 const n = i + 1;
                 const hl = t.team === MUSHROOM ? ' highlight' : '';
                 const gold = n === 1 ? ' gold' : '';
+                const hero = mode === 'total' ? num(t.tot) : fmtAvg(t.avgPts);
+                const label = mode === 'total' ? 'TOTAL' : 'AVG';
+                const extra = mode === 'avg' ? '<div class="subtot">' + num(t.tot) + ' total</div>' : '';
                 return '<article class="card' + hl + '">' +
                     '<div class="rk' + gold + '">#' + n + '</div>' +
                     '<div class="who"><div class="name">' + esc(t.team) + '</div>' +
                     '<div class="owner">' + esc(t.owner || '') + '</div></div>' +
-                    '<div class="stat"><div class="lbl">AVG</div><div class="avg">' + fmtAvg(t.avgPts) + '</div>' +
-                    '<div class="games">' + t.gp + ' games</div></div></article>';
+                    '<div class="stat"><div class="lbl">' + label + '</div><div class="avg">' + hero + '</div>' +
+                    '<div class="games">' + t.gp + ' games</div>' + extra + '</div></article>';
             }).join('');
-            slim.innerHTML = sorted.map((t, i) => {
+            if (slim) slim.innerHTML = sorted.map((t, i) => {
                 const hl = t.team === MUSHROOM ? ' class="highlight"' : '';
+                const totCls = mode === 'total' ? ' hot' : ' muted-num';
+                const avgCls = mode === 'avg' ? ' hot' : ' muted-num';
                 return '<tr' + hl + '><td class="rank">' + (i + 1) + '</td>' +
                     '<td class="team">' + esc(t.team) + '</td>' +
                     '<td class="owner">' + esc(t.owner || '') + '</td>' +
-                    '<td class="number">' + num(t.tot) + '</td>' +
+                    '<td class="number' + totCls + '">' + num(t.tot) + '</td>' +
                     '<td class="number">' + t.gp + '</td>' +
-                    '<td class="number avg">' + fmtAvg(t.avgPts) + '</td></tr>';
+                    '<td class="number' + avgCls + '">' + fmtAvg(t.avgPts) + '</td></tr>';
+            }).join('');
+            renderSeason();
+        }
+        function renderSeason() {
+            const rows = [...currentData].sort((a, b) => a.seasonRk - b.seasonRk);
+            const cards = document.getElementById('seasonCards');
+            const slim = document.getElementById('tableSeason');
+            if (cards) cards.innerHTML = rows.map(t => {
+                const hl = t.team === MUSHROOM ? ' highlight' : '';
+                const gold = t.seasonRk === 1 ? ' gold' : '';
+                return '<article class="card' + hl + '">' +
+                    '<div class="rk' + gold + '">#' + t.seasonRk + '</div>' +
+                    '<div class="who"><div class="name">' + esc(t.team) + '</div>' +
+                    '<div class="owner">' + esc(t.owner || '') + '</div></div>' +
+                    '<div class="stat"><div class="lbl">TOTAL</div><div class="avg">' + num(t.tot) + '</div>' +
+                    '<div class="games">' + t.gp + ' games</div></div></article>';
+            }).join('');
+            if (slim) slim.innerHTML = rows.map(t => {
+                const hl = t.team === MUSHROOM ? ' class="highlight"' : '';
+                return '<tr' + hl + '><td class="rank">' + t.seasonRk + '</td>' +
+                    '<td class="team">' + esc(t.team) + '</td>' +
+                    '<td class="owner">' + esc(t.owner || '') + '</td>' +
+                    '<td class="number hot">' + num(t.tot) + '</td>' +
+                    '<td class="number">' + t.gp + '</td></tr>';
             }).join('');
         }
+        function showDraftView(name) {
+            const map = { worst: 'worstDrafts', steals: 'bangForBuck', busts: 'bangForBuck', all: 'bangForBuck', rounds: 'stealsByRound', board: 'draftBoard', grades: 'draftGrades', undrafted: 'undrafted' };
+            const id = map[name] || 'bangForBuck';
+            document.querySelectorAll('#draftPills .pill').forEach(p => {
+                const on = p.dataset.view === name;
+                p.classList.toggle('active', on);
+                p.setAttribute('aria-selected', on ? 'true' : 'false');
+            });
+            document.querySelectorAll('#panel-draft .table-section').forEach(s => { s.hidden = s.id !== id; });
+            if (id === 'bangForBuck') { draftListMode = name === 'busts' || name === 'all' ? name : 'steals'; renderValue(); }
+        }
+        const rankModeEl = document.getElementById('rankMode');
+        if (rankModeEl) rankModeEl.addEventListener('click', (e) => {
+            const btn = e.target.closest('[data-mode]');
+            if (!btn) return;
+            rankMode = btn.dataset.mode === 'total' ? 'total' : 'avg';
+            rankModeEl.querySelectorAll('.pill').forEach(p => {
+                const on = p === btn;
+                p.classList.toggle('active', on);
+                p.setAttribute('aria-selected', on ? 'true' : 'false');
+            });
+            renderStandings();
+        });
+        const draftPills = document.getElementById('draftPills');
+        if (draftPills) draftPills.addEventListener('click', (e) => {
+            const btn = e.target.closest('[data-view]');
+            if (!btn) return;
+            showDraftView(btn.dataset.view);
+        });
 
         showLastRefresh();
         renderStandings();
@@ -771,6 +865,7 @@
         renderBoard();
         renderGrades();
         renderUndrafted();
+        showDraftView('steals');
         function showTab(name) {
             if (name !== 'draft') name = 'leaderboard';
             document.querySelectorAll('.tab').forEach(b => { const on = b.dataset.tab === name; b.classList.toggle('active', on); b.setAttribute('aria-selected', on); });
