@@ -23,13 +23,6 @@
             font-size: 2.5em;
             text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
         }
-        h1 .ball {
-            display: inline-block;
-            width: 0.82em;
-            height: 0.82em;
-            vertical-align: middle;
-            margin-right: 0.22em;
-        }
         .subtitle {
             text-align: center;
             color: rgba(255,255,255,0.9);
@@ -178,6 +171,7 @@
         .tab.active { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: #fff; box-shadow: 0 2px 8px rgba(118,75,162,0.3); }
         .tab-panel[hidden] { display: none; }
         @media (max-width: 600px) { .tabs { width: 100%; } .tab { flex: 1; padding: 10px 8px; font-size: 0.9em; } }
+        h1 .ball { display: inline-block; width: 0.82em; height: 0.82em; vertical-align: middle; margin-right: 0.22em; }
         .footer {
             text-align: center;
             color: rgba(255,255,255,0.85);
@@ -402,17 +396,17 @@
     <div class="toast" id="toast"></div>
 
     <script>
-        const LAST_REFRESH_ISO = "2026-10-25T20:35:48-05:00";
+        const LAST_REFRESH_ISO = "2026-10-29T11:54:21-05:00";
 
         const currentData = [
-            { seasonRk: 1, team: "The Pigs orsurf", fgm: 464, fga: -494, ftm: 123, fta: -166, tpm: 66, reb: 229, ast: 258, stl: 232, blk: 56, to: -166, pts: 653, tot: 1255, gp: 35 },
-            { seasonRk: 2, team: "Omer's Team", fgm: 420, fga: -478, ftm: 124, fta: -146, tpm: 58, reb: 202, ast: 252, stl: 132, blk: 100, to: -150, pts: 602, tot: 1116, gp: 31 },
-            { seasonRk: 3, team: "ER", fgm: 342, fga: -383, ftm: 104, fta: -141, tpm: 32, reb: 235, ast: 342, stl: 156, blk: 48, to: -148, pts: 478, tot: 1065, gp: 32 },
-            { seasonRk: 4, team: "Team Mamba Mentality", fgm: 414, fga: -404, ftm: 86, fta: -115, tpm: 64, reb: 173, ast: 236, stl: 108, blk: 76, to: -150, pts: 564, tot: 1052, gp: 31 },
-            { seasonRk: 5, team: "DanKen", fgm: 398, fga: -418, ftm: 118, fta: -151, tpm: 66, reb: 123, ast: 254, stl: 168, blk: 76, to: -170, pts: 582, tot: 1046, gp: 33 },
-            { seasonRk: 6, team: "Team The Mushroom", fgm: 388, fga: -442, ftm: 112, fta: -136, tpm: 52, reb: 185, ast: 266, stl: 96, blk: 96, to: -168, pts: 552, tot: 1001, gp: 33 },
-            { seasonRk: 7, team: "Naim Merlon", fgm: 428, fga: -421, ftm: 132, fta: -167, tpm: 56, reb: 161, ast: 144, stl: 140, blk: 60, to: -156, pts: 616, tot: 993, gp: 31 },
-            { seasonRk: 8, team: "Israel Samson", fgm: 346, fga: -418, ftm: 111, fta: -143, tpm: 36, reb: 183, ast: 270, stl: 124, blk: 120, to: -132, pts: 493, tot: 990, gp: 29 }
+            { seasonRk: 1, team: "The Pigs orsurf", fgm: 772, fga: -813, ftm: 192, fta: -250, tpm: 103, reb: 388, ast: 486, stl: 372, blk: 100, to: -310, pts: 1067, tot: 2107, gp: 57 },
+            { seasonRk: 2, team: "Naim Merlon", fgm: 754, fga: -748, ftm: 224, fta: -275, tpm: 109, reb: 315, ast: 340, stl: 268, blk: 156, to: -256, pts: 1087, tot: 1974, gp: 54 },
+            { seasonRk: 3, team: "ER", fgm: 580, fga: -653, ftm: 178, fta: -232, tpm: 65, reb: 390, ast: 562, stl: 260, blk: 104, to: -224, pts: 823, tot: 1853, gp: 53 },
+            { seasonRk: 4, team: "Israel Samson", fgm: 620, fga: -706, ftm: 162, fta: -204, tpm: 65, reb: 309, ast: 452, stl: 204, blk: 200, to: -206, pts: 847, tot: 1743, gp: 48 },
+            { seasonRk: 5, team: "DanKen", fgm: 690, fga: -722, ftm: 181, fta: -228, tpm: 99, reb: 223, ast: 422, stl: 260, blk: 112, to: -290, pts: 970, tot: 1717, gp: 50 },
+            { seasonRk: 6, team: "Team The Mushroom", fgm: 610, fga: -680, ftm: 182, fta: -228, tpm: 86, reb: 276, ast: 446, stl: 164, blk: 140, to: -244, pts: 878, tot: 1630, gp: 50 },
+            { seasonRk: 7, team: "Omer's Team", fgm: 664, fga: -735, ftm: 185, fta: -223, tpm: 84, reb: 305, ast: 336, stl: 188, blk: 132, to: -240, pts: 933, tot: 1629, gp: 47 },
+            { seasonRk: 8, team: "Team Mamba Mentality", fgm: 626, fga: -639, ftm: 142, fta: -196, tpm: 101, reb: 254, ast: 374, stl: 172, blk: 116, to: -218, pts: 869, tot: 1601, gp: 46 }
         ].map(t => ({ ...t, avgPts: t.tot / t.gp }));
 
         const MUSHROOM = "Team The Mushroom";
