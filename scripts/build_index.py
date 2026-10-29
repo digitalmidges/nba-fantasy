@@ -226,7 +226,7 @@ js=r'''
         }
         function renderGrades() {
             document.getElementById('tableGrades').innerHTML = TEAM_GRADES.map((t, i) =>
-                '<tr' + (t.team === MUSHROOM ? ' class="highlight"' : '') + '><td class="rank">' + (i + 1) + '</td>' +
+                '<tr><td class="rank">' + (i + 1) + '</td>' +
                 '<td class="team">' + esc(t.team) + '</td>' +
                 '<td class="number tot">' + num(t.draft_fpts) + '</td>' +
                 '<td class="number">' + fmtVal(t.value_sum) + '</td>' +
@@ -480,9 +480,8 @@ RENDER_FN = '''        function renderStandings() {
             if (!cards || !slim) return;
             cards.innerHTML = sorted.map((t, i) => {
                 const n = i + 1;
-                const hl = t.team === MUSHROOM ? ' highlight' : '';
                 const gold = n === 1 ? ' gold' : '';
-                return '<article class="card' + hl + '">' +
+                return '<article class="card">' +
                     '<div class="rk' + gold + '">#' + n + '</div>' +
                     '<div class="who"><div class="name">' + esc(t.team) + '</div>' +
                     '<div class="owner">' + esc(t.owner || '') + '</div></div>' +
@@ -490,8 +489,7 @@ RENDER_FN = '''        function renderStandings() {
                     '<div class="games">' + t.gp + ' games</div></div></article>';
             }).join('');
             slim.innerHTML = sorted.map((t, i) => {
-                const hl = t.team === MUSHROOM ? ' class="highlight"' : '';
-                return '<tr' + hl + '><td class="rank">' + (i + 1) + '</td>' +
+                return '<tr><td class="rank">' + (i + 1) + '</td>' +
                     '<td class="team">' + esc(t.team) + '</td>' +
                     '<td class="owner">' + esc(t.owner || '') + '</td>' +
                     '<td class="number">' + num(t.tot) + '</td>' +
@@ -797,7 +795,7 @@ def ensure_retro(html):
         <div class="draft-refresh"><span>Draft stats <span class="draftRefreshLabel">—</span></span>
             <button type="button" class="icon-btn draft-refresh-btn" aria-label="Refresh draft stats" title="Refresh draft stats">↻</button></div>
         <div class="view-pills" id="retroTeams" role="tablist"></div>
-        <div class="section-head"><h2 id="retroTeamName">Team The Mushroom</h2><p class="formula" id="retroSummary">—</p></div>
+        <div class="section-head"><h2 id="retroTeamName">Pick a team</h2><p class="formula" id="retroSummary">Choose a team to see each draft pick and who was still available.</p></div>
         <div class="retro-list" id="retroCards"></div>
         </div>
         <p class="footer">''', 1)
@@ -805,12 +803,19 @@ def ensure_retro(html):
         html = html.replace('const LAST_REFRESH_ISO = "', 'const DRAFT_REFRESH_ISO = "";\n        // Filled from draft_value.json generated_at when the rebuild embeds picks.\n        const LAST_REFRESH_ISO = "', 1)
     if 'function renderRetro(' not in html and 'function showTab(' in html:
         html = html.replace('function showTab(name) {', '''function renderRetro() {
-            const teams = [MUSHROOM].concat((typeof DRAFT_TEAMS === 'undefined' ? [] : DRAFT_TEAMS).filter(t => t !== MUSHROOM));
+            const teams = (typeof DRAFT_TEAMS === 'undefined' ? [] : DRAFT_TEAMS).slice();
             const picker = document.getElementById('retroTeams');
             if (!picker || typeof DRAFT === 'undefined') return;
-            let retroTeam = (picker.querySelector('.pill.active') || {}).dataset ? picker.querySelector('.pill.active').dataset.team : MUSHROOM;
-            if (!retroTeam) retroTeam = MUSHROOM;
+            let retroTeam = picker.querySelector('.pill.active') ? picker.querySelector('.pill.active').dataset.team : '';
             picker.innerHTML = teams.map(t => '<button type="button" class="pill' + (t === retroTeam ? ' active' : '') + '" data-team="' + esc(t) + '">' + esc(t) + '</button>').join('');
+            if (!retroTeam) {
+                const name = document.getElementById('retroTeamName');
+                const sum = document.getElementById('retroSummary');
+                if (name) name.textContent = 'Pick a team';
+                if (sum) sum.textContent = 'Choose a team to see each draft pick and who was still available.';
+                document.getElementById('retroCards').innerHTML = '';
+                return;
+            }
             const picks = DRAFT.filter(p => p.drafted_by === retroTeam).sort((a, b) => a.pick - b.pick);
             let hits = 0, biggest = null;
             const poolOf = (n) => DRAFT.filter(p => p.pick >= n).concat((typeof UNDRAFTED === 'undefined' ? [] : UNDRAFTED).map(u => ({ player: u.player, fpts_tot: u.fpts_tot, fpts_avg: u.fpts_avg, prod_rank: null, would_rank: u.would_rank, played: u.fpts_tot != null, drafted_by: null })));
@@ -842,7 +847,16 @@ def ensure_retro(html):
             html = html.replace('showTab(location.hash.slice(1));', 'renderRetro();\n        showTab(location.hash.slice(1));', 1)
     return html
 
+def strip_featured_team(html):
+    html = html.replace("item.team === MUSHROOM ? ' class=\"highlight\"' : ''", "''")
+    html = html.replace("t.team === MUSHROOM ? ' class=\"highlight\"' : ''", "''")
+    html = html.replace("t.team === MUSHROOM ? ' highlight' : ''", "''")
+    html = html.replace('        const MUSHROOM = "Team The Mushroom";\n', '')
+    html = html.replace('let retroTeam = MUSHROOM;', "let retroTeam = '';")
+    html = html.replace('[MUSHROOM].concat(DRAFT_TEAMS.filter(t => t !== MUSHROOM))', 'DRAFT_TEAMS.slice()')
+    return html
+
 html=open(B+'index.html').read()
-_layout=ensure_retro(ensure_controls(ensure_draft_mobile(ensure_responsive_layout(html))))
+_layout=strip_featured_team(ensure_retro(ensure_controls(ensure_draft_mobile(ensure_responsive_layout(html)))))
 if _layout!=html:
     open(B+'index.html','w').write(_layout)
