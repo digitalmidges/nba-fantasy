@@ -8,8 +8,8 @@ now=datetime.datetime.now().astimezone().isoformat(timespec='seconds')
 rows=[]
 for t in st['teams']:
     p=t['points_by_stat']
-    rows.append('            { seasonRk: %d, team: %s, fgm: %d, fga: %d, ftm: %d, fta: %d, tpm: %d, reb: %d, ast: %d, stl: %d, blk: %d, to: %d, pts: %d, tot: %d, gp: %d }'%(
-        t['rank'],json.dumps(t['team']),p['FGM'],p['FGA'],p['FTM'],p['FTA'],p['3PM'],p['REB'],p['AST'],p['STL'],p['BLK'],p['TO'],p['PTS'],t['season_points_TOT'],t['GP']))
+    rows.append('            { seasonRk: %d, team: %s, owner: %s, fgm: %d, fga: %d, ftm: %d, fta: %d, tpm: %d, reb: %d, ast: %d, stl: %d, blk: %d, to: %d, pts: %d, tot: %d, gp: %d }'%(
+        t['rank'],json.dumps(t['team']),json.dumps(t.get('owner') or ''),p['FGM'],p['FGA'],p['FTM'],p['FTA'],p['3PM'],p['REB'],p['AST'],p['STL'],p['BLK'],p['TO'],p['PTS'],t['season_points_TOT'],t['GP']))
 html=re.sub(r'const currentData = \[\n.*?\n        \]\.map', 'const currentData = [\n'+',\n'.join(rows)+'\n        ].map', html, flags=re.S)
 html=re.sub(r'const LAST_REFRESH_ISO = "[^"]*";', 'const LAST_REFRESH_ISO = "%s";'%now, html)
 keep=['pick','round','pick_in_round','drafted_by','current_team','player','position','nba_team','status','fpts_tot','fpts_avg','gp_est','prod_rank','value','steal','bust','played']
@@ -38,7 +38,8 @@ css='''        .badge { display: inline-block; padding: 2px 8px; border-radius: 
         .legend span { display: inline-flex; align-items: center; gap: 6px; }
         .legend i { width: 14px; height: 14px; border-radius: 4px; display: inline-block; }
 '''
-html=html.replace('        .footer {', css+'        .footer {',1)
+if 'id="bangForBuck"' not in html:
+    html=html.replace('        .footer {', css+'        .footer {',1)
 sections='''
         <div class="table-section" id="bangForBuck">
             <h2>Best bang for the buck</h2>
@@ -153,7 +154,8 @@ sections='''
         </div>
 
         <p class="footer">'''
-html=html.replace('\n        <p class="footer">',sections,1)
+if 'id="bangForBuck"' not in html:
+    html=html.replace('\n        <p class="footer">',sections,1)
 html=html.replace('Source: ESPN Fantasy league 683874011 · Times show in your device timezone','Source: ESPN Fantasy league 683874011 · Fantasy points = ESPN points-league scoring · Times show in your device timezone')
 html=html.replace('<p class="subtitle">2027 · Points per position</p>','<p class="subtitle">2027 · Points per position · Draft value</p>')
 js=r'''
@@ -249,9 +251,10 @@ js=r'''
         document.getElementById('valueView').addEventListener('change', renderValue);
         document.getElementById('valueTeam').addEventListener('change', renderValue);
 '''
-html=html.replace('        const MUSHROOM = "Team The Mushroom";\n','        const MUSHROOM = "Team The Mushroom";\n'+data_js,1)
-html=html.replace('        showLastRefresh();\n', js+'\n        showLastRefresh();\n',1)
-html=html.replace('        renderCustom();\n    </script>','        renderCustom();\n        renderValue();\n        renderByRound();\n        renderBoard();\n        renderGrades();\n        renderUndrafted();\n    </script>',1)
+if 'const DRAFT = ' not in html:
+    html=html.replace('        const MUSHROOM = "Team The Mushroom";\n','        const MUSHROOM = "Team The Mushroom";\n'+data_js,1)
+    html=html.replace('        showLastRefresh();\n', js+'\n        showLastRefresh();\n',1)
+    html=html.replace('        renderCustom();\n    </script>','        renderCustom();\n        renderValue();\n        renderByRound();\n        renderBoard();\n        renderGrades();\n        renderUndrafted();\n    </script>',1)
 open(B+'index.html','w').write(html)
 print('ok',now,len(html))
 
@@ -315,3 +318,320 @@ if 'class="ball"' not in html:
     changed=True
 if changed:
     open(B+'index.html','w').write(html)
+
+# ---- responsive layout: mobile cards, slim desktop table ----
+HEADER = '''    <header class="topbar">
+        <div class="brand">
+            <img class="ball" src="favicon.svg" alt="" width="40" height="40">
+            <div class="brand-text">
+                <h1><span class="short">Barchashim</span><span class="long">Barchashim League</span></h1>
+                <p class="tagline">Season points ÷ games</p>
+            </div>
+        </div>
+        <button type="button" class="chip" id="refreshBtn" aria-label="Refresh standings">
+            <svg class="chip-icon" viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><circle cx="12" cy="12" r="8" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 8.5V12l2.4 1.6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            <span class="chip-label"><span class="chip-prefix-short">Updated </span><span class="chip-prefix-long">Last updated: </span><span id="lastRefreshLabel">—</span></span>
+            <svg class="chip-refresh" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M20 12a8 8 0 1 1-2.3-5.7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M20 4v5h-5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </button>
+    </header>
+'''
+
+LEADERBOARD = '''        <p class="formula">Avg = season points ÷ games</p>
+        <div class="cards" id="teamCards"></div>
+        <div class="board-wrap">
+            <table class="slim">
+                <thead>
+                    <tr>
+                        <th>Rank</th>
+                        <th>Team</th>
+                        <th>Owner</th>
+                        <th class="number">Total</th>
+                        <th class="number">Games</th>
+                        <th class="number">Avg</th>
+                    </tr>
+                </thead>
+                <tbody id="tableSlim"></tbody>
+            </table>
+        </div>
+'''
+
+LAYOUT_CSS = '''        /* responsive board: cards under 700px, slim table above */
+        body { background: #f4f1fb; padding: 0; color: #241c3a; }
+        .container { max-width: 980px; margin: 0 auto; padding: 16px 16px 40px; }
+        .topbar {
+            display: flex; align-items: center; justify-content: space-between; gap: 12px;
+            padding: 16px 18px; color: #fff;
+            background: linear-gradient(100deg, #693fc4 0%, #7a4fd0 100%);
+        }
+        .topbar .brand { display: flex; align-items: center; gap: 12px; min-width: 0; }
+        .topbar .ball { width: 40px; height: 40px; display: block; flex: none; }
+        .topbar h1 {
+            text-align: left; color: #fff; margin: 0; text-shadow: none;
+            font-size: 1.35rem; font-weight: 800; letter-spacing: -0.02em; line-height: 1.1;
+        }
+        .topbar .tagline { margin: 3px 0 0; color: rgba(255,255,255,0.82); font-size: 0.78rem; font-weight: 500; }
+        .chip {
+            display: inline-flex; align-items: center; gap: 8px; flex: none;
+            max-width: 58%; color: #fff; background: transparent; cursor: pointer; font: inherit;
+            font-size: 0.75rem; font-weight: 650; line-height: 1.2; text-align: left;
+            border: 1px solid rgba(255,255,255,0.38); border-radius: 999px; padding: 6px 12px 6px 10px;
+        }
+        .chip:disabled { opacity: 0.7; cursor: wait; }
+        .chip-icon, .chip-refresh { flex: none; }
+        .chip-refresh, .when-short { display: none; }
+        .formula { text-align: left; color: #7c7694; font-weight: 500; font-size: 0.82rem; margin: 2px 0 12px; }
+        .footer { color: #8d87a3; }
+        .cards { display: none; }
+        .board-wrap {
+            display: block; background: #fff; border-radius: 18px;
+            box-shadow: 0 10px 28px rgba(70,40,120,0.08); overflow: hidden;
+        }
+        .card {
+            display: flex; align-items: center; gap: 12px; background: #fff;
+            border-radius: 16px; padding: 16px 16px; 
+            box-shadow: 0 8px 22px rgba(70,40,120,0.07);
+        }
+        .card.highlight { box-shadow: inset 0 0 0 2px #d9ccf7, 0 8px 22px rgba(70,40,120,0.07); }
+        .card .rk { flex: none; width: 52px; font-weight: 800; font-size: 1.45rem; color: #2c2644; letter-spacing: -0.03em; }
+        .card .rk.gold { color: #e2a30b; }
+        .card .who { min-width: 0; flex: 1; }
+        .card .name { font-weight: 800; font-size: 1.05rem; color: #1c1730; line-height: 1.2; }
+        .card .owner { margin-top: 3px; color: #8b86a0; font-size: 0.88rem; }
+        .card .stat { text-align: right; flex: none; }
+        .card .lbl { font-size: 0.68rem; letter-spacing: 0.08em; font-weight: 800; color: #8b86a0; }
+        .card .avg { font-size: 1.65rem; font-weight: 800; color: #6236d4; line-height: 1.05; font-variant-numeric: tabular-nums; }
+        .card .games { margin-top: 2px; color: #8b86a0; font-size: 0.82rem; }
+        table.slim thead { background: transparent; color: #8b86a0; }
+        table.slim th { color: #8b86a0; font-weight: 600; font-size: 0.78rem; padding: 16px 18px 10px; }
+        table.slim td { padding: 14px 18px; border-bottom: 1px solid #f0eef5; font-size: 0.95rem; }
+        table.slim .rank { color: #3a3158; }
+        table.slim td.avg { color: #6236d4; font-weight: 800; font-size: 1.05rem; }
+        table.slim .team { white-space: normal; }
+        .tabs { display: flex; gap: 10px; margin: 4px 0 14px; padding: 0; background: transparent; width: 100%; border-radius: 0; }
+        .tab {
+            flex: 1; border: none; background: #fff; color: #6d6786; font-weight: 750; font-size: 0.98rem;
+            padding: 12px 10px; border-radius: 14px; cursor: pointer; font-family: inherit;
+            box-shadow: 0 2px 8px rgba(70,40,120,0.06);
+        }
+        .tab.active {
+            background: linear-gradient(180deg, #7b5ae0 0%, #6841c9 100%);
+            color: #fff; box-shadow: 0 6px 16px rgba(104,65,201,0.28);
+        }
+        @media (max-width: 700px) {
+            .cards { display: flex; flex-direction: column; gap: 12px; }
+            .board-wrap { display: none; }
+            .topbar .long, .chip-prefix-long, .when-long { display: none; }
+            .when-short { display: inline; }
+            .topbar .tagline { white-space: nowrap; }
+            .topbar { padding: 14px 16px; }
+            .table-section { padding: 16px; overflow-x: visible; }
+            #panel-draft table { display: none; }
+            #panel-draft .m-only { display: flex; }
+            body { overflow-x: hidden; }
+        }
+        @media (min-width: 701px) {
+            .topbar { padding: 18px 28px; }
+            .topbar h1 { font-size: 1.7rem; }
+            .topbar .short, .chip-prefix-short, .chip-icon { display: none; }
+            .chip-refresh { display: block; }
+            .chip { border: none; max-width: none; font-size: 0.95rem; font-weight: 600; padding: 0; gap: 14px; }
+            .tabs {
+                width: fit-content; gap: 0; padding: 4px; margin: 0 0 16px;
+                background: rgba(255,255,255,0.72); border-radius: 14px;
+            }
+            .tab { flex: none; background: transparent; color: #6d6786; box-shadow: none; border-radius: 10px; padding: 8px 18px; }
+            .tab.active { background: #fff; color: #2c2548; box-shadow: 0 1px 4px rgba(40,20,80,0.08); }
+            #panel-draft .table-section { overflow-x: auto; }
+        }
+
+'''
+
+RENDER_FN = '''        function renderStandings() {
+            const sorted = [...currentData].sort((a, b) => b.avgPts - a.avgPts || a.seasonRk - b.seasonRk);
+            const cards = document.getElementById('teamCards');
+            const slim = document.getElementById('tableSlim');
+            if (!cards || !slim) return;
+            cards.innerHTML = sorted.map((t, i) => {
+                const n = i + 1;
+                const hl = t.team === MUSHROOM ? ' highlight' : '';
+                const gold = n === 1 ? ' gold' : '';
+                return '<article class="card' + hl + '">' +
+                    '<div class="rk' + gold + '">#' + n + '</div>' +
+                    '<div class="who"><div class="name">' + esc(t.team) + '</div>' +
+                    '<div class="owner">' + esc(t.owner || '') + '</div></div>' +
+                    '<div class="stat"><div class="lbl">AVG</div><div class="avg">' + fmtAvg(t.avgPts) + '</div>' +
+                    '<div class="games">' + t.gp + ' games</div></div></article>';
+            }).join('');
+            slim.innerHTML = sorted.map((t, i) => {
+                const hl = t.team === MUSHROOM ? ' class="highlight"' : '';
+                return '<tr' + hl + '><td class="rank">' + (i + 1) + '</td>' +
+                    '<td class="team">' + esc(t.team) + '</td>' +
+                    '<td class="owner">' + esc(t.owner || '') + '</td>' +
+                    '<td class="number">' + num(t.tot) + '</td>' +
+                    '<td class="number">' + t.gp + '</td>' +
+                    '<td class="number avg">' + fmtAvg(t.avgPts) + '</td></tr>';
+            }).join('');
+        }
+'''
+
+def ensure_responsive_layout(html):
+    if 'id="teamCards"' in html:
+        return html
+    if '    </style>' not in html:
+        raise SystemExit('style close missing')
+    html = html.replace('    </style>', LAYOUT_CSS + '    </style>', 1)
+    if '<header class="topbar">' not in html:
+        pat = r'[ \t]*<h1\b.*?</h1>\s*<p class="subtitle">.*?</p>\s*<div class="toolbar">[\s\S]*?id="refreshBtn"[\s\S]*?</div>\n'
+        html, n = re.subn(pat, '\n', html, count=1, flags=re.S)
+        if n != 1:
+            raise SystemExit('header block not found')
+        needle = '<body>\n    <div class="container">'
+        if needle not in html:
+            raise SystemExit('body container not found')
+        html = html.replace(needle, '<body>\n' + HEADER + '\n    <div class="container">', 1)
+    panel = r'(<div class="tab-panel" id="panel-leaderboard"[^>]*>)(.*?)(\s*<div class="tab-panel" id="panel-draft")'
+    html, n = re.subn(panel, r'\1\n' + LEADERBOARD + r'\n        </div>\n\3', html, count=1, flags=re.S)
+    if n != 1:
+        raise SystemExit('leaderboard panel not found')
+    html = html.replace('>🏆 Leaderboard<', '>Leaderboard<')
+    html = html.replace('>💎 Draft value<', '>Draft value<')
+    html = html.replace("            this.textContent = 'Refreshing…';\n", '')
+    html = html.replace("        document.getElementById('sortColumn').addEventListener('change', renderCustom);\n", '')
+    html = html.replace("        document.getElementById('sortOrder').addEventListener('change', renderCustom);\n", '')
+    old_calls = '        renderEspn();\n        renderEff();\n        renderCustom();\n'
+    if old_calls not in html:
+        raise SystemExit('standings render calls missing')
+    html = html.replace(old_calls, '        renderStandings();\n', 1)
+    if 'function renderStandings(' not in html:
+        call = '        showLastRefresh();\n'
+        if call not in html:
+            raise SystemExit('showLastRefresh call missing')
+        html = html.replace(call, RENDER_FN + '\n' + call, 1)
+    old_fn = '''        function showLastRefresh() {
+            const el = document.getElementById('lastRefreshLabel');
+            try {
+                el.textContent = new Date(LAST_REFRESH_ISO).toLocaleString(undefined, {
+                    dateStyle: 'medium',
+                    timeStyle: 'short'
+                });
+            } catch (e) {
+                el.textContent = LAST_REFRESH_ISO;
+            }
+        }'''
+    new_fn = '''        function showLastRefresh() {
+            const el = document.getElementById('lastRefreshLabel');
+            try {
+                const d = new Date(LAST_REFRESH_ISO);
+                const long = d.toLocaleString(undefined, { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' });
+                const short = d.toLocaleString(undefined, { month: 'short', day: 'numeric' });
+                el.innerHTML = '<span class="when-long">' + long + '</span><span class="when-short">' + short + '</span>';
+            } catch (e) {
+                el.textContent = LAST_REFRESH_ISO;
+            }
+        }'''
+    if old_fn in html:
+        html = html.replace(old_fn, new_fn, 1)
+    return html
+def ensure_draft_mobile(html):
+    if '.m-only {' not in html and '    </style>' in html:
+        html = html.replace('    </style>', '''        .m-only { display: none; flex-direction: column; gap: 10px; }
+        .pick-card, .round-card { background: #fff; border-radius: 14px; padding: 14px; box-shadow: 0 6px 16px rgba(70,40,120,0.06); }
+        .pick-card { display: flex; gap: 10px; align-items: flex-start; }
+        .pick-card .rk { flex: none; width: 36px; font-weight: 800; font-size: 1.15rem; color: #2c2644; }
+        .pick-card .rk.bad { color: #c0392b; }
+        .pick-card .mid { flex: 1; min-width: 0; }
+        .pick-card .name { font-weight: 800; color: #1c1730; line-height: 1.25; }
+        .pick-card .meta { margin-top: 3px; color: #8b86a0; font-size: 0.84rem; line-height: 1.35; }
+        .pick-card .val { flex: none; font-weight: 800; font-size: 1.35rem; text-align: right; font-variant-numeric: tabular-nums; }
+        .pick-card .val.neg { color: #c0392b; }
+        .pick-card .val.pos { color: #127a43; }
+        .round-card .rh { font-weight: 800; color: #6236d4; margin-bottom: 4px; }
+        .pick-line { display: flex; gap: 8px; align-items: flex-start; padding: 7px 0; border-top: 1px solid #f2eef8; font-size: 0.88rem; line-height: 1.35; }
+        .pick-line i { width: 12px; height: 12px; border-radius: 3px; flex: none; margin-top: 4px; }
+    </style>''', 1)
+    if 'id="worstDrafts"' not in html and 'id="stealsByRound"' in html:
+        html = html.replace('<div class="table-section" id="stealsByRound">', '''<div class="table-section" id="worstDrafts">
+            <h2>Worst drafts</h2>
+            <p class="hint">Biggest misses among picks that have played, worst value first. Value = pick number minus production rank.</p>
+            <div class="m-only" id="worstCards"></div>
+            <table class="slim">
+                <thead><tr><th>#</th><th>Player</th><th>Drafted by</th><th class="number">Pick</th><th class="number">Rd</th><th class="number">FPts</th><th class="number">FPts/G</th><th class="number">Prod RK</th><th class="number">Value</th></tr></thead>
+                <tbody id="tableWorst"></tbody>
+            </table>
+        </div>
+
+        <div class="table-section" id="stealsByRound">''', 1)
+    if 'id="valueCards"' not in html:
+        html = re.sub(r'\n([ \t]*)<table>(\s*<thead>\s*<tr>\s*<th>#</th>\s*<th>Player</th>\s*<th>Drafted by</th>)',
+                      r'\n\1<div class="m-only" id="valueCards"></div>\n\1<table>\2', html, count=1)
+    if 'id="roundCards"' not in html:
+        html = re.sub(r'\n([ \t]*)<table>(\s*<thead>\s*<tr>\s*<th>Rd</th>)',
+                      r'\n\1<div class="m-only" id="roundCards"></div>\n\1<table>\2', html, count=1)
+    if 'id="boardRounds"' not in html:
+        html = html.replace('<table class="board">', '<div class="m-only" id="boardRounds"></div>\n            <table class="board">', 1)
+    if 'id="gradeCards"' not in html:
+        html = re.sub(r'\n([ \t]*)<table>(\s*<thead>\s*<tr>\s*<th>#</th>\s*<th>Team</th>\s*<th class="number">Draft FPts</th>)',
+                      r'\n\1<div class="m-only" id="gradeCards"></div>\n\1<table>\2', html, count=1)
+    if 'id="undraftedCards"' not in html:
+        html = re.sub(r'\n([ \t]*)<table>(\s*<thead>\s*<tr>\s*<th>#</th>\s*<th>Player</th>\s*<th>Team</th>)',
+                      r'\n\1<div class="m-only" id="undraftedCards"></div>\n\1<table>\2', html, count=1)
+    if 'function renderWorst(' not in html and 'function renderValue(' in html:
+        extra = '''
+        function renderWorst() {
+            const list = DRAFT.filter(p => p.played && p.value != null).sort((a, b) => a.value - b.value || a.pick - b.pick).slice(0, 12);
+            const cards = document.getElementById('worstCards');
+            const body = document.getElementById('tableWorst');
+            const row = (p, i) => '<article class="pick-card"><div class="rk bad">#' + (i + 1) + '</div><div class="mid"><div class="name">' + esc(p.player) + '</div><div class="meta">' + esc(p.drafted_by) + ' · Pick ' + p.pick + ' · Rd ' + p.round + '</div><div class="meta">' + fnum(p.fpts_tot) + ' FPts · ' + fnum(p.fpts_avg, 1) + '/G · Prod ' + (p.prod_rank == null ? '—' : p.prod_rank) + '</div></div><div class="val neg">' + (p.value > 0 ? '+' : '') + p.value + '</div></article>';
+            if (cards) cards.innerHTML = list.map(row).join('');
+            if (body) body.innerHTML = list.map((p, i) => '<tr><td class="rank">' + (i + 1) + '</td><td>' + esc(p.player) + '</td><td>' + esc(p.drafted_by) + '</td><td class="number">' + p.pick + '</td><td class="number">' + p.round + '</td><td class="number">' + fnum(p.fpts_tot) + '</td><td class="number">' + fnum(p.fpts_avg, 1) + '</td><td class="number">' + (p.prod_rank == null ? '—' : p.prod_rank) + '</td><td class="number">' + fmtVal(p.value) + '</td></tr>').join('');
+        }
+        function renderValue() {
+            const view = document.getElementById('valueView').value;
+            const team = document.getElementById('valueTeam').value;
+            let list = DRAFT.filter(p => !team || p.drafted_by === team);
+            if (view === 'steals') list = list.filter(p => p.played).sort((a, b) => b.value - a.value).slice(0, 15);
+            else if (view === 'busts') list = list.filter(p => p.played && p.round <= 4).sort((a, b) => a.value - b.value).slice(0, 10);
+            else list = list.sort((a, b) => (b.value == null ? -999 : b.value) - (a.value == null ? -999 : a.value));
+            const cards = document.getElementById('valueCards');
+            if (cards) cards.innerHTML = list.map((p, i) => '<article class="pick-card"><div class="rk">#' + (i + 1) + '</div><div class="mid"><div class="name">' + esc(p.player) + '</div><div class="meta">' + esc(p.drafted_by) + ' · Pick ' + p.pick + ' · Rd ' + p.round + '</div></div><div class="val ' + (p.value < 0 ? 'neg' : 'pos') + '">' + (p.value > 0 ? '+' : '') + p.value + '</div></article>').join('');
+            const body = document.getElementById('tableValue');
+            if (body) body.innerHTML = list.map((p, i) => '<tr><td>' + (i + 1) + '</td><td>' + esc(p.player) + '</td><td>' + esc(p.drafted_by) + '</td><td class="number">' + p.pick + '</td><td class="number">' + p.round + '</td><td class="number">' + fnum(p.fpts_tot) + '</td><td class="number">' + fnum(p.fpts_avg, 1) + '</td><td class="number">' + (p.prod_rank == null ? '—' : p.prod_rank) + '</td><td class="number">' + fmtVal(p.value) + '</td></tr>').join('');
+        }
+        function renderByRound() {
+            const cards = document.getElementById('roundCards');
+            if (cards) cards.innerHTML = BY_ROUND.map(r => '<article class="round-card"><div class="rh">Round ' + r.round + '</div><div class="pick-line"><span><b>Best</b> ' + esc(r.best) + ' · ' + esc(r.best_team) + ' · pick ' + r.best_pick + ' · ' + r.best_fpts + ' FPts</span></div><div class="pick-line"><span><b>Worst</b> ' + esc(r.worst) + ' · pick ' + r.worst_pick + ' · ' + r.worst_fpts + ' FPts</span></div></article>').join('');
+            const body = document.getElementById('tableByRound');
+            if (body) body.innerHTML = BY_ROUND.map(r => '<tr><td>' + r.round + '</td><td>' + esc(r.best) + '</td><td>' + esc(r.best_team) + '</td><td>' + r.best_pick + '</td><td>' + r.best_fpts + '</td><td>' + r.best_rank + '</td><td>' + esc(r.worst) + '</td><td>' + r.worst_fpts + '</td><td>' + r.round_avg_fpts.toFixed(1) + '</td></tr>').join('');
+        }
+        function renderBoard() {
+            const rounds = document.getElementById('boardRounds');
+            if (!rounds) return;
+            let html = '';
+            for (let r = 1; r <= 13; r++) {
+                html += '<article class="round-card"><div class="rh">Round ' + r + '</div>' + DRAFT_TEAMS.map(t => {
+                    const p = DRAFT.find(x => x.round === r && x.drafted_by === t);
+                    if (!p) return '';
+                    const v = p.played ? ((p.value > 0 ? '+' : '') + p.value) : '—';
+                    return '<div class="pick-line"><span><b>' + esc(p.player) + '</b> · ' + esc(t) + ' · #' + p.pick + ' · ' + v + '</span></div>';
+                }).join('') + '</article>';
+            }
+            rounds.innerHTML = html;
+            const head = document.getElementById('boardHead');
+            const body = document.getElementById('boardBody');
+            if (head) head.innerHTML = '<th>Rd</th>' + DRAFT_TEAMS.map(t => '<th>' + esc(t) + '</th>').join('');
+            if (body) {
+                let rows = '';
+                for (let r = 1; r <= 13; r++) rows += '<tr><td>' + r + '</td>' + DRAFT_TEAMS.map(t => { const p = DRAFT.find(x => x.round === r && x.drafted_by === t); return '<td>' + (p ? esc(p.player) : '') + '</td>'; }).join('') + '</tr>';
+                body.innerHTML = rows;
+            }
+        }
+'''
+        html = html.replace('\n    </script>', extra + '\n    </script>', 1)
+        if 'renderWorst();' not in html:
+            html = html.replace('renderUndrafted();\n', 'renderUndrafted();\n        renderWorst();\n', 1)
+    return html
+
+html=open(B+'index.html').read()
+_layout=ensure_draft_mobile(ensure_responsive_layout(html))
+if _layout!=html:
+    open(B+'index.html','w').write(_layout)
