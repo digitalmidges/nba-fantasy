@@ -1,0 +1,1016 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="favicon.svg" type="image/svg+xml">
+    <link rel="icon" href="favicon.ico" sizes="any">
+    <link rel="apple-touch-icon" href="apple-touch-icon.png">
+    <title>Barchashim — Points per Position</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 40px 20px;
+        }
+        .container { max-width: 1100px; margin: 0 auto; }
+        h1 {
+            text-align: center;
+            color: white;
+            margin-bottom: 8px;
+            font-size: 2.5em;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+        }
+        .subtitle {
+            text-align: center;
+            color: rgba(255,255,255,0.9);
+            margin-bottom: 16px;
+            font-size: 1.05em;
+        }
+        .toolbar {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 28px;
+        }
+        .last-refresh {
+            color: white;
+            font-size: 0.95em;
+            background: rgba(255,255,255,0.15);
+            padding: 10px 16px;
+            border-radius: 8px;
+        }
+        .btn {
+            padding: 10px 22px;
+            background: white;
+            color: #5a4fcf;
+            border: none;
+            border-radius: 8px;
+            font-weight: 700;
+            cursor: pointer;
+            font-size: 0.95em;
+            box-shadow: 0 4px 14px rgba(0,0,0,0.15);
+        }
+        .btn:hover { transform: translateY(-1px); }
+        .btn:disabled { opacity: 0.7; cursor: wait; }
+        .formula {
+            text-align: center;
+            color: white;
+            font-weight: 600;
+            margin-bottom: 28px;
+            font-size: 1.05em;
+        }
+        .table-section {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            padding: 30px;
+            margin-bottom: 28px;
+            overflow-x: auto;
+        }
+        .table-section h2 {
+            font-size: 1.35em;
+            color: #333;
+            margin-bottom: 8px;
+            padding-bottom: 10px;
+            border-bottom: 3px solid #667eea;
+        }
+        .table-section .hint {
+            color: #666;
+            font-size: 0.9em;
+            margin-bottom: 16px;
+        }
+        table { width: 100%; border-collapse: collapse; }
+        thead {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        th {
+            padding: 12px 8px;
+            text-align: left;
+            font-weight: 600;
+            font-size: 0.82em;
+            letter-spacing: 0.2px;
+            white-space: nowrap;
+        }
+        th.number, td.number { text-align: right; }
+        td {
+            padding: 10px 8px;
+            border-bottom: 1px solid #eee;
+            font-size: 0.9em;
+        }
+        tbody tr:hover { background-color: #f5f5f5; }
+        tbody tr:last-child td { border-bottom: none; }
+        tbody tr.highlight { background-color: #f3eefe; }
+        .rank { font-weight: 600; color: #667eea; }
+        .team { font-weight: 500; color: #333; white-space: nowrap; }
+        .number { font-variant-numeric: tabular-nums; }
+        .tot { font-weight: 700; }
+        .controls {
+            display: flex;
+            gap: 24px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+        .control-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .control-group label { font-weight: 500; color: #333; font-size: 0.95em; }
+        .control-group select {
+            padding: 8px 12px;
+            border: 2px solid #667eea;
+            border-radius: 6px;
+            font-size: 0.95em;
+            background: white;
+            color: #333;
+        }
+        .toast {
+            display: none;
+            position: fixed;
+            bottom: 24px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #333;
+            color: white;
+            padding: 14px 20px;
+            border-radius: 10px;
+            max-width: 90%;
+            z-index: 50;
+            font-size: 0.95em;
+            text-align: center;
+        }
+        .toast.show { display: block; }
+        .badge { display: inline-block; padding: 2px 8px; border-radius: 999px; font-size: 0.72em; font-weight: 700; letter-spacing: 0.4px; margin-left: 6px; vertical-align: middle; }
+        .badge.steal { background: #e6f7ee; color: #127a43; }
+        .badge.bust { background: #fdecec; color: #b42318; }
+        .badge.dnp { background: #f0f0f0; color: #666; }
+        .pos { color: #2a8a55; font-weight: 700; }
+        .neg { color: #c0392b; font-weight: 700; }
+        .muted { color: #888; font-size: 0.85em; }
+        .note { background: #f6f3ff; border-left: 4px solid #764ba2; padding: 10px 14px; border-radius: 6px; color: #444; font-size: 0.88em; margin-bottom: 16px; }
+        .board { width: 100%; border-collapse: separate; border-spacing: 4px; }
+        .board th { background: none; color: #333; font-size: 0.75em; white-space: normal; text-align: center; padding: 6px 4px; }
+        .board thead { background: none; }
+        .board td { border: none; border-radius: 6px; padding: 6px 6px; font-size: 0.74em; text-align: center; line-height: 1.25; min-width: 86px; }
+        .board td .p { font-weight: 600; color: #222; }
+        .board td .v { font-size: 0.92em; }
+        .board td.rd { background: none; font-weight: 700; color: #667eea; min-width: 30px; }
+        .board tbody tr:hover { background: none; }
+        .legend { display: flex; flex-wrap: wrap; gap: 10px; font-size: 0.8em; color: #555; margin-bottom: 12px; }
+        .legend span { display: inline-flex; align-items: center; gap: 6px; }
+        .legend i { width: 14px; height: 14px; border-radius: 4px; display: inline-block; }
+        .tabs { display: flex; gap: 8px; margin: 6px 0 22px; padding: 6px; background: #f3f0fb; border-radius: 999px; width: fit-content; max-width: 100%; overflow-x: auto; }
+        .tab { border: none; background: transparent; color: #764ba2; font-weight: 700; font-size: 0.95em; padding: 10px 20px; border-radius: 999px; cursor: pointer; white-space: nowrap; font-family: inherit; }
+        .tab:hover { background: rgba(118,75,162,0.1); }
+        .tab.active { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: #fff; box-shadow: 0 2px 8px rgba(118,75,162,0.3); }
+        .tab-panel[hidden] { display: none; }
+        @media (max-width: 600px) { .tabs { width: 100%; } .tab { flex: 1; padding: 10px 8px; font-size: 0.9em; } }
+        h1 .ball { display: inline-block; width: 0.82em; height: 0.82em; vertical-align: middle; margin-right: 0.22em; }
+        .footer {
+            text-align: center;
+            color: rgba(255,255,255,0.85);
+            font-size: 0.9em;
+            margin-top: 8px;
+        }
+        /* responsive board: cards under 700px, slim table above */
+        body { background: #f4f1fb; padding: 0; color: #241c3a; }
+        .container { max-width: 980px; margin: 0 auto; padding: 16px 16px 40px; }
+        .topbar {
+            display: flex; align-items: center; justify-content: space-between; gap: 12px;
+            padding: 16px 18px; color: #fff;
+            background: linear-gradient(100deg, #693fc4 0%, #7a4fd0 100%);
+        }
+        .topbar .brand { display: flex; align-items: center; gap: 12px; min-width: 0; }
+        .topbar .ball { width: 40px; height: 40px; display: block; flex: none; }
+        .topbar h1 {
+            text-align: left; color: #fff; margin: 0; text-shadow: none;
+            font-size: 1.35rem; font-weight: 800; letter-spacing: -0.02em; line-height: 1.1;
+        }
+        .topbar .tagline { margin: 3px 0 0; color: rgba(255,255,255,0.82); font-size: 0.78rem; font-weight: 500; }
+        .chip {
+            display: inline-flex; align-items: center; gap: 8px; flex: none;
+            max-width: 58%; color: #fff; background: transparent; cursor: pointer; font: inherit;
+            font-size: 0.75rem; font-weight: 650; line-height: 1.2; text-align: left;
+            border: 1px solid rgba(255,255,255,0.38); border-radius: 999px; padding: 6px 12px 6px 10px;
+        }
+        .chip:disabled { opacity: 0.7; cursor: wait; }
+        .chip-icon, .chip-refresh { flex: none; }
+        .chip-refresh, .when-short { display: none; }
+        .stamp { display: flex; align-items: center; gap: 8px; flex: none; color: #fff; font-size: 0.75rem; font-weight: 650; }
+        .icon-btn {
+            width: 34px; height: 34px; border-radius: 999px; border: 1px solid rgba(255,255,255,0.5);
+            background: transparent; color: #fff; display: inline-flex; align-items: center; justify-content: center;
+            cursor: pointer; flex: none; padding: 0;
+        }
+        .icon-btn:disabled { opacity: 0.65; cursor: wait; }
+        .section-head { margin: 2px 0 10px; }
+        .section-head h2 { margin: 0 0 2px; font-size: 1.45rem; color: #1c1730; font-weight: 800; }
+        .section-head.spaced { margin-top: 28px; }
+        .formula { text-align: left; color: #7c7694; font-weight: 500; font-size: 0.82rem; margin: 0 0 10px; }
+        .mode-pills, .view-pills { display: flex; flex-wrap: wrap; gap: 8px; margin: 0 0 14px; }
+        .pill {
+            border: none; background: #fff; color: #5c5678; font-weight: 700; font-size: 0.86rem;
+            border-radius: 999px; padding: 8px 12px; cursor: pointer; font-family: inherit;
+            box-shadow: 0 2px 8px rgba(70,40,120,0.06);
+        }
+        .pill.active { background: #6841c9; color: #fff; }
+        .card .subtot { margin-top: 2px; color: #a39eb6; font-size: 0.75rem; }
+        table.slim td.hot { color: #6236d4; font-weight: 800; font-size: 1.05rem; }
+        table.slim td.muted-num { color: #9a94ad; font-weight: 500; }
+        #panel-draft .table-section[hidden] { display: none !important; }
+        .footer { color: #8d87a3; }
+        .cards { display: none; }
+        .board-wrap {
+            display: block; background: #fff; border-radius: 18px;
+            box-shadow: 0 10px 28px rgba(70,40,120,0.08); overflow: hidden;
+        }
+        .card {
+            display: flex; align-items: center; gap: 12px; background: #fff;
+            border-radius: 16px; padding: 16px 16px; 
+            box-shadow: 0 8px 22px rgba(70,40,120,0.07);
+        }
+        .card.highlight { box-shadow: inset 0 0 0 2px #d9ccf7, 0 8px 22px rgba(70,40,120,0.07); }
+        .card .rk { flex: none; width: 52px; font-weight: 800; font-size: 1.45rem; color: #2c2644; letter-spacing: -0.03em; }
+        .card .rk.gold { color: #e2a30b; }
+        .card .who { min-width: 0; flex: 1; }
+        .card .name { font-weight: 800; font-size: 1.05rem; color: #1c1730; line-height: 1.2; }
+        .card .owner { margin-top: 3px; color: #8b86a0; font-size: 0.88rem; }
+        .card .stat { text-align: right; flex: none; }
+        .card .lbl { font-size: 0.68rem; letter-spacing: 0.08em; font-weight: 800; color: #8b86a0; }
+        .card .avg { font-size: 1.65rem; font-weight: 800; color: #6236d4; line-height: 1.05; font-variant-numeric: tabular-nums; }
+        .card .games { margin-top: 2px; color: #8b86a0; font-size: 0.82rem; }
+        .m-only { display: none; flex-direction: column; gap: 10px; }
+        .pick-card, .round-card {
+            background: #fff; border-radius: 14px; padding: 14px;
+            box-shadow: 0 6px 16px rgba(70,40,120,0.06);
+        }
+        .pick-card { display: flex; gap: 10px; align-items: flex-start; }
+        .pick-card .rk { flex: none; width: 36px; font-weight: 800; font-size: 1.15rem; color: #2c2644; }
+        .pick-card .rk.bad { color: #c0392b; }
+        .pick-card .mid { flex: 1; min-width: 0; }
+        .pick-card .name { font-weight: 800; color: #1c1730; line-height: 1.25; }
+        .pick-card .meta { margin-top: 3px; color: #8b86a0; font-size: 0.84rem; line-height: 1.35; }
+        .pick-card .val { flex: none; font-weight: 800; font-size: 1.35rem; text-align: right; color: #3a3158; font-variant-numeric: tabular-nums; }
+        .pick-card .val.neg { color: #c0392b; }
+        .pick-card .val.pos { color: #127a43; }
+        .round-card .rh { font-weight: 800; color: #6236d4; margin-bottom: 4px; }
+        .pick-line { display: flex; gap: 8px; align-items: flex-start; padding: 7px 0; border-top: 1px solid #f2eef8; font-size: 0.88rem; line-height: 1.35; }
+        .pick-line i { width: 12px; height: 12px; border-radius: 3px; flex: none; margin-top: 4px; }
+        .draft-refresh { display: flex; align-items: center; justify-content: flex-end; gap: 8px; margin: 0 0 12px; color: #6d6786; font-size: 0.78rem; font-weight: 650; }
+        .draft-refresh .icon-btn { width: 30px; height: 30px; border-color: #d9d3ea; color: #6841c9; background: #fff; }
+        .retro-list { display: flex; flex-direction: column; gap: 10px; }
+        .retro-card { background: #fff; border-radius: 14px; padding: 14px; box-shadow: 0 6px 16px rgba(70,40,120,0.06); }
+        .retro-card.hit { box-shadow: inset 4px 0 0 #127a43, 0 6px 16px rgba(70,40,120,0.06); }
+        .retro-card.miss { box-shadow: inset 4px 0 0 #c0392b, 0 6px 16px rgba(70,40,120,0.06); }
+        .retro-kicker { font-size: 0.72rem; font-weight: 800; letter-spacing: 0.06em; color: #8b86a0; }
+        .retro-name { font-weight: 800; color: #1c1730; margin: 2px 0; }
+        .retro-meta { color: #6d6786; font-size: 0.86rem; }
+        .tag-hit { color: #127a43; font-weight: 800; font-size: 0.78rem; }
+        .tag-miss { color: #c0392b; font-weight: 800; font-size: 0.78rem; }
+        .retro-split { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 8px; }
+        @media (max-width: 520px) { .retro-split { grid-template-columns: 1fr; } }
+        table.slim thead { background: transparent; color: #8b86a0; }
+        table.slim th { color: #8b86a0; font-weight: 600; font-size: 0.78rem; padding: 16px 18px 10px; }
+        table.slim td { padding: 14px 18px; border-bottom: 1px solid #f0eef5; font-size: 0.95rem; }
+        table.slim .rank { color: #3a3158; }
+        table.slim td.avg { color: #6236d4; font-weight: 800; font-size: 1.05rem; }
+        table.slim .team { white-space: normal; }
+        .tabs { display: flex; gap: 10px; margin: 4px 0 14px; padding: 0; background: transparent; width: 100%; border-radius: 0; }
+        .tab {
+            flex: 1; border: none; background: #fff; color: #6d6786; font-weight: 750; font-size: 0.86rem;
+            padding: 12px 8px; border-radius: 14px; cursor: pointer; font-family: inherit; white-space: normal;
+            box-shadow: 0 2px 8px rgba(70,40,120,0.06);
+        }
+        .tab.active {
+            background: linear-gradient(180deg, #7b5ae0 0%, #6841c9 100%);
+            color: #fff; box-shadow: 0 6px 16px rgba(104,65,201,0.28);
+        }
+        @media (max-width: 700px) {
+            .cards { display: flex; flex-direction: column; gap: 12px; }
+            .board-wrap { display: none; }
+            .topbar .long, .chip-prefix-long, .when-long { display: none; }
+            .when-short { display: inline; }
+            .topbar .tagline { white-space: nowrap; }
+            .topbar { padding: 14px 16px; }
+            .table-section { padding: 16px; overflow-x: visible; }
+            #panel-draft table { display: none; }
+            #panel-draft .m-only { display: flex; }
+            body { overflow-x: hidden; }
+        }
+        @media (min-width: 701px) {
+            .topbar { padding: 18px 28px; }
+            .topbar h1 { font-size: 1.7rem; }
+            .topbar .short, .chip-prefix-short, .chip-icon { display: none; }
+            .chip-refresh { display: block; }
+            .chip { border: none; max-width: none; font-size: 0.95rem; font-weight: 600; padding: 0; gap: 14px; }
+            .tabs {
+                width: fit-content; gap: 0; padding: 4px; margin: 0 0 16px;
+                background: rgba(255,255,255,0.72); border-radius: 14px;
+            }
+            .tab { flex: none; background: transparent; color: #6d6786; box-shadow: none; border-radius: 10px; padding: 8px 18px; }
+            .tab.active { background: #fff; color: #2c2548; box-shadow: 0 1px 4px rgba(40,20,80,0.08); }
+            #panel-draft .table-section { overflow-x: auto; }
+        }
+
+    </style>
+</head>
+<body>
+    <header class="topbar">
+        <div class="brand">
+            <img class="ball" src="favicon.svg" alt="" width="40" height="40">
+            <div class="brand-text">
+                <h1><span class="short">Barchashim</span><span class="long">Barchashim League</span></h1>
+                <p class="tagline">Season points ÷ games</p>
+            </div>
+        </div>
+        <div class="stamp">
+            <span class="stamp-text"><span class="chip-prefix-short">Standings </span><span class="chip-prefix-long">Standings · </span><span id="lastRefreshLabel">—</span></span>
+            <button type="button" class="icon-btn" id="refreshBtn" aria-label="Refresh standings" title="Refresh standings">
+                <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M20 12a8 8 0 1 1-2.3-5.7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M20 4v5h-5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </button>
+        </div>
+    </header>
+
+    <div class="container">
+        <nav class="tabs" role="tablist">
+            <button type="button" class="tab active" role="tab" data-tab="leaderboard" aria-selected="true">Leaderboard</button>
+            <button type="button" class="tab" role="tab" data-tab="draft" aria-selected="false">Draft value</button>
+            <button type="button" class="tab" role="tab" data-tab="retro" aria-selected="false">Draft retro</button>
+        </nav>
+        <div class="tab-panel" id="panel-leaderboard" role="tabpanel">
+        <div class="section-head">
+            <h2>Leaderboard</h2>
+            <p class="formula">Avg = season points ÷ games</p>
+        </div>
+        <div class="mode-pills" id="rankMode" role="tablist">
+            <button type="button" class="pill active" data-mode="avg" aria-selected="true">Avg</button>
+            <button type="button" class="pill" data-mode="total" aria-selected="false">Total</button>
+        </div>
+        <div class="cards" id="teamCards"></div>
+        <div class="board-wrap">
+            <table class="slim">
+                <thead>
+                    <tr>
+                        <th>Rank</th>
+                        <th>Team</th>
+                        <th>Owner</th>
+                        <th class="number">Total</th>
+                        <th class="number">Games</th>
+                        <th class="number">Avg</th>
+                    </tr>
+                </thead>
+                <tbody id="tableSlim"></tbody>
+            </table>
+        </div>
+
+        <div class="section-head spaced">
+            <h2>Season totals</h2>
+            <p class="formula">ESPN order · season points and games</p>
+        </div>
+        <div class="cards" id="seasonCards"></div>
+        <div class="board-wrap">
+            <table class="slim">
+                <thead>
+                    <tr>
+                        <th>Rank</th>
+                        <th>Team</th>
+                        <th>Owner</th>
+                        <th class="number">Total</th>
+                        <th class="number">Games</th>
+                    </tr>
+                </thead>
+                <tbody id="tableSeason"></tbody>
+            </table>
+        </div>
+
+        </div>
+
+        <div class="tab-panel" id="panel-draft" role="tabpanel" hidden>
+        <div class="draft-refresh">
+            <span>Draft stats <span class="draftRefreshLabel">—</span></span>
+            <button type="button" class="icon-btn draft-refresh-btn" aria-label="Refresh draft stats" title="Refresh draft stats">
+                <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path d="M20 12a8 8 0 1 1-2.3-5.7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M20 4v5h-5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </button>
+        </div>
+        <div class="view-pills" id="draftPills" role="tablist">
+            <button type="button" class="pill" data-view="worst">Worst drafts</button>
+            <button type="button" class="pill active" data-view="steals" aria-selected="true">Top 15 steals</button>
+            <button type="button" class="pill" data-view="busts">Biggest busts</button>
+            <button type="button" class="pill" data-view="all">All drafted</button>
+            <button type="button" class="pill" data-view="rounds">Steals by round</button>
+            <button type="button" class="pill" data-view="board">Draft board</button>
+            <button type="button" class="pill" data-view="grades">Team grades</button>
+            <button type="button" class="pill" data-view="undrafted">Undrafted</button>
+        </div>
+        <div class="table-section" id="bangForBuck">
+            <h2 id="valueTitle">Top 15 steals</h2>
+            <div class="m-only" id="valueCards"></div>
+            <table>
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Player</th>
+                        <th>Drafted by</th>
+                        <th class="number">Pick</th>
+                        <th class="number">Rd</th>
+                        <th class="number">FPts</th>
+                        <th class="number">FPts/G</th>
+                        <th class="number">Prod RK</th>
+                        <th class="number">Value</th>
+                    </tr>
+                </thead>
+                <tbody id="tableValue"></tbody>
+            </table>
+        </div>
+
+        <div class="table-section" id="worstDrafts" hidden>
+            <h2>Worst drafts</h2>
+            <div class="m-only" id="worstCards"></div>
+            <table class="slim">
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Player</th>
+                        <th>Drafted by</th>
+                        <th class="number">Pick</th>
+                        <th class="number">Rd</th>
+                        <th class="number">FPts</th>
+                        <th class="number">FPts/G</th>
+                        <th class="number">Prod RK</th>
+                        <th class="number">Value</th>
+                    </tr>
+                </thead>
+                <tbody id="tableWorst"></tbody>
+            </table>
+        </div>
+
+        <div class="table-section" id="stealsByRound" hidden>
+            <h2>Steals by round</h2>
+            <div class="m-only" id="roundCards"></div>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Rd</th>
+                        <th>Best pick</th>
+                        <th>Drafted by</th>
+                        <th class="number">Pick</th>
+                        <th class="number">FPts</th>
+                        <th class="number">Prod RK</th>
+                        <th>Worst pick</th>
+                        <th class="number">FPts</th>
+                        <th class="number">Rd avg FPts</th>
+                    </tr>
+                </thead>
+                <tbody id="tableByRound"></tbody>
+            </table>
+        </div>
+
+        <div class="table-section" id="draftBoard" hidden>
+            <h2>Draft board</h2>
+            <div class="legend">
+                <span><i style="background:#2a8a55"></i>Value +40 or better</span>
+                <span><i style="background:#9fdcb8"></i>+10 to +39</span>
+                <span><i style="background:#f1f1f1"></i>−9 to +9</span>
+                <span><i style="background:#f6b5ad"></i>−10 to −39</span>
+                <span><i style="background:#d9534f"></i>−40 or worse</span>
+                <span><i style="background:#fff;border:1px dashed #bbb"></i>No games yet</span>
+            </div>
+            <div class="m-only" id="boardRounds"></div>
+            <table class="board">
+                <thead><tr id="boardHead"></tr></thead>
+                <tbody id="boardBody"></tbody>
+            </table>
+        </div>
+
+        <div class="table-section" id="draftGrades" hidden>
+            <h2>Draft report card</h2>
+            <div class="m-only" id="gradeCards"></div>
+            <table>
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Team</th>
+                        <th class="number">Draft FPts</th>
+                        <th class="number">Net value</th>
+                        <th class="number">Steals</th>
+                        <th class="number">Busts</th>
+                        <th>Best value pick</th>
+                    </tr>
+                </thead>
+                <tbody id="tableGrades"></tbody>
+            </table>
+        </div>
+
+        <div class="table-section" id="undrafted" hidden>
+            <h2>Best undrafted pickups</h2>
+            <div class="m-only" id="undraftedCards"></div>
+            <table>
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Player</th>
+                        <th>Team</th>
+                        <th>Pos</th>
+                        <th class="number">FPts</th>
+                        <th class="number">FPts/G</th>
+                        <th class="number">Would rank</th>
+                    </tr>
+                </thead>
+                <tbody id="tableUndrafted"></tbody>
+            </table>
+        </div>
+
+        </div>
+
+        <div class="tab-panel" id="panel-retro" role="tabpanel" hidden>
+        <div class="draft-refresh">
+            <span>Draft stats <span class="draftRefreshLabel">—</span></span>
+            <button type="button" class="icon-btn draft-refresh-btn" aria-label="Refresh draft stats" title="Refresh draft stats">
+                <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true"><path d="M20 12a8 8 0 1 1-2.3-5.7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M20 4v5h-5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </button>
+        </div>
+        <div class="view-pills" id="retroTeams" role="tablist"></div>
+        <div class="section-head">
+            <h2 id="retroTeamName">Pick a team</h2>
+            <p class="formula" id="retroSummary">Choose a team to see each draft pick and who was still available.</p>
+        </div>
+        <div class="retro-list" id="retroCards"></div>
+        </div>
+
+        <p class="footer">Source: ESPN Fantasy league 683874011 · Fantasy points = ESPN points-league scoring · Times show in your device timezone</p>
+    </div>
+    <div class="toast" id="toast"></div>
+
+    <script>
+        const LAST_REFRESH_ISO = "2026-10-29T23:51:35-05:00";
+        // Draft player production is the published data/draft_value.json snapshot (generated_at).
+        // scripts/draft_value.py rebuilds that file from draft.json + rosters_flat.json + free_agents.json.
+        // No in-browser ESPN player scrape yet — the draft refresh button only reloads this snapshot.
+        // Best-available also includes undrafted_gems from that file; a fuller free-agent pool needs the same scrape hook.
+        const DRAFT_REFRESH_ISO = "2026-10-25T19:48:31-05:00";
+
+        const currentData = [
+            { seasonRk: 1, team: "The Pigs orsurf", owner: "Or Frydman", fgm: 776, fga: -821, ftm: 192, fta: -250, tpm: 103, reb: 394, ast: 496, stl: 376, blk: 100, to: -310, pts: 1071, tot: 2127, gp: 58 },
+            { seasonRk: 2, team: "Naim Merlon", owner: "Meir Naim", fgm: 794, fga: -800, ftm: 241, fta: -297, tpm: 114, reb: 332, ast: 374, stl: 292, blk: 164, to: -272, pts: 1149, tot: 2091, gp: 58 },
+            { seasonRk: 3, team: "ER", owner: "Eliro Rha", fgm: 628, fga: -704, ftm: 187, fta: -244, tpm: 72, reb: 420, ast: 604, stl: 268, blk: 108, to: -254, pts: 887, tot: 1972, gp: 57 },
+            { seasonRk: 4, team: "Israel Samson", owner: "Asaf Samson", fgm: 668, fga: -751, ftm: 169, fta: -212, tpm: 73, reb: 335, ast: 506, stl: 212, blk: 220, to: -226, pts: 910, tot: 1904, gp: 51 },
+            { seasonRk: 5, team: "DanKen", owner: "Dan Frydman", fgm: 726, fga: -751, ftm: 188, fta: -237, tpm: 103, reb: 232, ast: 428, stl: 280, blk: 120, to: -296, pts: 1017, tot: 1810, gp: 52 },
+            { seasonRk: 6, team: "Team Mamba Mentality", owner: "Itay Funt", fgm: 680, fga: -702, ftm: 158, fta: -219, tpm: 109, reb: 279, ast: 408, stl: 188, blk: 124, to: -230, pts: 947, tot: 1742, gp: 51 },
+            { seasonRk: 7, team: "Omer's Team", owner: "Omer Bar Oz", fgm: 680, fga: -751, ftm: 193, fta: -235, tpm: 84, reb: 314, ast: 350, stl: 188, blk: 136, to: -240, pts: 957, tot: 1676, gp: 48 },
+            { seasonRk: 8, team: "Team The Mushroom", owner: "The Mushroom", fgm: 610, fga: -680, ftm: 182, fta: -228, tpm: 86, reb: 276, ast: 446, stl: 164, blk: 140, to: -244, pts: 878, tot: 1630, gp: 50 },
+        ].map(t => ({ ...t, avgPts: t.tot / t.gp }));
+
+        const DRAFT = [{"pick":1,"round":1,"pick_in_round":1,"drafted_by":"The Pigs orsurf","current_team":"The Pigs orsurf","player":"Nikola Jokic","position":"C","nba_team":"DEN","status":"rostered","fpts_tot":106.0,"fpts_avg":53.0,"gp_est":2,"prod_rank":15,"value":-14,"steal":false,"bust":false,"played":true},{"pick":2,"round":1,"pick_in_round":2,"drafted_by":"Omer's Team","current_team":"Omer's Team","player":"Shai Gilgeous-Alexander","position":"PG","nba_team":"OKC","status":"rostered","fpts_tot":144.0,"fpts_avg":48.0,"gp_est":3,"prod_rank":5,"value":-3,"steal":false,"bust":false,"played":true},{"pick":3,"round":1,"pick_in_round":3,"drafted_by":"Team The Mushroom","current_team":"Team The Mushroom","player":"Luka Doncic","position":"PG","nba_team":"LAL","status":"rostered","fpts_tot":162.0,"fpts_avg":54.0,"gp_est":3,"prod_rank":1,"value":2,"steal":false,"bust":false,"played":true},{"pick":4,"round":1,"pick_in_round":4,"drafted_by":"Israel Samson","current_team":"Israel Samson","player":"Victor Wembanyama","position":"C","nba_team":"SA","status":"rostered","fpts_tot":130.0,"fpts_avg":43.3,"gp_est":3,"prod_rank":12,"value":-8,"steal":false,"bust":false,"played":true},{"pick":5,"round":1,"pick_in_round":5,"drafted_by":"Naim Merlon","current_team":"Naim Merlon","player":"Giannis Antetokounmpo","position":"PF","nba_team":"MIA","status":"rostered","fpts_tot":128.0,"fpts_avg":42.7,"gp_est":3,"prod_rank":16,"value":-11,"steal":false,"bust":false,"played":true},{"pick":6,"round":1,"pick_in_round":6,"drafted_by":"ER","current_team":"ER","player":"Jalen Johnson","position":"PF","nba_team":"ATL","status":"rostered","fpts_tot":158.0,"fpts_avg":52.7,"gp_est":3,"prod_rank":2,"value":4,"steal":false,"bust":false,"played":true},{"pick":7,"round":1,"pick_in_round":7,"drafted_by":"Team Mamba Mentality","current_team":"Team Mamba Mentality","player":"Cade Cunningham","position":"PG","nba_team":"DET","status":"rostered","fpts_tot":108.0,"fpts_avg":36.0,"gp_est":3,"prod_rank":34,"value":-27,"steal":false,"bust":true,"played":true},{"pick":8,"round":1,"pick_in_round":8,"drafted_by":"DanKen","current_team":"DanKen","player":"Cooper Flagg","position":"SF","nba_team":"DAL","status":"rostered","fpts_tot":96.0,"fpts_avg":48.0,"gp_est":2,"prod_rank":25,"value":-17,"steal":false,"bust":false,"played":true},{"pick":9,"round":2,"pick_in_round":1,"drafted_by":"DanKen","current_team":"DanKen","player":"Tyrese Maxey","position":"PG","nba_team":"PHI","status":"rostered","fpts_tot":157.0,"fpts_avg":39.3,"gp_est":4,"prod_rank":13,"value":-4,"steal":false,"bust":false,"played":true},{"pick":10,"round":2,"pick_in_round":2,"drafted_by":"Team Mamba Mentality","current_team":"Team Mamba Mentality","player":"Anthony Edwards","position":"SG","nba_team":"MIN","status":"rostered","fpts_tot":128.0,"fpts_avg":42.7,"gp_est":3,"prod_rank":18,"value":-8,"steal":false,"bust":false,"played":true},{"pick":11,"round":2,"pick_in_round":3,"drafted_by":"ER","current_team":"ER","player":"Jayson Tatum","position":"PF","nba_team":"BOS","status":"rostered","fpts_tot":96.0,"fpts_avg":48.0,"gp_est":2,"prod_rank":28,"value":-17,"steal":false,"bust":false,"played":true},{"pick":12,"round":2,"pick_in_round":4,"drafted_by":"Naim Merlon","current_team":"Naim Merlon","player":"Donovan Mitchell","position":"SG","nba_team":"CLE","status":"rostered","fpts_tot":88.0,"fpts_avg":44.0,"gp_est":2,"prod_rank":36,"value":-24,"steal":false,"bust":false,"played":true},{"pick":13,"round":2,"pick_in_round":5,"drafted_by":"Israel Samson","current_team":"Israel Samson","player":"Scottie Barnes","position":"SF","nba_team":"TOR","status":"rostered","fpts_tot":97.0,"fpts_avg":32.3,"gp_est":3,"prod_rank":51,"value":-38,"steal":false,"bust":true,"played":true},{"pick":14,"round":2,"pick_in_round":6,"drafted_by":"Team The Mushroom","current_team":"Team The Mushroom","player":"Jalen Brunson","position":"PG","nba_team":"NY","status":"rostered","fpts_tot":73.0,"fpts_avg":24.3,"gp_est":3,"prod_rank":71,"value":-57,"steal":false,"bust":true,"played":true},{"pick":15,"round":2,"pick_in_round":7,"drafted_by":"Omer's Team","current_team":"Omer's Team","player":"Deni Avdija","position":"SF","nba_team":"POR","status":"rostered","fpts_tot":79.0,"fpts_avg":39.5,"gp_est":2,"prod_rank":47,"value":-32,"steal":false,"bust":true,"played":true},{"pick":16,"round":2,"pick_in_round":8,"drafted_by":"The Pigs orsurf","current_team":"The Pigs orsurf","player":"Karl-Anthony Towns","position":"C","nba_team":"NY","status":"rostered","fpts_tot":106.0,"fpts_avg":35.3,"gp_est":3,"prod_rank":37,"value":-21,"steal":false,"bust":false,"played":true},{"pick":17,"round":3,"pick_in_round":1,"drafted_by":"The Pigs orsurf","current_team":"The Pigs orsurf","player":"Alperen Sengun","position":"C","nba_team":"HOU","status":"rostered","fpts_tot":126.0,"fpts_avg":42.0,"gp_est":3,"prod_rank":19,"value":-2,"steal":false,"bust":false,"played":true},{"pick":18,"round":3,"pick_in_round":2,"drafted_by":"Omer's Team","current_team":"Omer's Team","player":"Amen Thompson","position":"SF","nba_team":"HOU","status":"rostered","fpts_tot":125.0,"fpts_avg":41.7,"gp_est":3,"prod_rank":20,"value":-2,"steal":false,"bust":false,"played":true},{"pick":19,"round":3,"pick_in_round":3,"drafted_by":"Team The Mushroom","current_team":"Team The Mushroom","player":"Devin Booker","position":"PG","nba_team":"PHX","status":"rostered","fpts_tot":106.0,"fpts_avg":53.0,"gp_est":2,"prod_rank":17,"value":2,"steal":false,"bust":false,"played":true},{"pick":20,"round":3,"pick_in_round":4,"drafted_by":"Israel Samson","current_team":"Israel Samson","player":"Tyrese Haliburton","position":"PG","nba_team":"IND","status":"rostered","fpts_tot":151.0,"fpts_avg":50.3,"gp_est":3,"prod_rank":3,"value":17,"steal":false,"bust":false,"played":true},{"pick":21,"round":3,"pick_in_round":5,"drafted_by":"Naim Merlon","current_team":"Naim Merlon","player":"Kevin Durant","position":"PF","nba_team":"HOU","status":"rostered","fpts_tot":114.0,"fpts_avg":38.0,"gp_est":3,"prod_rank":27,"value":-6,"steal":false,"bust":false,"played":true},{"pick":22,"round":3,"pick_in_round":6,"drafted_by":"ER","current_team":"ER","player":"Domantas Sabonis","position":"C","nba_team":"SAC","status":"rostered","fpts_tot":114.0,"fpts_avg":57.0,"gp_est":2,"prod_rank":9,"value":13,"steal":false,"bust":false,"played":true},{"pick":23,"round":3,"pick_in_round":7,"drafted_by":"Team Mamba Mentality","current_team":"Team Mamba Mentality","player":"Evan Mobley","position":"PF","nba_team":"CLE","status":"rostered","fpts_tot":87.0,"fpts_avg":43.5,"gp_est":2,"prod_rank":38,"value":-15,"steal":false,"bust":false,"played":true},{"pick":24,"round":3,"pick_in_round":8,"drafted_by":"DanKen","current_team":"DanKen","player":"LaMelo Ball","position":"PG","nba_team":"MIN","status":"rostered","fpts_tot":80.0,"fpts_avg":26.7,"gp_est":3,"prod_rank":67,"value":-43,"steal":false,"bust":true,"played":true},{"pick":25,"round":4,"pick_in_round":1,"drafted_by":"DanKen","current_team":"DanKen","player":"Jalen Williams","position":"PF","nba_team":"OKC","status":"rostered","fpts_tot":64.0,"fpts_avg":21.3,"gp_est":3,"prod_rank":86,"value":-61,"steal":false,"bust":false,"played":true},{"pick":26,"round":4,"pick_in_round":2,"drafted_by":"Team Mamba Mentality","current_team":"Team Mamba Mentality","player":"Paolo Banchero","position":"PF","nba_team":"ORL","status":"rostered","fpts_tot":90.0,"fpts_avg":45.0,"gp_est":2,"prod_rank":32,"value":-6,"steal":false,"bust":false,"played":true},{"pick":27,"round":4,"pick_in_round":3,"drafted_by":"ER","current_team":"ER","player":"Anthony Davis","position":"C","nba_team":"WSH","status":"rostered","fpts_tot":99.0,"fpts_avg":33.0,"gp_est":3,"prod_rank":46,"value":-19,"steal":false,"bust":false,"played":true},{"pick":28,"round":4,"pick_in_round":4,"drafted_by":"Naim Merlon","current_team":"Naim Merlon","player":"Bam Adebayo","position":"C","nba_team":"MIA","status":"rostered","fpts_tot":91.0,"fpts_avg":30.3,"gp_est":3,"prod_rank":58,"value":-30,"steal":false,"bust":false,"played":true},{"pick":29,"round":4,"pick_in_round":5,"drafted_by":"Israel Samson","current_team":"Israel Samson","player":"Trae Young","position":"PG","nba_team":"WSH","status":"rostered","fpts_tot":129.0,"fpts_avg":43.0,"gp_est":3,"prod_rank":14,"value":15,"steal":true,"bust":false,"played":true},{"pick":30,"round":4,"pick_in_round":6,"drafted_by":"Team The Mushroom","current_team":"Team The Mushroom","player":"Jalen Duren","position":"C","nba_team":"DET","status":"rostered","fpts_tot":63.0,"fpts_avg":31.5,"gp_est":2,"prod_rank":73,"value":-43,"steal":false,"bust":false,"played":true},{"pick":31,"round":4,"pick_in_round":7,"drafted_by":"Omer's Team","current_team":"Omer's Team","player":"Austin Reaves","position":"SG","nba_team":"LAL","status":"rostered","fpts_tot":146.0,"fpts_avg":48.7,"gp_est":3,"prod_rank":4,"value":27,"steal":true,"bust":false,"played":true},{"pick":32,"round":4,"pick_in_round":8,"drafted_by":"The Pigs orsurf","current_team":"The Pigs orsurf","player":"Pascal Siakam","position":"PF","nba_team":"IND","status":"rostered","fpts_tot":106.0,"fpts_avg":35.3,"gp_est":3,"prod_rank":39,"value":-7,"steal":false,"bust":false,"played":true},{"pick":33,"round":5,"pick_in_round":1,"drafted_by":"The Pigs orsurf","current_team":"The Pigs orsurf","player":"Jaylen Brown","position":"SF","nba_team":"PHI","status":"rostered","fpts_tot":136.0,"fpts_avg":34.0,"gp_est":4,"prod_rank":26,"value":7,"steal":false,"bust":false,"played":true},{"pick":34,"round":5,"pick_in_round":2,"drafted_by":"Omer's Team","current_team":"Omer's Team","player":"Naz Reid","position":"C","nba_team":"CHA","status":"rostered","fpts_tot":106.0,"fpts_avg":35.3,"gp_est":3,"prod_rank":40,"value":-6,"steal":false,"bust":false,"played":true},{"pick":35,"round":5,"pick_in_round":3,"drafted_by":"Team The Mushroom","current_team":"Team The Mushroom","player":"Josh Giddey","position":"PG","nba_team":"CHI","status":"rostered","fpts_tot":65.0,"fpts_avg":21.7,"gp_est":3,"prod_rank":82,"value":-47,"steal":false,"bust":false,"played":true},{"pick":36,"round":5,"pick_in_round":4,"drafted_by":"Israel Samson","current_team":"Israel Samson","player":"Kawhi Leonard","position":"SF","nba_team":"TOR","status":"rostered","fpts_tot":75.0,"fpts_avg":37.5,"gp_est":2,"prod_rank":53,"value":-17,"steal":false,"bust":false,"played":true},{"pick":37,"round":5,"pick_in_round":5,"drafted_by":"Naim Merlon","current_team":"Naim Merlon","player":"Jamal Murray","position":"PG","nba_team":"DEN","status":"rostered","fpts_tot":74.0,"fpts_avg":37.0,"gp_est":2,"prod_rank":54,"value":-17,"steal":false,"bust":false,"played":true},{"pick":38,"round":5,"pick_in_round":6,"drafted_by":"ER","current_team":"ER","player":"James Harden","position":"PG","nba_team":"CLE","status":"rostered","fpts_tot":48.0,"fpts_avg":24.0,"gp_est":2,"prod_rank":85,"value":-47,"steal":false,"bust":false,"played":true},{"pick":39,"round":5,"pick_in_round":7,"drafted_by":"Team Mamba Mentality","current_team":"Team Mamba Mentality","player":"Derrick White","position":"SG","nba_team":"BOS","status":"rostered","fpts_tot":65.0,"fpts_avg":32.5,"gp_est":2,"prod_rank":66,"value":-27,"steal":false,"bust":false,"played":true},{"pick":40,"round":5,"pick_in_round":8,"drafted_by":"DanKen","current_team":"DanKen","player":"Darius Garland","position":"PG","nba_team":"LAC","status":"rostered","fpts_tot":90.0,"fpts_avg":30.0,"gp_est":3,"prod_rank":60,"value":-20,"steal":false,"bust":false,"played":true},{"pick":41,"round":6,"pick_in_round":1,"drafted_by":"DanKen","current_team":"DanKen","player":"Zion Williamson","position":"PF","nba_team":"NO","status":"rostered","fpts_tot":113.0,"fpts_avg":37.7,"gp_est":3,"prod_rank":29,"value":12,"steal":false,"bust":false,"played":true},{"pick":42,"round":6,"pick_in_round":2,"drafted_by":"Team Mamba Mentality","current_team":"Team Mamba Mentality","player":"Onyeka Okongwu","position":"C","nba_team":"ATL","status":"rostered","fpts_tot":58.0,"fpts_avg":19.3,"gp_est":3,"prod_rank":91,"value":-49,"steal":false,"bust":false,"played":true},{"pick":43,"round":6,"pick_in_round":3,"drafted_by":"ER","current_team":"ER","player":"LeBron James","position":"SF","nba_team":"PHI","status":"rostered","fpts_tot":71.0,"fpts_avg":23.7,"gp_est":3,"prod_rank":77,"value":-34,"steal":false,"bust":false,"played":true},{"pick":44,"round":6,"pick_in_round":4,"drafted_by":"Naim Merlon","current_team":"Naim Merlon","player":"Stephen Curry","position":"PG","nba_team":"GS","status":"rostered","fpts_tot":64.0,"fpts_avg":32.0,"gp_est":2,"prod_rank":69,"value":-25,"steal":false,"bust":false,"played":true},{"pick":45,"round":6,"pick_in_round":5,"drafted_by":"Israel Samson","current_team":"Israel Samson","player":"Kon Knueppel","position":"SF","nba_team":"CHA","status":"rostered","fpts_tot":null,"fpts_avg":null,"gp_est":null,"prod_rank":null,"value":null,"steal":false,"bust":false,"played":false},{"pick":46,"round":6,"pick_in_round":6,"drafted_by":"Team The Mushroom","current_team":"Team The Mushroom","player":"Desmond Bane","position":"SG","nba_team":"ORL","status":"rostered","fpts_tot":48.0,"fpts_avg":16.0,"gp_est":3,"prod_rank":92,"value":-46,"steal":false,"bust":false,"played":true},{"pick":47,"round":6,"pick_in_round":7,"drafted_by":"Omer's Team","current_team":"Omer's Team","player":"Joel Embiid","position":"C","nba_team":"PHI","status":"rostered","fpts_tot":121.0,"fpts_avg":40.3,"gp_est":3,"prod_rank":22,"value":25,"steal":false,"bust":false,"played":true},{"pick":48,"round":6,"pick_in_round":8,"drafted_by":"The Pigs orsurf","current_team":"The Pigs orsurf","player":"Stephon Castle","position":"PG","nba_team":"SA","status":"rostered","fpts_tot":108.0,"fpts_avg":36.0,"gp_est":3,"prod_rank":35,"value":13,"steal":false,"bust":false,"played":true},{"pick":49,"round":7,"pick_in_round":1,"drafted_by":"The Pigs orsurf","current_team":"The Pigs orsurf","player":"Dyson Daniels","position":"SG","nba_team":"ATL","status":"rostered","fpts_tot":144.0,"fpts_avg":48.0,"gp_est":3,"prod_rank":6,"value":43,"steal":true,"bust":false,"played":true},{"pick":50,"round":7,"pick_in_round":2,"drafted_by":"Omer's Team","current_team":"Omer's Team","player":"Lauri Markkanen","position":"PF","nba_team":"UTAH","status":"rostered","fpts_tot":96.0,"fpts_avg":32.0,"gp_est":3,"prod_rank":55,"value":-5,"steal":false,"bust":false,"played":true},{"pick":51,"round":7,"pick_in_round":3,"drafted_by":"Team The Mushroom","current_team":"Team The Mushroom","player":"Julius Randle","position":"PF","nba_team":"BKN","status":"rostered","fpts_tot":110.0,"fpts_avg":36.7,"gp_est":3,"prod_rank":33,"value":18,"steal":false,"bust":false,"played":true},{"pick":52,"round":7,"pick_in_round":4,"drafted_by":"Israel Samson","current_team":"Israel Samson","player":"Franz Wagner","position":"SF","nba_team":"ORL","status":"rostered","fpts_tot":71.0,"fpts_avg":23.7,"gp_est":3,"prod_rank":78,"value":-26,"steal":false,"bust":false,"played":true},{"pick":53,"round":7,"pick_in_round":5,"drafted_by":"Naim Merlon","current_team":"Naim Merlon","player":"Michael Porter Jr.","position":"SF","nba_team":"BKN","status":"rostered","fpts_tot":111.0,"fpts_avg":37.0,"gp_est":3,"prod_rank":30,"value":23,"steal":false,"bust":false,"played":true},{"pick":54,"round":7,"pick_in_round":6,"drafted_by":"ER","current_team":"ER","player":"De'Aaron Fox","position":"PG","nba_team":"SA","status":"rostered","fpts_tot":132.0,"fpts_avg":44.0,"gp_est":3,"prod_rank":11,"value":43,"steal":true,"bust":false,"played":true},{"pick":55,"round":7,"pick_in_round":7,"drafted_by":"Team Mamba Mentality","current_team":"Team Mamba Mentality","player":"Trey Murphy III","position":"SF","nba_team":"NO","status":"rostered","fpts_tot":80.0,"fpts_avg":26.7,"gp_est":3,"prod_rank":68,"value":-13,"steal":false,"bust":false,"played":true},{"pick":56,"round":7,"pick_in_round":8,"drafted_by":"DanKen","current_team":"DanKen","player":"Nickeil Alexander-Walker","position":"SG","nba_team":"ATL","status":"rostered","fpts_tot":121.0,"fpts_avg":40.3,"gp_est":3,"prod_rank":23,"value":33,"steal":false,"bust":false,"played":true},{"pick":57,"round":8,"pick_in_round":1,"drafted_by":"DanKen","current_team":"DanKen","player":"Keyonte George","position":"PG","nba_team":"UTAH","status":"rostered","fpts_tot":117.0,"fpts_avg":39.0,"gp_est":3,"prod_rank":24,"value":33,"steal":false,"bust":false,"played":true},{"pick":58,"round":8,"pick_in_round":2,"drafted_by":"Team Mamba Mentality","current_team":"Team Mamba Mentality","player":"Damian Lillard","position":"PG","nba_team":"POR","status":"rostered","fpts_tot":80.0,"fpts_avg":40.0,"gp_est":2,"prod_rank":45,"value":13,"steal":false,"bust":false,"played":true},{"pick":59,"round":8,"pick_in_round":3,"drafted_by":"ER","current_team":"Waivers/FA","player":"Mikal Bridges","position":"SF","nba_team":"NY","status":"dropped","fpts_tot":28.0,"fpts_avg":9.3,"gp_est":3,"prod_rank":99,"value":-40,"steal":false,"bust":false,"played":true},{"pick":60,"round":8,"pick_in_round":4,"drafted_by":"Naim Merlon","current_team":"Naim Merlon","player":"Jarrett Allen","position":"C","nba_team":"CLE","status":"rostered","fpts_tot":67.0,"fpts_avg":33.5,"gp_est":2,"prod_rank":64,"value":-4,"steal":false,"bust":false,"played":true},{"pick":61,"round":8,"pick_in_round":5,"drafted_by":"Israel Samson","current_team":"Israel Samson","player":"Walker Kessler","position":"C","nba_team":"LAL","status":"rostered","fpts_tot":135.0,"fpts_avg":45.0,"gp_est":3,"prod_rank":10,"value":51,"steal":true,"bust":false,"played":true},{"pick":62,"round":8,"pick_in_round":6,"drafted_by":"Team The Mushroom","current_team":"Team The Mushroom","player":"Chet Holmgren","position":"C","nba_team":"OKC","status":"rostered","fpts_tot":91.0,"fpts_avg":30.3,"gp_est":3,"prod_rank":59,"value":3,"steal":false,"bust":false,"played":true},{"pick":63,"round":8,"pick_in_round":7,"drafted_by":"Omer's Team","current_team":"Omer's Team","player":"Dejounte Murray","position":"SG","nba_team":"NO","status":"rostered","fpts_tot":141.0,"fpts_avg":47.0,"gp_est":3,"prod_rank":7,"value":56,"steal":true,"bust":false,"played":true},{"pick":64,"round":8,"pick_in_round":8,"drafted_by":"The Pigs orsurf","current_team":"The Pigs orsurf","player":"AJ Dybantsa","position":"SF","nba_team":"WSH","status":"rostered","fpts_tot":null,"fpts_avg":null,"gp_est":null,"prod_rank":null,"value":null,"steal":false,"bust":false,"played":false},{"pick":65,"round":9,"pick_in_round":1,"drafted_by":"The Pigs orsurf","current_team":"The Pigs orsurf","player":"Norman Powell","position":"SG","nba_team":"CHI","status":"rostered","fpts_tot":81.0,"fpts_avg":27.0,"gp_est":3,"prod_rank":65,"value":0,"steal":false,"bust":false,"played":true},{"pick":66,"round":9,"pick_in_round":2,"drafted_by":"Omer's Team","current_team":"Omer's Team","player":"Brandon Miller","position":"SF","nba_team":"CHA","status":"rostered","fpts_tot":61.0,"fpts_avg":20.3,"gp_est":3,"prod_rank":88,"value":-22,"steal":false,"bust":false,"played":true},{"pick":67,"round":9,"pick_in_round":3,"drafted_by":"Team The Mushroom","current_team":"Team The Mushroom","player":"Tyler Herro","position":"SG","nba_team":"MIL","status":"rostered","fpts_tot":111.0,"fpts_avg":37.0,"gp_est":3,"prod_rank":31,"value":36,"steal":false,"bust":false,"played":true},{"pick":68,"round":9,"pick_in_round":4,"drafted_by":"Israel Samson","current_team":"Israel Samson","player":"Cameron Boozer","position":"PF","nba_team":"MEM","status":"rostered","fpts_tot":63.0,"fpts_avg":31.5,"gp_est":2,"prod_rank":74,"value":-6,"steal":false,"bust":false,"played":true},{"pick":69,"round":9,"pick_in_round":5,"drafted_by":"Naim Merlon","current_team":"Naim Merlon","player":"Kyrie Irving","position":"PG","nba_team":"DAL","status":"rostered","fpts_tot":64.0,"fpts_avg":32.0,"gp_est":2,"prod_rank":70,"value":-1,"steal":false,"bust":false,"played":true},{"pick":70,"round":9,"pick_in_round":6,"drafted_by":"ER","current_team":"ER","player":"Rudy Gobert","position":"C","nba_team":"MIN","status":"rostered","fpts_tot":48.0,"fpts_avg":16.0,"gp_est":3,"prod_rank":94,"value":-24,"steal":false,"bust":false,"played":true},{"pick":71,"round":9,"pick_in_round":7,"drafted_by":"Team Mamba Mentality","current_team":"Team Mamba Mentality","player":"Jaren Jackson Jr.","position":"C","nba_team":"UTAH","status":"rostered","fpts_tot":90.0,"fpts_avg":30.0,"gp_est":3,"prod_rank":61,"value":10,"steal":false,"bust":false,"played":true},{"pick":72,"round":9,"pick_in_round":8,"drafted_by":"DanKen","current_team":"Waivers/FA","player":"Kel'el Ware","position":"C","nba_team":"MIL","status":"dropped","fpts_tot":68.0,"fpts_avg":22.7,"gp_est":3,"prod_rank":80,"value":-8,"steal":false,"bust":false,"played":true},{"pick":73,"round":10,"pick_in_round":1,"drafted_by":"DanKen","current_team":"DanKen","player":"Matas Buzelis","position":"SF","nba_team":"CHI","status":"rostered","fpts_tot":61.0,"fpts_avg":20.3,"gp_est":3,"prod_rank":89,"value":-16,"steal":false,"bust":false,"played":true},{"pick":74,"round":10,"pick_in_round":2,"drafted_by":"Team Mamba Mentality","current_team":"Team Mamba Mentality","player":"Ty Jerome","position":"SG","nba_team":"MEM","status":"rostered","fpts_tot":116.0,"fpts_avg":58.0,"gp_est":2,"prod_rank":8,"value":66,"steal":true,"bust":false,"played":true},{"pick":75,"round":10,"pick_in_round":3,"drafted_by":"ER","current_team":"ER","player":"Ja Morant","position":"PG","nba_team":"POR","status":"rostered","fpts_tot":77.0,"fpts_avg":38.5,"gp_est":2,"prod_rank":50,"value":25,"steal":false,"bust":false,"played":true},{"pick":76,"round":10,"pick_in_round":4,"drafted_by":"Naim Merlon","current_team":"Naim Merlon","player":"DeMar DeRozan","position":"SF","nba_team":"DEN","status":"rostered","fpts_tot":20.0,"fpts_avg":10.0,"gp_est":2,"prod_rank":100,"value":-24,"steal":false,"bust":false,"played":true},{"pick":77,"round":10,"pick_in_round":5,"drafted_by":"Israel Samson","current_team":"Israel Samson","player":"Dylan Harper","position":"PG","nba_team":"SA","status":"rostered","fpts_tot":94.0,"fpts_avg":31.3,"gp_est":3,"prod_rank":56,"value":21,"steal":false,"bust":false,"played":true},{"pick":78,"round":10,"pick_in_round":6,"drafted_by":"Team The Mushroom","current_team":"Team The Mushroom","player":"Miles Bridges","position":"SF","nba_team":"PHX","status":"rostered","fpts_tot":49.0,"fpts_avg":24.5,"gp_est":2,"prod_rank":83,"value":-5,"steal":false,"bust":false,"played":true},{"pick":79,"round":10,"pick_in_round":7,"drafted_by":"Omer's Team","current_team":"Omer's Team","player":"OG Anunoby","position":"SF","nba_team":"NY","status":"rostered","fpts_tot":72.0,"fpts_avg":24.0,"gp_est":3,"prod_rank":75,"value":4,"steal":false,"bust":false,"played":true},{"pick":80,"round":10,"pick_in_round":8,"drafted_by":"The Pigs orsurf","current_team":"The Pigs orsurf","player":"Fred VanVleet","position":"PG","nba_team":"HOU","status":"rostered","fpts_tot":83.0,"fpts_avg":41.5,"gp_est":2,"prod_rank":42,"value":38,"steal":false,"bust":false,"played":true},{"pick":81,"round":11,"pick_in_round":1,"drafted_by":"The Pigs orsurf","current_team":"The Pigs orsurf","player":"Caleb Wilson","position":"SF","nba_team":"CHI","status":"rostered","fpts_tot":104.0,"fpts_avg":34.7,"gp_est":3,"prod_rank":41,"value":40,"steal":true,"bust":false,"played":true},{"pick":82,"round":11,"pick_in_round":2,"drafted_by":"Omer's Team","current_team":"Omer's Team","player":"Alex Sarr","position":"C","nba_team":"WSH","status":"rostered","fpts_tot":73.0,"fpts_avg":24.3,"gp_est":3,"prod_rank":72,"value":10,"steal":false,"bust":false,"played":true},{"pick":83,"round":11,"pick_in_round":3,"drafted_by":"Team The Mushroom","current_team":"Waivers/FA","player":"Kristaps Porzingis","position":"C","nba_team":"GS","status":"dropped","fpts_tot":null,"fpts_avg":null,"gp_est":null,"prod_rank":null,"value":null,"steal":false,"bust":false,"played":false},{"pick":84,"round":11,"pick_in_round":4,"drafted_by":"Israel Samson","current_team":"Israel Samson","player":"Donovan Clingan","position":"C","nba_team":"POR","status":"rostered","fpts_tot":57.0,"fpts_avg":28.5,"gp_est":2,"prod_rank":81,"value":3,"steal":false,"bust":false,"played":true},{"pick":85,"round":11,"pick_in_round":5,"drafted_by":"Naim Merlon","current_team":"Naim Merlon","player":"CJ McCollum","position":"SG","nba_team":"ATL","status":"rostered","fpts_tot":71.0,"fpts_avg":23.7,"gp_est":3,"prod_rank":79,"value":6,"steal":false,"bust":false,"played":true},{"pick":86,"round":11,"pick_in_round":6,"drafted_by":"ER","current_team":"ER","player":"Coby White","position":"PG","nba_team":"CHA","status":"rostered","fpts_tot":null,"fpts_avg":null,"gp_est":null,"prod_rank":null,"value":null,"steal":false,"bust":false,"played":false},{"pick":87,"round":11,"pick_in_round":7,"drafted_by":"Team Mamba Mentality","current_team":"Team Mamba Mentality","player":"Ivica Zubac","position":"C","nba_team":"IND","status":"rostered","fpts_tot":65.0,"fpts_avg":21.7,"gp_est":3,"prod_rank":84,"value":3,"steal":false,"bust":false,"played":true},{"pick":88,"round":11,"pick_in_round":8,"drafted_by":"DanKen","current_team":"DanKen","player":"Jaden McDaniels","position":"SF","nba_team":"MIN","status":"rostered","fpts_tot":101.0,"fpts_avg":33.7,"gp_est":3,"prod_rank":44,"value":44,"steal":true,"bust":false,"played":true},{"pick":89,"round":12,"pick_in_round":1,"drafted_by":"DanKen","current_team":"Waivers/FA","player":"Jalen Green","position":"SG","nba_team":"PHX","status":"dropped","fpts_tot":27.0,"fpts_avg":13.5,"gp_est":2,"prod_rank":98,"value":-9,"steal":false,"bust":false,"played":true},{"pick":90,"round":12,"pick_in_round":2,"drafted_by":"Team Mamba Mentality","current_team":"Team Mamba Mentality","player":"VJ Edgecombe","position":"SG","nba_team":"PHI","status":"rostered","fpts_tot":99.0,"fpts_avg":33.0,"gp_est":3,"prod_rank":48,"value":42,"steal":true,"bust":false,"played":true},{"pick":91,"round":12,"pick_in_round":3,"drafted_by":"ER","current_team":"ER","player":"Immanuel Quickley","position":"PG","nba_team":"TOR","status":"rostered","fpts_tot":90.0,"fpts_avg":30.0,"gp_est":3,"prod_rank":63,"value":28,"steal":false,"bust":false,"played":true},{"pick":92,"round":12,"pick_in_round":4,"drafted_by":"Naim Merlon","current_team":"Naim Merlon","player":"Zach LaVine","position":"SG","nba_team":"SAC","status":"rostered","fpts_tot":68.0,"fpts_avg":34.0,"gp_est":2,"prod_rank":62,"value":30,"steal":false,"bust":false,"played":true},{"pick":93,"round":12,"pick_in_round":5,"drafted_by":"Israel Samson","current_team":"Israel Samson","player":"Darius Acuff Jr.","position":"PG","nba_team":"SAC","status":"rostered","fpts_tot":40.0,"fpts_avg":20.0,"gp_est":2,"prod_rank":93,"value":0,"steal":false,"bust":false,"played":true},{"pick":94,"round":12,"pick_in_round":6,"drafted_by":"Team The Mushroom","current_team":"Waivers/FA","player":"Andrew Wiggins","position":"SF","nba_team":"MIA","status":"dropped","fpts_tot":46.0,"fpts_avg":15.3,"gp_est":3,"prod_rank":95,"value":-1,"steal":false,"bust":false,"played":true},{"pick":95,"round":12,"pick_in_round":7,"drafted_by":"Omer's Team","current_team":"Omer's Team","player":"Ausar Thompson","position":"SF","nba_team":"DET","status":"rostered","fpts_tot":48.0,"fpts_avg":24.0,"gp_est":2,"prod_rank":87,"value":8,"steal":false,"bust":false,"played":true},{"pick":96,"round":12,"pick_in_round":8,"drafted_by":"The Pigs orsurf","current_team":"The Pigs orsurf","player":"Paul George","position":"SF","nba_team":"BOS","status":"rostered","fpts_tot":104.0,"fpts_avg":52.0,"gp_est":2,"prod_rank":21,"value":75,"steal":true,"bust":false,"played":true},{"pick":97,"round":13,"pick_in_round":1,"drafted_by":"The Pigs orsurf","current_team":"The Pigs orsurf","player":"Derik Queen","position":"C","nba_team":"NO","status":"rostered","fpts_tot":93.0,"fpts_avg":31.0,"gp_est":3,"prod_rank":57,"value":40,"steal":true,"bust":false,"played":true},{"pick":98,"round":13,"pick_in_round":2,"drafted_by":"Omer's Team","current_team":"Omer's Team","player":"Jaime Jaquez Jr.","position":"SF","nba_team":"MIL","status":"rostered","fpts_tot":97.0,"fpts_avg":32.3,"gp_est":3,"prod_rank":52,"value":46,"steal":true,"bust":false,"played":true},{"pick":99,"round":13,"pick_in_round":3,"drafted_by":"Team The Mushroom","current_team":"Team The Mushroom","player":"Ryan Rollins","position":"SG","nba_team":"MIL","status":"rostered","fpts_tot":72.0,"fpts_avg":24.0,"gp_est":3,"prod_rank":76,"value":23,"steal":false,"bust":false,"played":true},{"pick":100,"round":13,"pick_in_round":4,"drafted_by":"Israel Samson","current_team":"Israel Samson","player":"Payton Pritchard","position":"PG","nba_team":"BOS","status":"rostered","fpts_tot":29.0,"fpts_avg":14.5,"gp_est":2,"prod_rank":96,"value":4,"steal":false,"bust":false,"played":true},{"pick":101,"round":13,"pick_in_round":5,"drafted_by":"Naim Merlon","current_team":"Naim Merlon","player":"Jabari Smith Jr.","position":"PF","nba_team":"HOU","status":"rostered","fpts_tot":102.0,"fpts_avg":34.0,"gp_est":3,"prod_rank":43,"value":58,"steal":true,"bust":false,"played":true},{"pick":102,"round":13,"pick_in_round":6,"drafted_by":"ER","current_team":"ER","player":"Josh Hart","position":"SF","nba_team":"NY","status":"rostered","fpts_tot":98.0,"fpts_avg":32.7,"gp_est":3,"prod_rank":49,"value":53,"steal":true,"bust":false,"played":true},{"pick":103,"round":13,"pick_in_round":7,"drafted_by":"Team Mamba Mentality","current_team":"Waivers/FA","player":"Darryn Peterson","position":"SG","nba_team":"UTAH","status":"dropped","fpts_tot":60.0,"fpts_avg":20.0,"gp_est":3,"prod_rank":90,"value":13,"steal":false,"bust":false,"played":true},{"pick":104,"round":13,"pick_in_round":8,"drafted_by":"DanKen","current_team":"DanKen","player":"Rui Hachimura","position":"PF","nba_team":"LAC","status":"rostered","fpts_tot":36.0,"fpts_avg":12.0,"gp_est":3,"prod_rank":97,"value":7,"steal":false,"bust":false,"played":true}];
+        const DRAFT_TEAMS = ["The Pigs orsurf", "Omer's Team", "Team The Mushroom", "Israel Samson", "Naim Merlon", "ER", "Team Mamba Mentality", "DanKen"];
+        const BY_ROUND = [{"round":1,"best":"Luka Doncic","best_team":"Team The Mushroom","best_pick":3,"best_fpts":162.0,"best_rank":1,"worst":"Cade Cunningham","worst_pick":7,"worst_fpts":108.0,"round_avg_fpts":129.0},{"round":2,"best":"Tyrese Maxey","best_team":"DanKen","best_pick":9,"best_fpts":157.0,"best_rank":13,"worst":"Jalen Brunson","worst_pick":14,"worst_fpts":73.0,"round_avg_fpts":103.0},{"round":3,"best":"Tyrese Haliburton","best_team":"Israel Samson","best_pick":20,"best_fpts":151.0,"best_rank":3,"worst":"LaMelo Ball","worst_pick":24,"worst_fpts":80.0,"round_avg_fpts":112.9},{"round":4,"best":"Austin Reaves","best_team":"Omer's Team","best_pick":31,"best_fpts":146.0,"best_rank":4,"worst":"Jalen Williams","worst_pick":25,"worst_fpts":64.0,"round_avg_fpts":98.5},{"round":5,"best":"Jaylen Brown","best_team":"The Pigs orsurf","best_pick":33,"best_fpts":136.0,"best_rank":26,"worst":"James Harden","worst_pick":38,"worst_fpts":48.0,"round_avg_fpts":82.4},{"round":6,"best":"Joel Embiid","best_team":"Omer's Team","best_pick":47,"best_fpts":121.0,"best_rank":22,"worst":"Desmond Bane","worst_pick":46,"worst_fpts":48.0,"round_avg_fpts":83.3},{"round":7,"best":"Dyson Daniels","best_team":"The Pigs orsurf","best_pick":49,"best_fpts":144.0,"best_rank":6,"worst":"Franz Wagner","worst_pick":52,"worst_fpts":71.0,"round_avg_fpts":108.1},{"round":8,"best":"Dejounte Murray","best_team":"Omer's Team","best_pick":63,"best_fpts":141.0,"best_rank":7,"worst":"Mikal Bridges","worst_pick":59,"worst_fpts":28.0,"round_avg_fpts":94.1},{"round":9,"best":"Tyler Herro","best_team":"Team The Mushroom","best_pick":67,"best_fpts":111.0,"best_rank":31,"worst":"Rudy Gobert","worst_pick":70,"worst_fpts":48.0,"round_avg_fpts":73.2},{"round":10,"best":"Ty Jerome","best_team":"Team Mamba Mentality","best_pick":74,"best_fpts":116.0,"best_rank":8,"worst":"DeMar DeRozan","worst_pick":76,"worst_fpts":20.0,"round_avg_fpts":71.5},{"round":11,"best":"Caleb Wilson","best_team":"The Pigs orsurf","best_pick":81,"best_fpts":104.0,"best_rank":41,"worst":"Ivica Zubac","worst_pick":87,"worst_fpts":65.0,"round_avg_fpts":78.5},{"round":12,"best":"Paul George","best_team":"The Pigs orsurf","best_pick":96,"best_fpts":104.0,"best_rank":21,"worst":"Jalen Green","worst_pick":89,"worst_fpts":27.0,"round_avg_fpts":65.2},{"round":13,"best":"Jabari Smith Jr.","best_team":"Naim Merlon","best_pick":101,"best_fpts":102.0,"best_rank":43,"worst":"Rui Hachimura","worst_pick":104,"worst_fpts":36.0,"round_avg_fpts":73.4}];
+        const TEAM_GRADES = [{"team":"Omer's Team","draft_fpts":1309.0,"value_sum":106,"steals":3,"busts":1,"dnp":0,"best_value_pick":"Dejounte Murray","best_value":56},{"team":"The Pigs orsurf","draft_fpts":1297.0,"value_sum":212,"steals":4,"busts":0,"dnp":1,"best_value_pick":"Paul George","best_value":75},{"team":"DanKen","draft_fpts":1131.0,"value_sum":-49,"steals":1,"busts":1,"dnp":0,"best_value_pick":"Jaden McDaniels","best_value":44},{"team":"Team Mamba Mentality","draft_fpts":1126.0,"value_sum":2,"steals":2,"busts":1,"dnp":0,"best_value_pick":"Ty Jerome","best_value":66},{"team":"Israel Samson","draft_fpts":1071.0,"value_sum":16,"steals":2,"busts":1,"dnp":1,"best_value_pick":"Walker Kessler","best_value":51},{"team":"Naim Merlon","draft_fpts":1062.0,"value_sum":-25,"steals":1,"busts":0,"dnp":0,"best_value_pick":"Jabari Smith Jr.","best_value":58},{"team":"ER","draft_fpts":1059.0,"value_sum":-15,"steals":2,"busts":0,"dnp":1,"best_value_pick":"Josh Hart","best_value":53},{"team":"Team The Mushroom","draft_fpts":996.0,"value_sum":-115,"steals":0,"busts":1,"dnp":1,"best_value_pick":"Tyler Herro","best_value":36}];
+        const UNDRAFTED = [{"player":"Davion Mitchell","fantasy_team":"Team The Mushroom","position":"PG","fpts_tot":112.0,"fpts_avg":37.3,"would_rank":25},{"player":"Yaxel Lendeborg","fantasy_team":"DanKen","position":"SF, PF","fpts_tot":108.0,"fpts_avg":36.0,"would_rank":28},{"player":"Wendell Carter Jr.","fantasy_team":"DanKen","position":"C","fpts_tot":103.0,"fpts_avg":34.3,"would_rank":37},{"player":"Jaxson Hayes","fantasy_team":"ER","position":"C","fpts_tot":102.0,"fpts_avg":34.0,"would_rank":37},{"player":"RJ Barrett","fantasy_team":"Team Mamba Mentality","position":"SF, SG","fpts_tot":100.0,"fpts_avg":33.3,"would_rank":39},{"player":"Andrew Nembhard","fantasy_team":"DanKen","position":"PG, SG","fpts_tot":94.0,"fpts_avg":31.3,"would_rank":47},{"player":"Naji Marshall","fantasy_team":"Team Mamba Mentality","position":"SF, PF","fpts_tot":93.0,"fpts_avg":31.0,"would_rank":48},{"player":"Moussa Diabate","fantasy_team":"Team The Mushroom","position":"PF, C","fpts_tot":88.0,"fpts_avg":29.3,"would_rank":55},{"player":"Ayo Dosunmu","fantasy_team":"The Pigs orsurf","position":"SG, PG","fpts_tot":84.0,"fpts_avg":28.0,"would_rank":57}];
+
+        function fmtAvg(n) { return n.toFixed(2); }
+        function num(n) { return n.toLocaleString(); }
+
+        function espnRow(item) {
+            return '<tr>' +
+                '<td class="rank">' + item.seasonRk + '</td>' +
+                '<td class="team">' + item.team + '</td>' +
+                '<td class="number">' + num(item.fgm) + '</td>' +
+                '<td class="number">' + num(item.fga) + '</td>' +
+                '<td class="number">' + num(item.ftm) + '</td>' +
+                '<td class="number">' + num(item.fta) + '</td>' +
+                '<td class="number">' + num(item.tpm) + '</td>' +
+                '<td class="number">' + num(item.reb) + '</td>' +
+                '<td class="number">' + num(item.ast) + '</td>' +
+                '<td class="number">' + num(item.stl) + '</td>' +
+                '<td class="number">' + num(item.blk) + '</td>' +
+                '<td class="number">' + num(item.to) + '</td>' +
+                '<td class="number">' + num(item.pts) + '</td>' +
+                '<td class="number tot">' + num(item.tot) + '</td>' +
+                '<td class="number">' + item.gp + '</td>' +
+                '<td class="number tot">' + fmtAvg(item.avgPts) + '</td>' +
+                '</tr>';
+        }
+
+        function simpleRow(item, displayRank) {
+            return '<tr>' +
+                '<td class="rank">' + displayRank + '</td>' +
+                '<td class="team">' + item.team + '</td>' +
+                '<td class="number">' + num(item.tot) + '</td>' +
+                '<td class="number">' + item.gp + '</td>' +
+                '<td class="number">' + fmtAvg(item.avgPts) + '</td>' +
+                '</tr>';
+        }
+
+        function renderEspn() {
+            document.getElementById('tableEspn').innerHTML =
+                currentData.map(espnRow).join('');
+        }
+
+        function renderEff() {
+            const sorted = [...currentData].sort((a, b) => b.avgPts - a.avgPts);
+            document.getElementById('tableEff').innerHTML =
+                sorted.map((item, i) => simpleRow(item, i + 1)).join('');
+        }
+
+        function renderCustom() {
+            const sortBy = document.getElementById('sortColumn').value;
+            const order = document.getElementById('sortOrder').value;
+            let sorted = [...currentData];
+            sorted.sort((a, b) => {
+                if (sortBy === 'team') {
+                    return order === 'asc' ? a.team.localeCompare(b.team) : b.team.localeCompare(a.team);
+                }
+                let valA, valB;
+                if (sortBy === 'tot') { valA = a.tot; valB = b.tot; }
+                else if (sortBy === 'gp') { valA = a.gp; valB = b.gp; }
+                else if (sortBy === 'avgPts') { valA = a.avgPts; valB = b.avgPts; }
+                else { valA = a.seasonRk; valB = b.seasonRk; }
+                return order === 'asc' ? valA - valB : valB - valA;
+            });
+            document.getElementById('tableCustom').innerHTML =
+                sorted.map((item, i) => simpleRow(item, i + 1)).join('');
+        }
+
+        function showLastRefresh() {
+            const el = document.getElementById('lastRefreshLabel');
+            try {
+                const d = new Date(LAST_REFRESH_ISO);
+                const long = d.toLocaleString(undefined, { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' });
+                const short = d.toLocaleString(undefined, { month: 'short', day: 'numeric' });
+                el.innerHTML = '<span class="when-long">' + long + '</span><span class="when-short">' + short + '</span>';
+            } catch (e) {
+                el.textContent = LAST_REFRESH_ISO;
+            }
+        }
+
+        function showToast(msg) {
+            const t = document.getElementById('toast');
+            t.textContent = msg;
+            t.classList.add('show');
+            clearTimeout(showToast._timer);
+            showToast._timer = setTimeout(() => t.classList.remove('show'), 4500);
+        }
+
+        document.getElementById('refreshBtn').addEventListener('click', function () {
+            this.disabled = true;
+            showToast('Reloading standings only (season points and games). Draft player stats stay on the draft snapshot.');
+            setTimeout(() => location.reload(), 600);
+        });
+        function showDraftRefresh() {
+            document.querySelectorAll('.draftRefreshLabel').forEach(el => {
+                try {
+                    const d = new Date(DRAFT_REFRESH_ISO);
+                    el.textContent = d.toLocaleString(undefined, { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' });
+                } catch (e) {
+                    el.textContent = DRAFT_REFRESH_ISO;
+                }
+            });
+        }
+        document.querySelectorAll('.draft-refresh-btn').forEach(btn => btn.addEventListener('click', function () {
+            this.disabled = true;
+            showToast('Reloading the published draft-value snapshot. A live ESPN player scrape is not wired yet.');
+            setTimeout(() => location.reload(), 600);
+        }));
+
+
+
+        function esc(s) { return String(s == null ? '' : s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
+        function fmtVal(v) { if (v == null) return '<span class="muted">—</span>'; return '<span class="' + (v > 0 ? 'pos' : v < 0 ? 'neg' : '') + '">' + (v > 0 ? '+' : '') + v + '</span>'; }
+        function fnum(n, d) { return n == null ? '<span class="muted">—</span>' : (d ? n.toFixed(d) : num(n)); }
+        function badges(p) {
+            let b = '';
+            if (p.steal) b += '<span class="badge steal">STEAL</span>';
+            if (p.bust) b += '<span class="badge bust">BUST</span>';
+            if (!p.played) b += '<span class="badge dnp">NO GAMES</span>';
+            if (p.status === 'dropped') b += '<span class="badge dnp">DROPPED</span>';
+            return b;
+        }
+        function pickCard(p, i) {
+            const valCls = p.value > 0 ? 'pos' : p.value < 0 ? 'neg' : '';
+            const shown = p.value == null ? '—' : (p.value > 0 ? '+' : '') + p.value;
+            return '<article class="pick-card">' +
+                '<div class="rk' + (p.value < 0 ? ' bad' : '') + '">#' + (i + 1) + '</div>' +
+                '<div class="mid"><div class="name">' + esc(p.player) + badges(p) + '</div>' +
+                '<div class="meta">' + esc(p.drafted_by) + ' · Pick ' + p.pick + ' · Rd ' + p.round + '</div>' +
+                '<div class="meta">' + fnum(p.fpts_tot) + ' FPts · ' + fnum(p.fpts_avg, 1) + '/G · Prod ' + (p.prod_rank == null ? '—' : p.prod_rank) + '</div></div>' +
+                '<div class="val ' + valCls + '">' + shown + '</div></article>';
+        }
+        function valueRow(p, i) {
+            return '<tr><td class="rank">' + (i + 1) + '</td>' +
+                '<td class="team">' + esc(p.player) + ' <span class="muted">' + esc(p.position) + ' · ' + esc(p.nba_team) + '</span>' + badges(p) + '</td>' +
+                '<td>' + esc(p.drafted_by) + '</td>' +
+                '<td class="number">' + p.pick + '</td>' +
+                '<td class="number">' + p.round + '</td>' +
+                '<td class="number">' + fnum(p.fpts_tot) + '</td>' +
+                '<td class="number">' + fnum(p.fpts_avg, 1) + '</td>' +
+                '<td class="number">' + (p.prod_rank == null ? '<span class="muted">—</span>' : p.prod_rank) + '</td>' +
+                '<td class="number tot">' + fmtVal(p.value) + '</td></tr>';
+        }
+        let draftListMode = 'steals';
+        function renderValue() {
+            const view = draftListMode;
+            let list = DRAFT.slice();
+            if (view === 'steals') list = list.filter(p => p.played).sort((a, b) => b.value - a.value).slice(0, 15);
+            else if (view === 'busts') list = list.filter(p => p.played && p.round <= 4).sort((a, b) => a.value - b.value).slice(0, 10);
+            else list = list.sort((a, b) => (b.value == null ? -999 : b.value) - (a.value == null ? -999 : a.value));
+            document.getElementById('tableValue').innerHTML = list.map(valueRow).join('');
+            const cards = document.getElementById('valueCards');
+            if (cards) cards.innerHTML = list.map(pickCard).join('');
+            const title = document.getElementById('valueTitle');
+            if (title) title.textContent = view === 'busts' ? 'Biggest busts' : view === 'all' ? 'All drafted' : 'Top 15 steals';
+        }
+        function renderWorst() {
+            const list = DRAFT.filter(p => p.played && p.value != null).sort((a, b) => a.value - b.value || a.pick - b.pick).slice(0, 12);
+            const cards = document.getElementById('worstCards');
+            const body = document.getElementById('tableWorst');
+            if (cards) cards.innerHTML = list.map(pickCard).join('');
+            if (body) body.innerHTML = list.map(valueRow).join('');
+        }
+        function renderByRound() {
+            document.getElementById('tableByRound').innerHTML = BY_ROUND.map(r =>
+                '<tr><td class="rank">' + r.round + '</td>' +
+                '<td class="team">' + esc(r.best) + (r.round >= 4 && r.best_rank <= 20 ? '<span class="badge steal">STEAL</span>' : '') + '</td>' +
+                '<td>' + esc(r.best_team) + '</td>' +
+                '<td class="number">' + r.best_pick + '</td>' +
+                '<td class="number">' + num(r.best_fpts) + '</td>' +
+                '<td class="number tot">' + r.best_rank + '</td>' +
+                '<td>' + esc(r.worst) + ' <span class="muted">#' + r.worst_pick + '</span></td>' +
+                '<td class="number">' + num(r.worst_fpts) + '</td>' +
+                '<td class="number">' + r.round_avg_fpts.toFixed(1) + '</td></tr>').join('');
+            const cards = document.getElementById('roundCards');
+            if (!cards) return;
+            cards.innerHTML = BY_ROUND.map(r =>
+                '<article class="round-card"><div class="rh">Round ' + r.round + '</div>' +
+                '<div class="pick-line"><span><b>Best</b> ' + esc(r.best) + ' · ' + esc(r.best_team) + ' · pick ' + r.best_pick + ' · ' + num(r.best_fpts) + ' FPts · prod ' + r.best_rank + '</span></div>' +
+                '<div class="pick-line"><span><b>Worst</b> ' + esc(r.worst) + ' · pick ' + r.worst_pick + ' · ' + num(r.worst_fpts) + ' FPts</span></div>' +
+                '<div class="meta" style="margin-top:6px;color:#8b86a0;font-size:0.84rem">Round avg ' + r.round_avg_fpts.toFixed(1) + ' FPts</div></article>').join('');
+        }
+        function cellColor(p) {
+            if (!p.played) return 'background:#fff;border:1px dashed #bbb';
+            const v = p.value;
+            if (v >= 40) return 'background:#2a8a55;color:#fff';
+            if (v >= 10) return 'background:#9fdcb8';
+            if (v > -10) return 'background:#f1f1f1';
+            if (v > -40) return 'background:#f6b5ad';
+            return 'background:#d9534f;color:#fff';
+        }
+        function renderBoard() {
+            document.getElementById('boardHead').innerHTML = '<th>Rd</th>' + DRAFT_TEAMS.map(t => '<th>' + esc(t) + '</th>').join('');
+            let body = '';
+            for (let r = 1; r <= 13; r++) {
+                body += '<tr><td class="rd">' + r + '</td>' + DRAFT_TEAMS.map(t => {
+                    const p = DRAFT.find(x => x.round === r && x.drafted_by === t);
+                    if (!p) return '<td></td>';
+                    const strong = p.played && p.value >= 40 || p.played && p.value <= -40;
+                    return '<td style="' + cellColor(p) + '" title="#' + p.pick + ' ' + esc(p.player) + ' — ' + (p.played ? p.fpts_tot + ' FPts, value ' + (p.value > 0 ? '+' : '') + p.value : 'no games yet') + '">' +
+                        '<div class="p"' + (strong ? ' style="color:#fff"' : '') + '>' + esc(p.player) + '</div>' +
+                        '<div class="v">#' + p.pick + ' · ' + (p.played ? (p.value > 0 ? '+' : '') + p.value : '—') + '</div></td>';
+                }).join('') + '</tr>';
+            }
+            document.getElementById('boardBody').innerHTML = body;
+            const rounds = document.getElementById('boardRounds');
+            if (!rounds) return;
+            let cards = '';
+            for (let r = 1; r <= 13; r++) {
+                const lines = DRAFT_TEAMS.map(t => {
+                    const p = DRAFT.find(x => x.round === r && x.drafted_by === t);
+                    if (!p) return '';
+                    const v = !p.played ? '—' : (p.value > 0 ? '+' : '') + p.value;
+                    return '<div class="pick-line"><i style="' + cellColor(p) + '"></i><span><b>' + esc(p.player) + '</b> · ' + esc(t) + ' · #' + p.pick + ' · ' + v + '</span></div>';
+                }).join('');
+                cards += '<article class="round-card"><div class="rh">Round ' + r + '</div>' + lines + '</article>';
+            }
+            rounds.innerHTML = cards;
+        }
+        function renderGrades() {
+            document.getElementById('tableGrades').innerHTML = TEAM_GRADES.map((t, i) =>
+                '<tr><td class="rank">' + (i + 1) + '</td>' +
+                '<td class="team">' + esc(t.team) + '</td>' +
+                '<td class="number tot">' + num(t.draft_fpts) + '</td>' +
+                '<td class="number">' + fmtVal(t.value_sum) + '</td>' +
+                '<td class="number">' + t.steals + '</td>' +
+                '<td class="number">' + t.busts + '</td>' +
+                '<td>' + esc(t.best_value_pick) + ' <span class="muted">(' + (t.best_value > 0 ? '+' : '') + t.best_value + ')</span></td></tr>').join('');
+            const cards = document.getElementById('gradeCards');
+            if (!cards) return;
+            cards.innerHTML = TEAM_GRADES.map((t, i) =>
+                '<article class="pick-card">' +
+                '<div class="rk">#' + (i + 1) + '</div><div class="mid"><div class="name">' + esc(t.team) + '</div>' +
+                '<div class="meta">' + num(t.draft_fpts) + ' FPts · net ' + (t.value_sum > 0 ? '+' : '') + t.value_sum + '</div>' +
+                '<div class="meta">' + t.steals + ' steals · ' + t.busts + ' busts · best ' + esc(t.best_value_pick) + ' (' + (t.best_value > 0 ? '+' : '') + t.best_value + ')</div></div></article>').join('');
+        }
+        function renderUndrafted() {
+            document.getElementById('tableUndrafted').innerHTML = UNDRAFTED.map((u, i) =>
+                '<tr><td class="rank">' + (i + 1) + '</td>' +
+                '<td class="team">' + esc(u.player) + '</td>' +
+                '<td>' + esc(u.fantasy_team) + '</td>' +
+                '<td>' + esc(u.position) + '</td>' +
+                '<td class="number tot">' + num(u.fpts_tot) + '</td>' +
+                '<td class="number">' + u.fpts_avg.toFixed(1) + '</td>' +
+                '<td class="number">' + u.would_rank + '</td></tr>').join('');
+            const cards = document.getElementById('undraftedCards');
+            if (!cards) return;
+            cards.innerHTML = UNDRAFTED.map((u, i) =>
+                '<article class="pick-card"><div class="rk">#' + (i + 1) + '</div><div class="mid">' +
+                '<div class="name">' + esc(u.player) + '</div>' +
+                '<div class="meta">' + esc(u.fantasy_team) + ' · ' + esc(u.position) + '</div>' +
+                '<div class="meta">' + num(u.fpts_tot) + ' FPts · ' + u.fpts_avg.toFixed(1) + '/G · would rank ' + u.would_rank + '</div></div></article>').join('');
+        }
+        let rankMode = 'avg';
+        function renderStandings() {
+            const mode = rankMode === 'total' ? 'total' : 'avg';
+            const sorted = [...currentData].sort((a, b) => mode === 'total'
+                ? (b.tot - a.tot || a.seasonRk - b.seasonRk)
+                : (b.avgPts - a.avgPts || a.seasonRk - b.seasonRk));
+            const cards = document.getElementById('teamCards');
+            const slim = document.getElementById('tableSlim');
+            if (cards) cards.innerHTML = sorted.map((t, i) => {
+                const n = i + 1;
+                const gold = n === 1 ? ' gold' : '';
+                const hero = mode === 'total' ? num(t.tot) : fmtAvg(t.avgPts);
+                const label = mode === 'total' ? 'TOTAL' : 'AVG';
+                const extra = mode === 'avg' ? '<div class="subtot">' + num(t.tot) + ' total</div>' : '';
+                return '<article class="card">' +
+                    '<div class="rk' + gold + '">#' + n + '</div>' +
+                    '<div class="who"><div class="name">' + esc(t.team) + '</div>' +
+                    '<div class="owner">' + esc(t.owner || '') + '</div></div>' +
+                    '<div class="stat"><div class="lbl">' + label + '</div><div class="avg">' + hero + '</div>' +
+                    '<div class="games">' + t.gp + ' games</div>' + extra + '</div></article>';
+            }).join('');
+            if (slim) slim.innerHTML = sorted.map((t, i) => {
+                const totCls = mode === 'total' ? ' hot' : ' muted-num';
+                const avgCls = mode === 'avg' ? ' hot' : ' muted-num';
+                return '<tr><td class="rank">' + (i + 1) + '</td>' +
+                    '<td class="team">' + esc(t.team) + '</td>' +
+                    '<td class="owner">' + esc(t.owner || '') + '</td>' +
+                    '<td class="number' + totCls + '">' + num(t.tot) + '</td>' +
+                    '<td class="number">' + t.gp + '</td>' +
+                    '<td class="number' + avgCls + '">' + fmtAvg(t.avgPts) + '</td></tr>';
+            }).join('');
+            renderSeason();
+        }
+        function renderSeason() {
+            const rows = [...currentData].sort((a, b) => a.seasonRk - b.seasonRk);
+            const cards = document.getElementById('seasonCards');
+            const slim = document.getElementById('tableSeason');
+            if (cards) cards.innerHTML = rows.map(t => {
+                const gold = t.seasonRk === 1 ? ' gold' : '';
+                return '<article class="card">' +
+                    '<div class="rk' + gold + '">#' + t.seasonRk + '</div>' +
+                    '<div class="who"><div class="name">' + esc(t.team) + '</div>' +
+                    '<div class="owner">' + esc(t.owner || '') + '</div></div>' +
+                    '<div class="stat"><div class="lbl">TOTAL</div><div class="avg">' + num(t.tot) + '</div>' +
+                    '<div class="games">' + t.gp + ' games</div></div></article>';
+            }).join('');
+            if (slim) slim.innerHTML = rows.map(t => {
+                return '<tr><td class="rank">' + t.seasonRk + '</td>' +
+                    '<td class="team">' + esc(t.team) + '</td>' +
+                    '<td class="owner">' + esc(t.owner || '') + '</td>' +
+                    '<td class="number hot">' + num(t.tot) + '</td>' +
+                    '<td class="number">' + t.gp + '</td></tr>';
+            }).join('');
+        }
+        function showDraftView(name) {
+            const map = { worst: 'worstDrafts', steals: 'bangForBuck', busts: 'bangForBuck', all: 'bangForBuck', rounds: 'stealsByRound', board: 'draftBoard', grades: 'draftGrades', undrafted: 'undrafted' };
+            const id = map[name] || 'bangForBuck';
+            document.querySelectorAll('#draftPills .pill').forEach(p => {
+                const on = p.dataset.view === name;
+                p.classList.toggle('active', on);
+                p.setAttribute('aria-selected', on ? 'true' : 'false');
+            });
+            document.querySelectorAll('#panel-draft .table-section').forEach(s => { s.hidden = s.id !== id; });
+            if (id === 'bangForBuck') { draftListMode = name === 'busts' || name === 'all' ? name : 'steals'; renderValue(); }
+        }
+        const rankModeEl = document.getElementById('rankMode');
+        if (rankModeEl) rankModeEl.addEventListener('click', (e) => {
+            const btn = e.target.closest('[data-mode]');
+            if (!btn) return;
+            rankMode = btn.dataset.mode === 'total' ? 'total' : 'avg';
+            rankModeEl.querySelectorAll('.pill').forEach(p => {
+                const on = p === btn;
+                p.classList.toggle('active', on);
+                p.setAttribute('aria-selected', on ? 'true' : 'false');
+            });
+            renderStandings();
+        });
+        const draftPills = document.getElementById('draftPills');
+        if (draftPills) draftPills.addEventListener('click', (e) => {
+            const btn = e.target.closest('[data-view]');
+            if (!btn) return;
+            showDraftView(btn.dataset.view);
+        });
+
+        showLastRefresh();
+        showDraftRefresh();
+        renderStandings();
+        renderValue();
+        renderWorst();
+        renderByRound();
+        renderBoard();
+        renderGrades();
+        renderUndrafted();
+        showDraftView('steals');
+        let retroTeam = '';
+        function rankOf(p) {
+            if (p.prod_rank != null) return p.prod_rank;
+            if (p.would_rank != null) return p.would_rank;
+            return null;
+        }
+        function betterProd(a, b) {
+            if (a.played && !b.played) return true;
+            if (b.played && !a.played) return false;
+            const ar = rankOf(a), br = rankOf(b);
+            if (ar != null && br != null && ar !== br) return ar < br;
+            const aa = a.fpts_avg == null ? -1 : a.fpts_avg;
+            const ba = b.fpts_avg == null ? -1 : b.fpts_avg;
+            if (aa !== ba) return aa > ba;
+            const at = a.fpts_tot == null ? -1 : a.fpts_tot;
+            const bt = b.fpts_tot == null ? -1 : b.fpts_tot;
+            if (at !== bt) return at > bt;
+            return String(a.player) < String(b.player);
+        }
+        function bestAvailable(pickNum) {
+            const pool = DRAFT.filter(p => p.pick >= pickNum).map(p => ({
+                player: p.player, fpts_tot: p.fpts_tot, fpts_avg: p.fpts_avg, prod_rank: p.prod_rank,
+                would_rank: null, played: !!p.played, by: p.drafted_by
+            })).concat(UNDRAFTED.map(u => ({
+                player: u.player, fpts_tot: u.fpts_tot, fpts_avg: u.fpts_avg, prod_rank: null,
+                would_rank: u.would_rank, played: u.fpts_tot != null, by: null
+            })));
+            return pool.reduce((best, p) => best && !betterProd(p, best) ? best : p, null);
+        }
+        function renderRetro() {
+            const teams = DRAFT_TEAMS.slice();
+            const picker = document.getElementById('retroTeams');
+            if (picker) picker.innerHTML = teams.map(t =>
+                '<button type="button" class="pill' + (t === retroTeam ? ' active' : '') + '" data-team="' + esc(t) + '">' + esc(t) + '</button>').join('');
+            const name = document.getElementById('retroTeamName');
+            const sum = document.getElementById('retroSummary');
+            const box = document.getElementById('retroCards');
+            if (!retroTeam) {
+                if (name) name.textContent = 'Pick a team';
+                if (sum) sum.textContent = 'Choose a team to see each draft pick and who was still available.';
+                if (box) box.innerHTML = '';
+                return;
+            }
+            const picks = DRAFT.filter(p => p.drafted_by === retroTeam).sort((a, b) => a.pick - b.pick);
+            let hits = 0;
+            let biggest = null;
+            const cards = picks.map(p => {
+                const best = bestAvailable(p.pick);
+                const hit = best && best.player === p.player;
+                if (hit) hits++;
+                const takenRank = p.prod_rank != null ? p.prod_rank : (p.played ? null : 1000);
+                const bestRank = best ? rankOf(best) : null;
+                const gap = hit ? 0 : (takenRank != null && bestRank != null ? takenRank - bestRank : ((best && best.fpts_avg || 0) - (p.fpts_avg || 0)));
+                if (!hit && (!biggest || gap > biggest.gap)) biggest = { gap, pick: p.pick, took: p.player, best: best ? best.player : '' };
+                const tookStats = p.played ? (fnum(p.fpts_tot) + ' FPts · ' + fnum(p.fpts_avg, 1) + '/G') : 'No games yet';
+                const bestLine = !best ? '—' : (esc(best.player) + ' · ' + (best.fpts_avg == null ? '—' : Number(best.fpts_avg).toFixed(1) + '/G'));
+                const bestWho = !best ? '' : (best.by ? ('Drafted by ' + esc(best.by)) : 'Undrafted');
+                return '<article class="retro-card ' + (hit ? 'hit' : 'miss') + '">' +
+                    '<div class="retro-kicker">Round ' + p.round + ' · Pick ' + p.pick + '</div>' +
+                    '<div class="retro-split">' +
+                    '<div><div class="retro-kicker">You took</div><div class="retro-name">' + esc(p.player) + '</div><div class="retro-meta">' + tookStats + '</div></div>' +
+                    '<div><div class="retro-kicker">Best available then</div><div class="retro-name">' + bestLine + '</div><div class="retro-meta">' + bestWho + '</div></div>' +
+                    '</div>' +
+                    '<div class="' + (hit ? 'tag-hit' : 'tag-miss') + '">' + (hit ? 'Took the best available' : 'Left value on the board') + '</div>' +
+                    '</article>';
+            });
+            if (box) box.innerHTML = cards.join('');
+            if (name) name.textContent = retroTeam;
+            if (sum) {
+                const n = picks.length;
+                let text = hits + ' of ' + n + ' picks were the best available.';
+                if (biggest) text += ' Biggest miss: pick ' + biggest.pick + ', you took ' + biggest.took + ', best available was ' + biggest.best + '.';
+                sum.textContent = text;
+            }
+        }
+        const retroTeams = document.getElementById('retroTeams');
+        if (retroTeams) retroTeams.addEventListener('click', (e) => {
+            const btn = e.target.closest('[data-team]');
+            if (!btn) return;
+            retroTeam = btn.dataset.team;
+            renderRetro();
+        });
+        function showTab(name) {
+            if (name !== 'draft' && name !== 'retro') name = 'leaderboard';
+            document.querySelectorAll('.tab').forEach(b => { const on = b.dataset.tab === name; b.classList.toggle('active', on); b.setAttribute('aria-selected', on); });
+            document.getElementById('panel-leaderboard').hidden = name !== 'leaderboard';
+            document.getElementById('panel-draft').hidden = name !== 'draft';
+            const retro = document.getElementById('panel-retro');
+            if (retro) retro.hidden = name !== 'retro';
+            const titles = { draft: 'Draft value', retro: 'Draft retro', leaderboard: 'Leaderboard' };
+            document.title = 'Barchashim League — ' + titles[name];
+        }
+        document.querySelectorAll('.tab').forEach(b => b.addEventListener('click', () => { history.replaceState(null, '', '#' + b.dataset.tab); showTab(b.dataset.tab); }));
+        window.addEventListener('hashchange', () => showTab(location.hash.slice(1)));
+        renderRetro();
+        showTab(location.hash.slice(1));
+    </script>
+</body>
+</html>
