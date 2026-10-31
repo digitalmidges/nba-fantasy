@@ -1,0 +1,322 @@
+{
+ "league_id": 683874011,
+ "season": 2027,
+ "breakdown": "total",
+ "sort": "Furthest ahead of the NBA calendar first (games used minus the share of the cap the calendar says should be spent by now). Ties break by team name.",
+ "thresholds": {
+  "burning_projected_over_cap": 1.08,
+  "under_projected_under_cap": 0.85
+ },
+ "progress": {
+  "start": "2026-10-20",
+  "end": "2027-04-11",
+  "as_of": "2026-10-30",
+  "game_days_total": 160,
+  "game_days_complete": 11,
+  "fraction": 0.06875,
+  "source": "ESPN NBA regular-season on-days, season 2027",
+  "sentence": "As of Oct 30, 2026, 11 of 160 NBA game days are done (6.9% of the regular season, Oct 20, 2026 through Apr 11, 2027). Dark dates, including the All-Star break, are not counted. The year-end number assumes this burn rate holds, so it will swing early in the season."
+ },
+ "caps": [
+  {
+   "id": "PG",
+   "name": "Point Guard",
+   "max": 82
+  },
+  {
+   "id": "SG",
+   "name": "Shooting Guard",
+   "max": 82
+  },
+  {
+   "id": "SF",
+   "name": "Small Forward",
+   "max": 82
+  },
+  {
+   "id": "PF",
+   "name": "Power Forward",
+   "max": 82
+  },
+  {
+   "id": "C",
+   "name": "Center",
+   "max": 82
+  },
+  {
+   "id": "G",
+   "name": "Guard",
+   "max": 82
+  },
+  {
+   "id": "F",
+   "name": "Forward",
+   "max": 82
+  },
+  {
+   "id": "UTIL",
+   "name": "Util",
+   "max": 245
+  }
+ ],
+ "total_cap": 819,
+ "note": "Per-position games used are not in this refresh. The ESPN roster is private, so each bar is the team's total games played (the same number as the Leaderboard) against 819, the sum of the eight caps. Slot-by-slot bars replace this total when a refresh can read the league.",
+ "teams": [
+  {
+   "team": "Naim Merlon",
+   "owner": "Meir Naim",
+   "gp": 67,
+   "gp_standings": 67,
+   "cap": 819,
+   "remaining": 752,
+   "pct": 8.2,
+   "expected": 56.3,
+   "ahead": 10.7,
+   "projected": 975,
+   "flag": "burning",
+   "status": "Ahead of pace \u00b7 burning fast, may run dry",
+   "short": "Burning fast",
+   "slots": [
+    {
+     "id": "ALL",
+     "name": "All capped slots",
+     "used": 67,
+     "max": 819,
+     "remaining": 752,
+     "pct": 8.2,
+     "expected": 56.3,
+     "ahead": 10.7,
+     "projected": 975,
+     "flag": "burning",
+     "status": "Ahead of pace \u00b7 burning fast, may run dry",
+     "short": "Burning fast"
+    }
+   ],
+   "rank": 1
+  },
+  {
+   "team": "The Pigs orsurf",
+   "owner": "Or Frydman",
+   "gp": 66,
+   "gp_standings": 66,
+   "cap": 819,
+   "remaining": 753,
+   "pct": 8.1,
+   "expected": 56.3,
+   "ahead": 9.7,
+   "projected": 960,
+   "flag": "burning",
+   "status": "Ahead of pace \u00b7 burning fast, may run dry",
+   "short": "Burning fast",
+   "slots": [
+    {
+     "id": "ALL",
+     "name": "All capped slots",
+     "used": 66,
+     "max": 819,
+     "remaining": 753,
+     "pct": 8.1,
+     "expected": 56.3,
+     "ahead": 9.7,
+     "projected": 960,
+     "flag": "burning",
+     "status": "Ahead of pace \u00b7 burning fast, may run dry",
+     "short": "Burning fast"
+    }
+   ],
+   "rank": 2
+  },
+  {
+   "team": "ER",
+   "owner": "Eliro Rha",
+   "gp": 63,
+   "gp_standings": 63,
+   "cap": 819,
+   "remaining": 756,
+   "pct": 7.7,
+   "expected": 56.3,
+   "ahead": 6.7,
+   "projected": 916,
+   "flag": "burning",
+   "status": "Ahead of pace \u00b7 burning fast, may run dry",
+   "short": "Burning fast",
+   "slots": [
+    {
+     "id": "ALL",
+     "name": "All capped slots",
+     "used": 63,
+     "max": 819,
+     "remaining": 756,
+     "pct": 7.7,
+     "expected": 56.3,
+     "ahead": 6.7,
+     "projected": 916,
+     "flag": "burning",
+     "status": "Ahead of pace \u00b7 burning fast, may run dry",
+     "short": "Burning fast"
+    }
+   ],
+   "rank": 3
+  },
+  {
+   "team": "DanKen",
+   "owner": "Dan Frydman",
+   "gp": 60,
+   "gp_standings": 60,
+   "cap": 819,
+   "remaining": 759,
+   "pct": 7.3,
+   "expected": 56.3,
+   "ahead": 3.7,
+   "projected": 873,
+   "flag": "onpace",
+   "status": "On pace \u00b7 slightly ahead of the calendar",
+   "short": "On pace",
+   "slots": [
+    {
+     "id": "ALL",
+     "name": "All capped slots",
+     "used": 60,
+     "max": 819,
+     "remaining": 759,
+     "pct": 7.3,
+     "expected": 56.3,
+     "ahead": 3.7,
+     "projected": 873,
+     "flag": "onpace",
+     "status": "On pace \u00b7 slightly ahead of the calendar",
+     "short": "On pace"
+    }
+   ],
+   "rank": 4
+  },
+  {
+   "team": "Team The Mushroom",
+   "owner": "The Mushroom",
+   "gp": 60,
+   "gp_standings": 60,
+   "cap": 819,
+   "remaining": 759,
+   "pct": 7.3,
+   "expected": 56.3,
+   "ahead": 3.7,
+   "projected": 873,
+   "flag": "onpace",
+   "status": "On pace \u00b7 slightly ahead of the calendar",
+   "short": "On pace",
+   "slots": [
+    {
+     "id": "ALL",
+     "name": "All capped slots",
+     "used": 60,
+     "max": 819,
+     "remaining": 759,
+     "pct": 7.3,
+     "expected": 56.3,
+     "ahead": 3.7,
+     "projected": 873,
+     "flag": "onpace",
+     "status": "On pace \u00b7 slightly ahead of the calendar",
+     "short": "On pace"
+    }
+   ],
+   "rank": 5
+  },
+  {
+   "team": "Israel Samson",
+   "owner": "Asaf Samson",
+   "gp": 56,
+   "gp_standings": 56,
+   "cap": 819,
+   "remaining": 763,
+   "pct": 6.8,
+   "expected": 56.3,
+   "ahead": -0.3,
+   "projected": 815,
+   "flag": "onpace",
+   "status": "On pace",
+   "short": "On pace",
+   "slots": [
+    {
+     "id": "ALL",
+     "name": "All capped slots",
+     "used": 56,
+     "max": 819,
+     "remaining": 763,
+     "pct": 6.8,
+     "expected": 56.3,
+     "ahead": -0.3,
+     "projected": 815,
+     "flag": "onpace",
+     "status": "On pace",
+     "short": "On pace"
+    }
+   ],
+   "rank": 6
+  },
+  {
+   "team": "Team Mamba Mentality",
+   "owner": "Itay Funt",
+   "gp": 55,
+   "gp_standings": 55,
+   "cap": 819,
+   "remaining": 764,
+   "pct": 6.7,
+   "expected": 56.3,
+   "ahead": -1.3,
+   "projected": 800,
+   "flag": "onpace",
+   "status": "On pace \u00b7 slightly behind the calendar",
+   "short": "On pace",
+   "slots": [
+    {
+     "id": "ALL",
+     "name": "All capped slots",
+     "used": 55,
+     "max": 819,
+     "remaining": 764,
+     "pct": 6.7,
+     "expected": 56.3,
+     "ahead": -1.3,
+     "projected": 800,
+     "flag": "onpace",
+     "status": "On pace \u00b7 slightly behind the calendar",
+     "short": "On pace"
+    }
+   ],
+   "rank": 7
+  },
+  {
+   "team": "Omer's Team",
+   "owner": "Omer Bar Oz",
+   "gp": 54,
+   "gp_standings": 54,
+   "cap": 819,
+   "remaining": 765,
+   "pct": 6.6,
+   "expected": 56.3,
+   "ahead": -2.3,
+   "projected": 785,
+   "flag": "onpace",
+   "status": "On pace \u00b7 slightly behind the calendar",
+   "short": "On pace",
+   "slots": [
+    {
+     "id": "ALL",
+     "name": "All capped slots",
+     "used": 54,
+     "max": 819,
+     "remaining": 765,
+     "pct": 6.6,
+     "expected": 56.3,
+     "ahead": -2.3,
+     "projected": 785,
+     "flag": "onpace",
+     "status": "On pace \u00b7 slightly behind the calendar",
+     "short": "On pace"
+    }
+   ],
+   "rank": 8
+  }
+ ]
+}
