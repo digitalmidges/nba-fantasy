@@ -1,9 +1,14 @@
-import json, datetime, re
-B='/workspace/barchashim/'
+import json, datetime, re, pathlib, sys
+ROOT = pathlib.Path(__file__).resolve().parent.parent
+sys.path.insert(0, str(ROOT / 'scripts'))
+B = str(ROOT) + '/'
 st=json.load(open(B+'data/standings.json'))
 dv=json.load(open(B+'data/draft_value.json'))
+from fetch_pace import build_from_standings
+pace=build_from_standings()
+json.dump(pace, open(B+'data/pace.json','w'), indent=1)
 html=open(B+'data/raw/index.prev.html').read()
-now=datetime.datetime.now().astimezone().isoformat(timespec='seconds')
+now=st.get('scraped_at') or datetime.datetime.now().astimezone().isoformat(timespec='seconds')
 # standings
 rows=[]
 for t in st['teams']:
@@ -12,6 +17,13 @@ for t in st['teams']:
         t['rank'],json.dumps(t['team']),json.dumps(t.get('owner') or ''),p['FGM'],p['FGA'],p['FTM'],p['FTA'],p['3PM'],p['REB'],p['AST'],p['STL'],p['BLK'],p['TO'],p['PTS'],t['season_points_TOT'],t['GP']))
 html=re.sub(r'const currentData = \[\n.*?\n        \]\.map', 'const currentData = [\n'+',\n'.join(rows)+'\n        ].map', html, flags=re.S)
 html=re.sub(r'const LAST_REFRESH_ISO = "[^"]*";', 'const LAST_REFRESH_ISO = "%s";'%now, html)
+if '/*PACE_DATA*/' not in html or 'id="panel-pace"' not in html:
+    raise SystemExit('Pace tab missing from data/raw/index.prev.html — refusing to publish a page that would drop it')
+pace_js=json.dumps(pace,separators=(',',':')).replace('<','\\u003c')
+html2, n=re.subn(r'/\*PACE_DATA\*/.*?/\*END_PACE\*/', lambda m: '/*PACE_DATA*/'+pace_js+'/*END_PACE*/', html, count=1, flags=re.S)
+if n!=1:
+    raise SystemExit('Pace placeholder was not injected')
+html=html2
 keep=['pick','round','pick_in_round','drafted_by','current_team','player','position','nba_team','status','fpts_tot','fpts_avg','gp_est','prod_rank','value','steal','bust','played']
 picks=[{k:p[k] for k in keep} for p in dv['picks']]
 teams_order=[p['drafted_by'] for p in dv['picks'] if p['round']==1]
@@ -860,3 +872,8 @@ html=open(B+'index.html').read()
 _layout=strip_featured_team(ensure_retro(ensure_controls(ensure_draft_mobile(ensure_responsive_layout(html)))))
 if _layout!=html:
     open(B+'index.html','w').write(_layout)
+final=open(B+'index.html').read()
+if 'id="panel-pace"' not in final or 'data-tab="pace"' not in final or 'function renderPace(' not in final:
+    raise SystemExit('Built index.html lost the Pace tab')
+if '/*PACE_DATA*/null/*END_PACE*/' in final:
+    raise SystemExit('Pace numbers were not injected into index.html')
