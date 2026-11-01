@@ -61,15 +61,11 @@ POSITIONS = [
     {"slot": 11, "id": "UTIL", "name": "Util", "max": 245},
 ]
 H2H_SCORING = {"H2H_POINTS", "H2H_CATEGORY", "H2H_MOST_CATEGORIES"}
-TOTAL_NOTE = (
-    "Per-position games used are not in this refresh. The ESPN roster is private, so each bar "
-    "is the team's total games played (the same number as the Leaderboard) against 819, the sum "
-    "of the eight caps. Slot-by-slot bars replace this total when a refresh can read the league."
-)
+TOTAL_NOTE = "Position splits aren't in this refresh."
 SHORT_STATUS = {
-    "burning": "Burning fast",
-    "under": "Leaving games",
-    "onpace": "On pace",
+    "burning": "too fast",
+    "under": "behind",
+    "onpace": "on pace",
 }
 
 
@@ -164,15 +160,7 @@ def pace_flag(used, cap, fraction):
 
 
 def describe(flag, ahead):
-    if flag == "burning":
-        return "Ahead of pace · burning fast, may run dry"
-    if flag == "under":
-        return "Behind pace · underusing slots, leaving games on the table"
-    if ahead >= 1:
-        return "On pace · slightly ahead of the calendar"
-    if ahead <= -1:
-        return "On pace · slightly behind the calendar"
-    return "On pace"
+    return SHORT_STATUS[flag]
 
 
 def _round1(n):

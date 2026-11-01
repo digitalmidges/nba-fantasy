@@ -317,32 +317,44 @@
             .tab.active { background: #fff; color: #2c2548; box-shadow: 0 1px 4px rgba(40,20,80,0.08); }
             #panel-draft .table-section { overflow-x: auto; }
         }
-        .pace-list { display: flex; flex-direction: column; gap: 12px; margin-top: 14px; }
-        .pace-card { background: #fff; border-radius: 16px; padding: 16px; box-shadow: 0 8px 22px rgba(70,40,120,0.07); }
-        .pace-top { display: flex; align-items: center; gap: 12px; }
-        .pace-card .rk { flex: none; width: 52px; font-weight: 800; font-size: 1.45rem; color: #2c2644; letter-spacing: -0.03em; }
-        .pace-card .rk.gold { color: #e2a30b; }
-        .pace-card .who { min-width: 0; flex: 1; }
-        .pace-card .name { font-weight: 800; font-size: 1.05rem; color: #1c1730; line-height: 1.2; }
-        .pace-card .owner, .pace-owner { margin-top: 3px; color: #8b86a0; font-size: 0.82rem; font-weight: 500; }
-        .pace-card .stat { text-align: right; flex: none; }
-        .pace-card .lbl { font-size: 0.68rem; letter-spacing: 0.08em; font-weight: 800; color: #8b86a0; }
-        .pace-card .avg { font-size: 1.45rem; font-weight: 800; color: #6236d4; line-height: 1.05; font-variant-numeric: tabular-nums; }
-        .pace-card .games { margin-top: 2px; color: #8b86a0; font-size: 0.82rem; }
-        .pace-flag { display: inline-block; margin-top: 10px; font-size: 0.78rem; font-weight: 800; border-radius: 999px; padding: 4px 10px; }
+        .pace-list { display: flex; flex-direction: column; gap: 10px; }
+        .pace-item { background: #fff; border-radius: 16px; box-shadow: 0 8px 22px rgba(70,40,120,0.07); }
+        .pace-item summary {
+            list-style: none; cursor: pointer; display: flex; align-items: center; gap: 12px;
+            padding: 14px 16px;
+        }
+        .pace-item summary::-webkit-details-marker { display: none; }
+        .pace-item summary:focus-visible { outline: 2px solid #6841c9; outline-offset: 2px; border-radius: 16px; }
+        .pace-item .rk { flex: none; width: 36px; font-weight: 800; font-size: 1.15rem; color: #2c2644; }
+        .pace-item .rk.gold { color: #e2a30b; }
+        .pace-item .who { min-width: 0; flex: 1; }
+        .pace-item .name, .pace-item .owner { display: block; }
+        .pace-item .name { font-weight: 800; font-size: 1.02rem; color: #1c1730; line-height: 1.2; }
+        .pace-item .owner { margin-top: 2px; color: #8b86a0; font-size: 0.8rem; }
+        .pace-item .stat { text-align: right; flex: none; }
+        .pace-item .avg { font-size: 1.05rem; font-weight: 800; color: #6236d4; font-variant-numeric: tabular-nums; }
+        .pace-flag { display: inline-block; margin-top: 4px; font-size: 0.72rem; font-weight: 800; border-radius: 999px; padding: 3px 8px; }
         .pace-flag.burning { background: #fdecec; color: #b42318; }
         .pace-flag.under { background: #e7f6ee; color: #127a43; }
         .pace-flag.onpace { background: #f3eefe; color: #6841c9; }
-        .pace-meta { margin-top: 6px; color: #5c5678; font-size: 0.84rem; line-height: 1.35; }
-        .slot-row { display: grid; grid-template-columns: 52px 1fr auto; gap: 8px; align-items: center; margin-top: 8px; }
+        .pace-item .chev {
+            width: 8px; height: 8px; flex: none; margin-left: 2px;
+            border-right: 2px solid #8b86a0; border-bottom: 2px solid #8b86a0;
+            transform: rotate(-45deg);
+        }
+        .pace-item[open] .chev { transform: rotate(45deg); margin-top: -4px; }
+        .pace-detail { padding: 0 16px 14px; }
+        .pace-split-note { color: #8b86a0; font-size: 0.78rem; margin: 0 0 8px; }
+        .slot-row { display: grid; grid-template-columns: 46px 1fr auto; gap: 8px; align-items: center; margin-top: 8px; }
         .slot-id { font-weight: 800; color: #3a3158; font-size: 0.78rem; }
-        .slot-bar { height: 8px; background: #efeaf8; border-radius: 99px; overflow: hidden; }
+        .slot-bar { height: 10px; background: #efeaf8; border-radius: 99px; overflow: hidden; }
         .slot-bar > span { display: block; height: 100%; border-radius: 99px; background: #6841c9; }
         .slot-bar > span.burning { background: #c0392b; }
         .slot-bar > span.under { background: #1f7a4d; }
         .slot-nums { font-variant-numeric: tabular-nums; font-size: 0.78rem; color: #3a3158; text-align: right; white-space: nowrap; }
-        #panel-pace .board-wrap { overflow-x: auto; }
-        #panel-pace .note { margin-top: 8px; }
+        .slot-nums .burning { color: #b42318; }
+        .slot-nums .under { color: #127a43; }
+        .slot-nums .onpace { color: #6841c9; font-weight: 700; }
         @media (max-width: 700px) {
             .tab { font-size: 0.78rem; padding: 10px 6px; }
             .tabs { overflow-x: auto; }
@@ -576,30 +588,7 @@
 
         <div class="tab-panel" id="panel-pace" role="tabpanel" hidden>
         <div class="section-head">
-            <h2>GP Pace</h2>
-            <p class="formula">ESPN caps each of PG, SG, SF, PF, C, G, and F on its own, and caps Util separately for the three Util spots. There is no extra league-wide games cap on top of those.</p>
-        </div>
-        <p class="formula">Sorted by who is furthest ahead of the NBA calendar (games used minus the share of the cap the calendar says should be spent by now).</p>
-        <p class="formula" id="paceCaps"></p>
-        <p class="formula" id="paceSeason"></p>
-        <div class="note" id="paceNote" hidden></div>
-        <div class="board-wrap">
-            <table class="slim">
-                <thead>
-                    <tr>
-                        <th>Rank</th>
-                        <th>Team</th>
-                        <th class="number">Used</th>
-                        <th class="number">Cap</th>
-                        <th class="number">Left</th>
-                        <th class="number">%</th>
-                        <th class="number">Vs calendar</th>
-                        <th class="number">Year-end</th>
-                        <th>Pace</th>
-                    </tr>
-                </thead>
-                <tbody id="tablePace"></tbody>
-            </table>
+            <h2>Pace</h2>
         </div>
         <div class="pace-list" id="paceCards"></div>
         </div>
@@ -1067,50 +1056,28 @@
         }
         function renderPace() {
             const cards = document.getElementById('paceCards');
-            const body = document.getElementById('tablePace');
-            if (!cards || !body) return;
+            if (!cards) return;
             const data = (typeof PACE === 'object' && PACE && PACE.teams) ? PACE : null;
-            const season = document.getElementById('paceSeason');
-            const note = document.getElementById('paceNote');
-            const caps = document.getElementById('paceCaps');
-            if (!data) {
-                if (season) season.textContent = '';
-                if (note) { note.hidden = false; note.textContent = 'Pace numbers are not in this page build yet.'; }
-                cards.innerHTML = '';
-                body.innerHTML = '';
-                return;
-            }
-            if (season) season.textContent = (data.progress && data.progress.sentence) || '';
-            if (caps) caps.textContent = 'Maximums: ' + (data.caps || []).map(c => c.id + ' ' + c.max).join(' · ') + ' · sum ' + data.total_cap + '.';
-            if (note) { note.hidden = !data.note; note.textContent = data.note || ''; }
-            body.innerHTML = data.teams.map(t =>
-                '<tr><td class="rank">' + t.rank + '</td>' +
-                '<td class="team">' + esc(t.team) + '<div class="pace-owner">' + esc(t.owner || '') + '</div></td>' +
-                '<td class="number hot">' + num(t.gp) + '</td>' +
-                '<td class="number">' + num(t.cap) + '</td>' +
-                '<td class="number">' + num(t.remaining) + '</td>' +
-                '<td class="number">' + t.pct.toFixed(1) + '%</td>' +
-                '<td class="number">' + paceAhead(t.ahead) + '</td>' +
-                '<td class="number">' + (t.projected == null ? '—' : num(t.projected)) + '</td>' +
-                '<td><span class="pace-flag ' + t.flag + '">' + esc(t.short || t.status) + '</span></td></tr>'
-            ).join('');
+            if (!data) { cards.innerHTML = ''; return; }
+            const splits = data.breakdown === 'position';
             cards.innerHTML = data.teams.map(t => {
                 const slots = (t.slots || []).map(s => {
                     const width = Math.max(0, Math.min(100, s.pct || 0));
-                    const label = s.id === 'ALL' ? 'Total' : s.id;
+                    const label = s.id === 'ALL' ? 'Total' : (s.id === 'UTIL' ? 'Util' : s.id);
+                    const word = s.short || s.status || '';
                     return '<div class="slot-row"><div class="slot-id">' + esc(label) + '</div>' +
                         '<div class="slot-bar" title="' + esc(s.name) + '"><span class="' + s.flag + '" style="width:' + width + '%"></span></div>' +
-                        '<div class="slot-nums">' + s.used + '/' + s.max + ' · ' + s.remaining + ' left</div></div>';
+                        '<div class="slot-nums">' + s.used + '/' + s.max + ' · <span class="' + s.flag + '">' + esc(word) + '</span></div></div>';
                 }).join('');
-                return '<article class="pace-card"><div class="pace-top">' +
-                    '<div class="rk' + (t.rank === 1 ? ' gold' : '') + '">#' + t.rank + '</div>' +
-                    '<div class="who"><div class="name">' + esc(t.team) + '</div><div class="owner">' + esc(t.owner || '') + '</div></div>' +
-                    '<div class="stat"><div class="lbl">USED</div><div class="avg">' + num(t.gp) + '</div>' +
-                    '<div class="games">of ' + num(t.cap) + ' · ' + t.pct.toFixed(1) + '%</div></div></div>' +
-                    '<div class="pace-flag ' + t.flag + '">' + esc(t.status) + '</div>' +
-                    '<div class="pace-meta">' + paceAhead(t.ahead) + ' games vs the calendar · projected ' +
-                    (t.projected == null ? '—' : num(t.projected)) + ' by season end.</div>' +
-                    slots + '</article>';
+                const missing = splits ? '' : '<p class="pace-split-note">' + esc(data.note || "Position splits aren't in this refresh.") + '</p>';
+                return '<details class="pace-item"><summary>' +
+                    '<span class="rk' + (t.rank === 1 ? ' gold' : '') + '">#' + t.rank + '</span>' +
+                    '<span class="who"><span class="name">' + esc(t.team) + '</span>' +
+                    '<span class="owner">' + esc(t.owner || '') + '</span></span>' +
+                    '<span class="stat"><span class="avg">' + t.gp + '/' + t.cap + '</span><br>' +
+                    '<span class="pace-flag ' + t.flag + '">' + esc(t.short || t.status) + '</span></span>' +
+                    '<span class="chev" aria-hidden="true"></span></summary>' +
+                    '<div class="pace-detail">' + missing + slots + '</div></details>';
             }).join('');
         }
         function showTab(name) {
