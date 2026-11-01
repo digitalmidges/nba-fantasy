@@ -60,7 +60,7 @@
   }
  ],
  "total_cap": 819,
- "note": "Per-position games used are not in this refresh. The ESPN roster is private, so each bar is the team's total games played (the same number as the Leaderboard) against 819, the sum of the eight caps. Slot-by-slot bars replace this total when a refresh can read the league.",
+ "note": "Position splits aren't in this refresh.",
  "teams": [
   {
    "team": "Naim Merlon",
@@ -74,8 +74,8 @@
    "ahead": 11.6,
    "projected": 973,
    "flag": "burning",
-   "status": "Ahead of pace \u00b7 burning fast, may run dry",
-   "short": "Burning fast",
+   "status": "too fast",
+   "short": "too fast",
    "slots": [
     {
      "id": "ALL",
@@ -88,8 +88,8 @@
      "ahead": 11.6,
      "projected": 973,
      "flag": "burning",
-     "status": "Ahead of pace \u00b7 burning fast, may run dry",
-     "short": "Burning fast"
+     "status": "too fast",
+     "short": "too fast"
     }
    ],
    "rank": 1
@@ -106,8 +106,8 @@
    "ahead": 7.6,
    "projected": 920,
    "flag": "burning",
-   "status": "Ahead of pace \u00b7 burning fast, may run dry",
-   "short": "Burning fast",
+   "status": "too fast",
+   "short": "too fast",
    "slots": [
     {
      "id": "ALL",
@@ -120,8 +120,8 @@
      "ahead": 7.6,
      "projected": 920,
      "flag": "burning",
-     "status": "Ahead of pace \u00b7 burning fast, may run dry",
-     "short": "Burning fast"
+     "status": "too fast",
+     "short": "too fast"
     }
    ],
    "rank": 2
@@ -138,8 +138,8 @@
    "ahead": 7.6,
    "projected": 920,
    "flag": "burning",
-   "status": "Ahead of pace \u00b7 burning fast, may run dry",
-   "short": "Burning fast",
+   "status": "too fast",
+   "short": "too fast",
    "slots": [
     {
      "id": "ALL",
@@ -152,8 +152,8 @@
      "ahead": 7.6,
      "projected": 920,
      "flag": "burning",
-     "status": "Ahead of pace \u00b7 burning fast, may run dry",
-     "short": "Burning fast"
+     "status": "too fast",
+     "short": "too fast"
     }
    ],
    "rank": 3
@@ -170,8 +170,8 @@
    "ahead": 5.6,
    "projected": 893,
    "flag": "burning",
-   "status": "Ahead of pace \u00b7 burning fast, may run dry",
-   "short": "Burning fast",
+   "status": "too fast",
+   "short": "too fast",
    "slots": [
     {
      "id": "ALL",
@@ -184,8 +184,8 @@
      "ahead": 5.6,
      "projected": 893,
      "flag": "burning",
-     "status": "Ahead of pace \u00b7 burning fast, may run dry",
-     "short": "Burning fast"
+     "status": "too fast",
+     "short": "too fast"
     }
    ],
    "rank": 4
@@ -202,8 +202,8 @@
    "ahead": 0.6,
    "projected": 827,
    "flag": "onpace",
-   "status": "On pace",
-   "short": "On pace",
+   "status": "on pace",
+   "short": "on pace",
    "slots": [
     {
      "id": "ALL",
@@ -216,8 +216,8 @@
      "ahead": 0.6,
      "projected": 827,
      "flag": "onpace",
-     "status": "On pace",
-     "short": "On pace"
+     "status": "on pace",
+     "short": "on pace"
     }
    ],
    "rank": 5
@@ -234,8 +234,8 @@
    "ahead": 0.6,
    "projected": 827,
    "flag": "onpace",
-   "status": "On pace",
-   "short": "On pace",
+   "status": "on pace",
+   "short": "on pace",
    "slots": [
     {
      "id": "ALL",
@@ -248,8 +248,8 @@
      "ahead": 0.6,
      "projected": 827,
      "flag": "onpace",
-     "status": "On pace",
-     "short": "On pace"
+     "status": "on pace",
+     "short": "on pace"
     }
    ],
    "rank": 6
@@ -266,8 +266,8 @@
    "ahead": 0.6,
    "projected": 827,
    "flag": "onpace",
-   "status": "On pace",
-   "short": "On pace",
+   "status": "on pace",
+   "short": "on pace",
    "slots": [
     {
      "id": "ALL",
@@ -280,8 +280,8 @@
      "ahead": 0.6,
      "projected": 827,
      "flag": "onpace",
-     "status": "On pace",
-     "short": "On pace"
+     "status": "on pace",
+     "short": "on pace"
     }
    ],
    "rank": 7
@@ -298,8 +298,8 @@
    "ahead": -0.4,
    "projected": 813,
    "flag": "onpace",
-   "status": "On pace",
-   "short": "On pace",
+   "status": "on pace",
+   "short": "on pace",
    "slots": [
     {
      "id": "ALL",
@@ -312,8 +312,8 @@
      "ahead": -0.4,
      "projected": 813,
      "flag": "onpace",
-     "status": "On pace",
-     "short": "On pace"
+     "status": "on pace",
+     "short": "on pace"
     }
    ],
    "rank": 8

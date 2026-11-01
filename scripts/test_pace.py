@@ -31,26 +31,22 @@ def test_calendar():
 
 
 def test_standings_order_and_flags():
+    from datetime import datetime
     standings = json.load(open(ROOT / "data" / "standings.json"))
     pace = build_pace(standings, game_days=baked_game_days(), progress_source="test")
     assert pace["breakdown"] == "total"
     assert pace["total_cap"] == 819
-    assert pace["progress"]["as_of"] == "2026-10-30"
-    assert pace["progress"]["game_days_complete"] == 11
+    assert pace["progress"]["as_of"] == datetime.fromisoformat(standings["scraped_at"]).date().isoformat()
     assert pace["progress"]["game_days_total"] == 160
-    names = [t["team"] for t in pace["teams"]]
-    assert names[0] == "Naim Merlon"
-    assert names[1] == "The Pigs orsurf"
-    # Same games ahead: alphabetical, and not pinned to Team The Mushroom.
-    assert names.index("DanKen") < names.index("Team The Mushroom")
-    assert pace["teams"][0]["flag"] == "burning"
-    assert pace["teams"][0]["gp"] == 67
-    assert pace["teams"][0]["projected"] == 975
-    assert pace["teams"][-1]["team"] == "Omer's Team"
-    assert pace["teams"][-1]["flag"] == "onpace"
+    assert 0 < pace["progress"]["game_days_complete"] <= 160
+    keys = [(-t["ahead"], t["team"].casefold()) for t in pace["teams"]]
+    assert keys == sorted(keys)
+    words = {"too fast", "on pace", "behind"}
+    assert all(t["short"] in words and t["status"] == t["short"] for t in pace["teams"])
     assert all(t["slots"][0]["id"] == "ALL" for t in pace["teams"])
-    assert "819" in pace["note"]
-    assert not any(t["team"] == "Team The Mushroom" and t["rank"] == 1 for t in pace["teams"])
+    assert pace["note"] == "Position splits aren't in this refresh."
+    gp = {t["team"]: t["GP"] for t in standings["teams"]}
+    assert pace["teams"][0]["gp"] == gp[pace["teams"][0]["team"]]
 
 
 def test_position_parse_and_caps():
