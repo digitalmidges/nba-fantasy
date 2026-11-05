@@ -25,6 +25,8 @@ if '/*PACE_DATA*/' not in html or 'id="panel-pace"' not in html:
     raise SystemExit('Pace tab missing from data/raw/index.prev.html — refusing to publish a page that would drop it')
 if '/*AVG_HISTORY*/' not in html or 'id="panel-trends"' not in html or 'data-tab="trends"' not in html:
     raise SystemExit('Trends tab missing from data/raw/index.prev.html — refusing to publish a page that would drop it')
+if 'function teamAvgSeries(' not in html or 'class="lb-hit"' not in html or 'lb-chev' not in html:
+    raise SystemExit('Leaderboard sparklines missing from data/raw/index.prev.html — refusing to publish a page that would drop them')
 pace_js=json.dumps(pace,separators=(',',':')).replace('<','\\u003c')
 html2, n=re.subn(r'/\*PACE_DATA\*/.*?/\*END_PACE\*/', lambda m: '/*PACE_DATA*/'+pace_js+'/*END_PACE*/', html, count=1, flags=re.S)
 if n!=1:
@@ -891,3 +893,5 @@ if 'id="panel-trends"' not in final or 'data-tab="trends"' not in final or 'func
     raise SystemExit('Built index.html lost the Trends tab')
 if '/*AVG_HISTORY*/null/*END_AVG_HISTORY*/' in final:
     raise SystemExit('Avg history was not injected into index.html')
+if 'function teamAvgSeries(' not in final or 'class="lb-hit"' not in final or 'lb-chev' not in final:
+    raise SystemExit('Built index.html lost the leaderboard sparklines')

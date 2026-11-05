@@ -245,6 +245,28 @@
         .card .lbl { font-size: 0.68rem; letter-spacing: 0.08em; font-weight: 800; color: #8b86a0; }
         .card .avg { font-size: 1.65rem; font-weight: 800; color: #6236d4; line-height: 1.05; font-variant-numeric: tabular-nums; }
         .card .games { margin-top: 2px; color: #8b86a0; font-size: 0.82rem; }
+        .card.lb { display: flex; flex-direction: column; align-items: stretch; gap: 0; padding: 0; }
+        .lb-hit {
+            display: flex; align-items: center; gap: 10px; width: 100%;
+            margin: 0; padding: 16px; border: 0; border-radius: 16px;
+            background: transparent; color: inherit; font: inherit; text-align: left; cursor: pointer;
+        }
+        .lb-hit:focus-visible, tr.lb-main:focus-visible { outline: 2px solid #6841c9; outline-offset: -2px; }
+        .lb-chev {
+            display: inline-block; flex: none; width: 9px; height: 9px; margin-right: 2px;
+            border-right: 2px solid #8b86a0; border-bottom: 2px solid #8b86a0;
+            transform: rotate(-45deg); vertical-align: middle;
+        }
+        .card.lb.open .lb-chev, tr.lb-main.open .lb-chev { transform: rotate(45deg); margin-top: -4px; }
+        .lb-spark { padding: 0 16px 14px; }
+        .lb-spark .formula { margin: 0 0 2px; }
+        .spark-svg { width: 100%; height: 84px; display: block; }
+        .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border: 0; }
+        th.chev-h, td.chev-cell { width: 36px; text-align: center; padding-left: 0; padding-right: 14px; }
+        tr.lb-main { cursor: pointer; }
+        tr.lb-main.open td { background: #faf8ff; border-bottom-color: transparent; }
+        tr.spark-row[hidden] { display: none; }
+        tr.spark-row td { padding: 0 18px 14px; background: #faf8ff; }
         .m-only { display: none; flex-direction: column; gap: 10px; }
         .pick-card, .round-card {
             background: #fff; border-radius: 14px; padding: 14px;
@@ -423,6 +445,7 @@
                         <th class="number">Total</th>
                         <th class="number">Games</th>
                         <th class="number">Avg</th>
+                        <th class="chev-h"><span class="sr-only">Trend</span></th>
                     </tr>
                 </thead>
                 <tbody id="tableSlim"></tbody>
@@ -909,6 +932,40 @@
                 '<div class="meta">' + num(u.fpts_tot) + ' FPts · ' + u.fpts_avg.toFixed(1) + '/G · would rank ' + u.would_rank + '</div></div></article>').join('');
         }
         let rankMode = 'avg';
+        let openTrendTeam = '';
+        function teamAvgSeries(name) {
+            return trendPoints().slice().sort((a, b) => new Date(a.at) - new Date(b.at)).map(p => {
+                const row = (p.teams || []).find(t => t.team === name);
+                if (!row || !row.gp) return null;
+                return { at: p.at, avg: row.tot / row.gp };
+            }).filter(Boolean);
+        }
+        function sparkSvg(name) {
+            const series = teamAvgSeries(name);
+            if (series.length < 2) return '<p class="formula">Not enough history yet.</p>';
+            const w = 360, h = 84, padX = 8, padY = 10;
+            const ys = series.map(s => s.avg);
+            let min = Math.min.apply(null, ys), max = Math.max.apply(null, ys);
+            if (max - min < 0.2) { const mid = (max + min) / 2; min = mid - 0.4; max = mid + 0.4; }
+            const span = max - min;
+            const coords = series.map((s, i) => {
+                const x = padX + (series.length === 1 ? 0 : i / (series.length - 1)) * (w - padX * 2);
+                const y = padY + (1 - (s.avg - min) / span) * (h - padY * 2);
+                return [x, y];
+            });
+            const line = coords.map(c => c[0].toFixed(1) + ',' + c[1].toFixed(1)).join(' ');
+            const base = (h - padY).toFixed(1);
+            const area = coords[0][0].toFixed(1) + ',' + base + ' ' + line + ' ' + coords[coords.length - 1][0].toFixed(1) + ',' + base;
+            const last = series[series.length - 1].avg;
+            const first = series[0].avg;
+            const delta = last - first;
+            const dots = coords.map(c => '<circle cx="' + c[0].toFixed(1) + '" cy="' + c[1].toFixed(1) + '" r="2.6"/>').join('');
+            return '<p class="formula">Avg Pts/Pos · ' + last.toFixed(2) + ' (' + (delta > 0 ? '+' : '') + delta.toFixed(2) + ')</p>' +
+                '<svg class="spark-svg" viewBox="0 0 ' + w + ' ' + h + '" role="img" aria-label="Avg Pts/Pos for ' + esc(name) + ', ' + first.toFixed(2) + ' to ' + last.toFixed(2) + '">' +
+                '<polygon points="' + area + '" fill="rgba(104,65,201,0.14)" stroke="none"/>' +
+                '<polyline points="' + line + '" fill="none" stroke="#6841c9" stroke-width="2.25" stroke-linejoin="round" stroke-linecap="round"/>' +
+                '<g fill="#6841c9">' + dots + '</g></svg>';
+        }
         function renderStandings() {
             const mode = rankMode === 'total' ? 'total' : 'avg';
             const sorted = [...currentData].sort((a, b) => mode === 'total'
@@ -922,24 +979,63 @@
                 const hero = mode === 'total' ? num(t.tot) : fmtAvg(t.avgPts);
                 const label = mode === 'total' ? 'TOTAL' : 'AVG';
                 const extra = mode === 'avg' ? '<div class="subtot">' + num(t.tot) + ' total</div>' : '';
-                return '<article class="card">' +
+                const open = openTrendTeam === t.team;
+                return '<article class="card lb' + (open ? ' open' : '') + '">' +
+                    '<button type="button" class="lb-hit" data-team="' + esc(t.team) + '" aria-expanded="' + (open ? 'true' : 'false') + '" aria-controls="spark-card-' + i + '">' +
                     '<div class="rk' + gold + '">#' + n + '</div>' +
                     '<div class="who"><div class="name">' + esc(t.team) + '</div>' +
                     '<div class="owner">' + esc(t.owner || '') + '</div></div>' +
                     '<div class="stat"><div class="lbl">' + label + '</div><div class="avg">' + hero + '</div>' +
-                    '<div class="games">' + t.gp + ' games</div>' + extra + '</div></article>';
+                    '<div class="games">' + t.gp + ' games</div>' + extra + '</div>' +
+                    '<span class="lb-chev" aria-hidden="true"></span><span class="sr-only">Avg trend</span></button>' +
+                    '<div class="lb-spark" id="spark-card-' + i + '"' + (open ? '' : ' hidden') + '>' + (open ? sparkSvg(t.team) : '') + '</div></article>';
             }).join('');
             if (slim) slim.innerHTML = sorted.map((t, i) => {
                 const totCls = mode === 'total' ? ' hot' : ' muted-num';
                 const avgCls = mode === 'avg' ? ' hot' : ' muted-num';
-                return '<tr><td class="rank">' + (i + 1) + '</td>' +
+                const open = openTrendTeam === t.team;
+                return '<tr class="lb-main' + (open ? ' open' : '') + '" data-team="' + esc(t.team) + '" tabindex="0" role="button" aria-expanded="' + (open ? 'true' : 'false') + '" aria-controls="spark-row-' + i + '">' +
+                    '<td class="rank">' + (i + 1) + '</td>' +
                     '<td class="team">' + esc(t.team) + '</td>' +
                     '<td class="owner">' + esc(t.owner || '') + '</td>' +
                     '<td class="number' + totCls + '">' + num(t.tot) + '</td>' +
                     '<td class="number">' + t.gp + '</td>' +
-                    '<td class="number' + avgCls + '">' + fmtAvg(t.avgPts) + '</td></tr>';
+                    '<td class="number' + avgCls + '">' + fmtAvg(t.avgPts) + '</td>' +
+                    '<td class="chev-cell"><span class="lb-chev" aria-hidden="true"></span><span class="sr-only">Avg trend</span></td></tr>' +
+                    '<tr class="spark-row" id="spark-row-' + i + '"' + (open ? '' : ' hidden') + '><td colspan="7">' + (open ? sparkSvg(t.team) : '') + '</td></tr>';
             }).join('');
             renderSeason();
+        }
+        function toggleTeamTrend(name) {
+            openTrendTeam = openTrendTeam === name ? '' : name;
+            renderStandings();
+            const nodes = document.querySelectorAll('[data-team]');
+            for (let i = 0; i < nodes.length; i++) {
+                if (nodes[i].dataset.team !== name) continue;
+                const box = nodes[i].getBoundingClientRect();
+                if (box.width > 0 && box.height > 0) { nodes[i].focus(); break; }
+            }
+        }
+        const teamCardsEl = document.getElementById('teamCards');
+        if (teamCardsEl) teamCardsEl.addEventListener('click', (e) => {
+            const btn = e.target.closest('.lb-hit');
+            if (!btn) return;
+            toggleTeamTrend(btn.dataset.team);
+        });
+        const tableSlimEl = document.getElementById('tableSlim');
+        if (tableSlimEl) {
+            tableSlimEl.addEventListener('click', (e) => {
+                const tr = e.target.closest('tr.lb-main');
+                if (!tr) return;
+                toggleTeamTrend(tr.dataset.team);
+            });
+            tableSlimEl.addEventListener('keydown', (e) => {
+                if (e.key !== 'Enter' && e.key !== ' ') return;
+                const tr = e.target.closest('tr.lb-main');
+                if (!tr) return;
+                e.preventDefault();
+                toggleTeamTrend(tr.dataset.team);
+            });
         }
         function renderSeason() {
             const rows = [...currentData].sort((a, b) => a.seasonRk - b.seasonRk);
