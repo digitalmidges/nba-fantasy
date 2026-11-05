@@ -1,0 +1,537 @@
+{
+ "metric": "avg_pts_pos",
+ "formula": "season_points_TOT / GP",
+ "dedupe": "One point per standings scrape, stamped with scraped_at. Scrapes at least 30 minutes apart are both kept, including two on the same calendar day. Scrapes inside 30 minutes of the earlier one are the same refresh: the later scraped_at replaces it. A rebuild appends the current standings snapshot and does not drop older points. avg is season_points_TOT / GP (not the basketball PTS category).",
+ "points": [
+  {
+   "at": "2026-10-29T11:53:22.238715-05:00",
+   "teams": [
+    {
+     "team": "DanKen",
+     "avg": 34.34,
+     "tot": 1717,
+     "gp": 50
+    },
+    {
+     "team": "ER",
+     "avg": 34.9623,
+     "tot": 1853,
+     "gp": 53
+    },
+    {
+     "team": "Israel Samson",
+     "avg": 36.3125,
+     "tot": 1743,
+     "gp": 48
+    },
+    {
+     "team": "Naim Merlon",
+     "avg": 36.5556,
+     "tot": 1974,
+     "gp": 54
+    },
+    {
+     "team": "Omer's Team",
+     "avg": 34.6596,
+     "tot": 1629,
+     "gp": 47
+    },
+    {
+     "team": "Team Mamba Mentality",
+     "avg": 34.8043,
+     "tot": 1601,
+     "gp": 46
+    },
+    {
+     "team": "Team The Mushroom",
+     "avg": 32.6,
+     "tot": 1630,
+     "gp": 50
+    },
+    {
+     "team": "The Pigs orsurf",
+     "avg": 36.9649,
+     "tot": 2107,
+     "gp": 57
+    }
+   ]
+  },
+  {
+   "at": "2026-10-29T23:08:29-05:00",
+   "teams": [
+    {
+     "team": "DanKen",
+     "avg": 34.8077,
+     "tot": 1810,
+     "gp": 52
+    },
+    {
+     "team": "ER",
+     "avg": 34.5965,
+     "tot": 1972,
+     "gp": 57
+    },
+    {
+     "team": "Israel Samson",
+     "avg": 37.0392,
+     "tot": 1889,
+     "gp": 51
+    },
+    {
+     "team": "Naim Merlon",
+     "avg": 36.0517,
+     "tot": 2091,
+     "gp": 58
+    },
+    {
+     "team": "Omer's Team",
+     "avg": 34.8125,
+     "tot": 1671,
+     "gp": 48
+    },
+    {
+     "team": "Team Mamba Mentality",
+     "avg": 34.1569,
+     "tot": 1742,
+     "gp": 51
+    },
+    {
+     "team": "Team The Mushroom",
+     "avg": 32.6,
+     "tot": 1630,
+     "gp": 50
+    },
+    {
+     "team": "The Pigs orsurf",
+     "avg": 36.6724,
+     "tot": 2127,
+     "gp": 58
+    }
+   ]
+  },
+  {
+   "at": "2026-10-29T23:51:35-05:00",
+   "teams": [
+    {
+     "team": "DanKen",
+     "avg": 34.8077,
+     "tot": 1810,
+     "gp": 52
+    },
+    {
+     "team": "ER",
+     "avg": 34.5965,
+     "tot": 1972,
+     "gp": 57
+    },
+    {
+     "team": "Israel Samson",
+     "avg": 37.3333,
+     "tot": 1904,
+     "gp": 51
+    },
+    {
+     "team": "Naim Merlon",
+     "avg": 36.0517,
+     "tot": 2091,
+     "gp": 58
+    },
+    {
+     "team": "Omer's Team",
+     "avg": 34.9167,
+     "tot": 1676,
+     "gp": 48
+    },
+    {
+     "team": "Team Mamba Mentality",
+     "avg": 34.1569,
+     "tot": 1742,
+     "gp": 51
+    },
+    {
+     "team": "Team The Mushroom",
+     "avg": 32.6,
+     "tot": 1630,
+     "gp": 50
+    },
+    {
+     "team": "The Pigs orsurf",
+     "avg": 36.6724,
+     "tot": 2127,
+     "gp": 58
+    }
+   ]
+  },
+  {
+   "at": "2026-10-30T23:09:00-05:00",
+   "teams": [
+    {
+     "team": "DanKen",
+     "avg": 35.1,
+     "tot": 2106,
+     "gp": 60
+    },
+    {
+     "team": "ER",
+     "avg": 34.5714,
+     "tot": 2178,
+     "gp": 63
+    },
+    {
+     "team": "Israel Samson",
+     "avg": 38.4464,
+     "tot": 2153,
+     "gp": 56
+    },
+    {
+     "team": "Naim Merlon",
+     "avg": 37.0,
+     "tot": 2479,
+     "gp": 67
+    },
+    {
+     "team": "Omer's Team",
+     "avg": 33.8704,
+     "tot": 1829,
+     "gp": 54
+    },
+    {
+     "team": "Team Mamba Mentality",
+     "avg": 33.2364,
+     "tot": 1828,
+     "gp": 55
+    },
+    {
+     "team": "Team The Mushroom",
+     "avg": 32.85,
+     "tot": 1971,
+     "gp": 60
+    },
+    {
+     "team": "The Pigs orsurf",
+     "avg": 36.2424,
+     "tot": 2392,
+     "gp": 66
+    }
+   ]
+  },
+  {
+   "at": "2026-10-30T23:54:08-05:00",
+   "teams": [
+    {
+     "team": "DanKen",
+     "avg": 35.1,
+     "tot": 2106,
+     "gp": 60
+    },
+    {
+     "team": "ER",
+     "avg": 34.5714,
+     "tot": 2178,
+     "gp": 63
+    },
+    {
+     "team": "Israel Samson",
+     "avg": 38.4643,
+     "tot": 2154,
+     "gp": 56
+    },
+    {
+     "team": "Naim Merlon",
+     "avg": 37.3433,
+     "tot": 2502,
+     "gp": 67
+    },
+    {
+     "team": "Omer's Team",
+     "avg": 34.0556,
+     "tot": 1839,
+     "gp": 54
+    },
+    {
+     "team": "Team Mamba Mentality",
+     "avg": 33.2364,
+     "tot": 1828,
+     "gp": 55
+    },
+    {
+     "team": "Team The Mushroom",
+     "avg": 33.1,
+     "tot": 1986,
+     "gp": 60
+    },
+    {
+     "team": "The Pigs orsurf",
+     "avg": 36.3333,
+     "tot": 2398,
+     "gp": 66
+    }
+   ]
+  },
+  {
+   "at": "2026-10-31T23:10:38-05:00",
+   "teams": [
+    {
+     "team": "DanKen",
+     "avg": 34.1642,
+     "tot": 2289,
+     "gp": 67
+    },
+    {
+     "team": "ER",
+     "avg": 34.3623,
+     "tot": 2371,
+     "gp": 69
+    },
+    {
+     "team": "Israel Samson",
+     "avg": 38.7742,
+     "tot": 2404,
+     "gp": 62
+    },
+    {
+     "team": "Naim Merlon",
+     "avg": 37.0137,
+     "tot": 2702,
+     "gp": 73
+    },
+    {
+     "team": "Omer's Team",
+     "avg": 33.2097,
+     "tot": 2059,
+     "gp": 62
+    },
+    {
+     "team": "Team Mamba Mentality",
+     "avg": 32.8689,
+     "tot": 2005,
+     "gp": 61
+    },
+    {
+     "team": "Team The Mushroom",
+     "avg": 32.8871,
+     "tot": 2039,
+     "gp": 62
+    },
+    {
+     "team": "The Pigs orsurf",
+     "avg": 35.7391,
+     "tot": 2466,
+     "gp": 69
+    }
+   ]
+  },
+  {
+   "at": "2026-11-01T22:48:20-06:00",
+   "teams": [
+    {
+     "team": "DanKen",
+     "avg": 34.4366,
+     "tot": 2445,
+     "gp": 71
+    },
+    {
+     "team": "ER",
+     "avg": 34.3194,
+     "tot": 2471,
+     "gp": 72
+    },
+    {
+     "team": "Israel Samson",
+     "avg": 38.5303,
+     "tot": 2543,
+     "gp": 66
+    },
+    {
+     "team": "Naim Merlon",
+     "avg": 36.9459,
+     "tot": 2734,
+     "gp": 74
+    },
+    {
+     "team": "Omer's Team",
+     "avg": 33.0159,
+     "tot": 2080,
+     "gp": 63
+    },
+    {
+     "team": "Team Mamba Mentality",
+     "avg": 32.8889,
+     "tot": 2072,
+     "gp": 63
+    },
+    {
+     "team": "Team The Mushroom",
+     "avg": 33.8657,
+     "tot": 2269,
+     "gp": 67
+    },
+    {
+     "team": "The Pigs orsurf",
+     "avg": 35.6143,
+     "tot": 2493,
+     "gp": 70
+    }
+   ]
+  },
+  {
+   "at": "2026-11-02T23:03:10-06:00",
+   "teams": [
+    {
+     "team": "DanKen",
+     "avg": 34.1975,
+     "tot": 2770,
+     "gp": 81
+    },
+    {
+     "team": "ER",
+     "avg": 33.7683,
+     "tot": 2769,
+     "gp": 82
+    },
+    {
+     "team": "Israel Samson",
+     "avg": 37.5263,
+     "tot": 2852,
+     "gp": 76
+    },
+    {
+     "team": "Naim Merlon",
+     "avg": 37.0357,
+     "tot": 3111,
+     "gp": 84
+    },
+    {
+     "team": "Omer's Team",
+     "avg": 32.9444,
+     "tot": 2372,
+     "gp": 72
+    },
+    {
+     "team": "Team Mamba Mentality",
+     "avg": 33.7945,
+     "tot": 2467,
+     "gp": 73
+    },
+    {
+     "team": "Team The Mushroom",
+     "avg": 34.4737,
+     "tot": 2620,
+     "gp": 76
+    },
+    {
+     "team": "The Pigs orsurf",
+     "avg": 36.8987,
+     "tot": 2915,
+     "gp": 79
+    }
+   ]
+  },
+  {
+   "at": "2026-11-03T22:47:31-06:00",
+   "teams": [
+    {
+     "team": "DanKen",
+     "avg": 34.3457,
+     "tot": 2782,
+     "gp": 81
+    },
+    {
+     "team": "ER",
+     "avg": 34.0244,
+     "tot": 2790,
+     "gp": 82
+    },
+    {
+     "team": "Israel Samson",
+     "avg": 37.8684,
+     "tot": 2878,
+     "gp": 76
+    },
+    {
+     "team": "Naim Merlon",
+     "avg": 37.3929,
+     "tot": 3141,
+     "gp": 84
+    },
+    {
+     "team": "Omer's Team",
+     "avg": 33.0139,
+     "tot": 2377,
+     "gp": 72
+    },
+    {
+     "team": "Team Mamba Mentality",
+     "avg": 33.9589,
+     "tot": 2479,
+     "gp": 73
+    },
+    {
+     "team": "Team The Mushroom",
+     "avg": 34.7632,
+     "tot": 2642,
+     "gp": 76
+    },
+    {
+     "team": "The Pigs orsurf",
+     "avg": 36.8987,
+     "tot": 2915,
+     "gp": 79
+    }
+   ]
+  },
+  {
+   "at": "2026-11-04T23:03:36-06:00",
+   "teams": [
+    {
+     "team": "DanKen",
+     "avg": 34.1,
+     "tot": 3069,
+     "gp": 90
+    },
+    {
+     "team": "ER",
+     "avg": 33.4891,
+     "tot": 3081,
+     "gp": 92
+    },
+    {
+     "team": "Israel Samson",
+     "avg": 37.4186,
+     "tot": 3218,
+     "gp": 86
+    },
+    {
+     "team": "Naim Merlon",
+     "avg": 36.7021,
+     "tot": 3450,
+     "gp": 94
+    },
+    {
+     "team": "Omer's Team",
+     "avg": 33.0244,
+     "tot": 2708,
+     "gp": 82
+    },
+    {
+     "team": "Team Mamba Mentality",
+     "avg": 34.4198,
+     "tot": 2788,
+     "gp": 81
+    },
+    {
+     "team": "Team The Mushroom",
+     "avg": 34.8605,
+     "tot": 2998,
+     "gp": 86
+    },
+    {
+     "team": "The Pigs orsurf",
+     "avg": 37.1011,
+     "tot": 3302,
+     "gp": 89
+    }
+   ]
+  }
+ ]
+}
