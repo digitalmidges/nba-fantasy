@@ -5,8 +5,12 @@ B = str(ROOT) + '/'
 st=json.load(open(B+'data/standings.json'))
 dv=json.load(open(B+'data/draft_value.json'))
 from fetch_pace import build_from_standings
+from avg_history import append_standings
 pace=build_from_standings()
 json.dump(pace, open(B+'data/pace.json','w'), indent=1)
+# Append this scrape to Avg Pts/Pos history. Older points stay; a second write
+# inside 30 minutes of the previous scrape replaces that point (see avg_history.py).
+hist=append_standings(ROOT / 'data' / 'avg_history.json', st)
 html=open(B+'data/raw/index.prev.html').read()
 now=st.get('scraped_at') or datetime.datetime.now().astimezone().isoformat(timespec='seconds')
 # standings
@@ -19,10 +23,16 @@ html=re.sub(r'const currentData = \[\n.*?\n        \]\.map', 'const currentData 
 html=re.sub(r'const LAST_REFRESH_ISO = "[^"]*";', 'const LAST_REFRESH_ISO = "%s";'%now, html)
 if '/*PACE_DATA*/' not in html or 'id="panel-pace"' not in html:
     raise SystemExit('Pace tab missing from data/raw/index.prev.html — refusing to publish a page that would drop it')
+if '/*AVG_HISTORY*/' not in html or 'id="panel-trends"' not in html or 'data-tab="trends"' not in html:
+    raise SystemExit('Trends tab missing from data/raw/index.prev.html — refusing to publish a page that would drop it')
 pace_js=json.dumps(pace,separators=(',',':')).replace('<','\\u003c')
 html2, n=re.subn(r'/\*PACE_DATA\*/.*?/\*END_PACE\*/', lambda m: '/*PACE_DATA*/'+pace_js+'/*END_PACE*/', html, count=1, flags=re.S)
 if n!=1:
     raise SystemExit('Pace placeholder was not injected')
+hist_js=json.dumps(hist,separators=(',',':')).replace('<','\\u003c')
+html2, n=re.subn(r'/\*AVG_HISTORY\*/.*?/\*END_AVG_HISTORY\*/', lambda m: '/*AVG_HISTORY*/'+hist_js+'/*END_AVG_HISTORY*/', html2, count=1, flags=re.S)
+if n!=1:
+    raise SystemExit('Avg history placeholder was not injected')
 html=html2
 keep=['pick','round','pick_in_round','drafted_by','current_team','player','position','nba_team','status','fpts_tot','fpts_avg','gp_est','prod_rank','value','steal','bust','played']
 picks=[{k:p[k] for k in keep} for p in dv['picks']]
@@ -268,7 +278,7 @@ if 'const DRAFT = ' not in html:
     html=html.replace('        showLastRefresh();\n', js+'\n        showLastRefresh();\n',1)
     html=html.replace('        renderCustom();\n    </script>','        renderCustom();\n        renderValue();\n        renderByRound();\n        renderBoard();\n        renderGrades();\n        renderUndrafted();\n    </script>',1)
 open(B+'index.html','w').write(html)
-print('ok',now,len(html))
+print('ok',now,len(html),'history',len(hist['points']))
 
 # ---- tabs: Leaderboard / Draft value ----
 html=open(B+'index.html').read()
@@ -877,3 +887,7 @@ if 'id="panel-pace"' not in final or 'data-tab="pace"' not in final or 'function
     raise SystemExit('Built index.html lost the Pace tab')
 if '/*PACE_DATA*/null/*END_PACE*/' in final:
     raise SystemExit('Pace numbers were not injected into index.html')
+if 'id="panel-trends"' not in final or 'data-tab="trends"' not in final or 'function renderTrends(' not in final:
+    raise SystemExit('Built index.html lost the Trends tab')
+if '/*AVG_HISTORY*/null/*END_AVG_HISTORY*/' in final:
+    raise SystemExit('Avg history was not injected into index.html')
