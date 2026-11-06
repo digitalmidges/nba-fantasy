@@ -1,5 +1,6 @@
-import json, datetime
-D='/workspace/barchashim/data/'
+import json, datetime, pathlib
+ROOT = pathlib.Path(__file__).resolve().parent.parent
+D = str(ROOT / 'data') + '/'
 draft=json.load(open(D+'draft.json'))
 ros=json.load(open(D+'rosters_flat.json'))
 fa=json.load(open(D+'free_agents.json'))
@@ -70,3 +71,4 @@ print('--teams');[print(t) for t in tg]
 print('--und');[print(u) for u in und[:10]]
 print('--dnp',[ (x['player'],x['pick'],x['status']) for x in out['dnp']])
 print('steal count',sum(x['steal'] for x in rows))
+print('generated_at', out['generated_at'])

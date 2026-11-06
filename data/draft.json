@@ -1,0 +1,945 @@
+{
+ "season": 2027,
+ "draft_date": "2026-10-09",
+ "type": "Snake",
+ "seconds_per_pick": 90,
+ "rounds": 13,
+ "picks": [
+  {
+   "pick": 1,
+   "round": 1,
+   "pick_in_round": 1,
+   "team": "The Pigs orsurf",
+   "player": "Nikola Jokic",
+   "position": "C",
+   "nba_team": "DEN"
+  },
+  {
+   "pick": 2,
+   "round": 1,
+   "pick_in_round": 2,
+   "team": "Omer's Team",
+   "player": "Shai Gilgeous-Alexander",
+   "position": "PG",
+   "nba_team": "OKC"
+  },
+  {
+   "pick": 3,
+   "round": 1,
+   "pick_in_round": 3,
+   "team": "Team The Mushroom",
+   "player": "Luka Doncic",
+   "position": "PG",
+   "nba_team": "LAL"
+  },
+  {
+   "pick": 4,
+   "round": 1,
+   "pick_in_round": 4,
+   "team": "Israel Samson",
+   "player": "Victor Wembanyama",
+   "position": "C",
+   "nba_team": "SA"
+  },
+  {
+   "pick": 5,
+   "round": 1,
+   "pick_in_round": 5,
+   "team": "Naim Merlon",
+   "player": "Giannis Antetokounmpo",
+   "position": "PF",
+   "nba_team": "MIA"
+  },
+  {
+   "pick": 6,
+   "round": 1,
+   "pick_in_round": 6,
+   "team": "ER",
+   "player": "Jalen Johnson",
+   "position": "PF",
+   "nba_team": "ATL"
+  },
+  {
+   "pick": 7,
+   "round": 1,
+   "pick_in_round": 7,
+   "team": "Team Mamba Mentality",
+   "player": "Cade Cunningham",
+   "position": "PG",
+   "nba_team": "DET"
+  },
+  {
+   "pick": 8,
+   "round": 1,
+   "pick_in_round": 8,
+   "team": "DanKen",
+   "player": "Cooper Flagg",
+   "position": "SF",
+   "nba_team": "DAL"
+  },
+  {
+   "pick": 9,
+   "round": 2,
+   "pick_in_round": 1,
+   "team": "DanKen",
+   "player": "Tyrese Maxey",
+   "position": "PG",
+   "nba_team": "PHI"
+  },
+  {
+   "pick": 10,
+   "round": 2,
+   "pick_in_round": 2,
+   "team": "Team Mamba Mentality",
+   "player": "Anthony Edwards",
+   "position": "SG",
+   "nba_team": "MIN"
+  },
+  {
+   "pick": 11,
+   "round": 2,
+   "pick_in_round": 3,
+   "team": "ER",
+   "player": "Jayson Tatum",
+   "position": "PF",
+   "nba_team": "BOS"
+  },
+  {
+   "pick": 12,
+   "round": 2,
+   "pick_in_round": 4,
+   "team": "Naim Merlon",
+   "player": "Donovan Mitchell",
+   "position": "SG",
+   "nba_team": "CLE"
+  },
+  {
+   "pick": 13,
+   "round": 2,
+   "pick_in_round": 5,
+   "team": "Israel Samson",
+   "player": "Scottie Barnes",
+   "position": "SF",
+   "nba_team": "TOR"
+  },
+  {
+   "pick": 14,
+   "round": 2,
+   "pick_in_round": 6,
+   "team": "Team The Mushroom",
+   "player": "Jalen Brunson",
+   "position": "PG",
+   "nba_team": "NY"
+  },
+  {
+   "pick": 15,
+   "round": 2,
+   "pick_in_round": 7,
+   "team": "Omer's Team",
+   "player": "Deni Avdija",
+   "position": "SF",
+   "nba_team": "POR"
+  },
+  {
+   "pick": 16,
+   "round": 2,
+   "pick_in_round": 8,
+   "team": "The Pigs orsurf",
+   "player": "Karl-Anthony Towns",
+   "position": "C",
+   "nba_team": "NY"
+  },
+  {
+   "pick": 17,
+   "round": 3,
+   "pick_in_round": 1,
+   "team": "The Pigs orsurf",
+   "player": "Alperen Sengun",
+   "position": "C",
+   "nba_team": "HOU"
+  },
+  {
+   "pick": 18,
+   "round": 3,
+   "pick_in_round": 2,
+   "team": "Omer's Team",
+   "player": "Amen Thompson",
+   "position": "SF",
+   "nba_team": "HOU"
+  },
+  {
+   "pick": 19,
+   "round": 3,
+   "pick_in_round": 3,
+   "team": "Team The Mushroom",
+   "player": "Devin Booker",
+   "position": "PG",
+   "nba_team": "PHX"
+  },
+  {
+   "pick": 20,
+   "round": 3,
+   "pick_in_round": 4,
+   "team": "Israel Samson",
+   "player": "Tyrese Haliburton",
+   "position": "PG",
+   "nba_team": "IND"
+  },
+  {
+   "pick": 21,
+   "round": 3,
+   "pick_in_round": 5,
+   "team": "Naim Merlon",
+   "player": "Kevin Durant",
+   "position": "PF",
+   "nba_team": "HOU"
+  },
+  {
+   "pick": 22,
+   "round": 3,
+   "pick_in_round": 6,
+   "team": "ER",
+   "player": "Domantas Sabonis",
+   "position": "C",
+   "nba_team": "SAC"
+  },
+  {
+   "pick": 23,
+   "round": 3,
+   "pick_in_round": 7,
+   "team": "Team Mamba Mentality",
+   "player": "Evan Mobley",
+   "position": "PF",
+   "nba_team": "CLE"
+  },
+  {
+   "pick": 24,
+   "round": 3,
+   "pick_in_round": 8,
+   "team": "DanKen",
+   "player": "LaMelo Ball",
+   "position": "PG",
+   "nba_team": "MIN"
+  },
+  {
+   "pick": 25,
+   "round": 4,
+   "pick_in_round": 1,
+   "team": "DanKen",
+   "player": "Jalen Williams",
+   "position": "PF",
+   "nba_team": "OKC"
+  },
+  {
+   "pick": 26,
+   "round": 4,
+   "pick_in_round": 2,
+   "team": "Team Mamba Mentality",
+   "player": "Paolo Banchero",
+   "position": "PF",
+   "nba_team": "ORL"
+  },
+  {
+   "pick": 27,
+   "round": 4,
+   "pick_in_round": 3,
+   "team": "ER",
+   "player": "Anthony Davis",
+   "position": "C",
+   "nba_team": "WSH"
+  },
+  {
+   "pick": 28,
+   "round": 4,
+   "pick_in_round": 4,
+   "team": "Naim Merlon",
+   "player": "Bam Adebayo",
+   "position": "C",
+   "nba_team": "MIA"
+  },
+  {
+   "pick": 29,
+   "round": 4,
+   "pick_in_round": 5,
+   "team": "Israel Samson",
+   "player": "Trae Young",
+   "position": "PG",
+   "nba_team": "WSH"
+  },
+  {
+   "pick": 30,
+   "round": 4,
+   "pick_in_round": 6,
+   "team": "Team The Mushroom",
+   "player": "Jalen Duren",
+   "position": "C",
+   "nba_team": "DET"
+  },
+  {
+   "pick": 31,
+   "round": 4,
+   "pick_in_round": 7,
+   "team": "Omer's Team",
+   "player": "Austin Reaves",
+   "position": "SG",
+   "nba_team": "LAL"
+  },
+  {
+   "pick": 32,
+   "round": 4,
+   "pick_in_round": 8,
+   "team": "The Pigs orsurf",
+   "player": "Pascal Siakam",
+   "position": "PF",
+   "nba_team": "IND"
+  },
+  {
+   "pick": 33,
+   "round": 5,
+   "pick_in_round": 1,
+   "team": "The Pigs orsurf",
+   "player": "Jaylen Brown",
+   "position": "SF",
+   "nba_team": "PHI"
+  },
+  {
+   "pick": 34,
+   "round": 5,
+   "pick_in_round": 2,
+   "team": "Omer's Team",
+   "player": "Naz Reid",
+   "position": "C",
+   "nba_team": "CHA"
+  },
+  {
+   "pick": 35,
+   "round": 5,
+   "pick_in_round": 3,
+   "team": "Team The Mushroom",
+   "player": "Josh Giddey",
+   "position": "PG",
+   "nba_team": "CHI"
+  },
+  {
+   "pick": 36,
+   "round": 5,
+   "pick_in_round": 4,
+   "team": "Israel Samson",
+   "player": "Kawhi Leonard",
+   "position": "SF",
+   "nba_team": "TOR"
+  },
+  {
+   "pick": 37,
+   "round": 5,
+   "pick_in_round": 5,
+   "team": "Naim Merlon",
+   "player": "Jamal Murray",
+   "position": "PG",
+   "nba_team": "DEN"
+  },
+  {
+   "pick": 38,
+   "round": 5,
+   "pick_in_round": 6,
+   "team": "ER",
+   "player": "James Harden",
+   "position": "PG",
+   "nba_team": "CLE"
+  },
+  {
+   "pick": 39,
+   "round": 5,
+   "pick_in_round": 7,
+   "team": "Team Mamba Mentality",
+   "player": "Derrick White",
+   "position": "SG",
+   "nba_team": "BOS"
+  },
+  {
+   "pick": 40,
+   "round": 5,
+   "pick_in_round": 8,
+   "team": "DanKen",
+   "player": "Darius Garland",
+   "position": "PG",
+   "nba_team": "LAC"
+  },
+  {
+   "pick": 41,
+   "round": 6,
+   "pick_in_round": 1,
+   "team": "DanKen",
+   "player": "Zion Williamson",
+   "position": "PF",
+   "nba_team": "NO"
+  },
+  {
+   "pick": 42,
+   "round": 6,
+   "pick_in_round": 2,
+   "team": "Team Mamba Mentality",
+   "player": "Onyeka Okongwu",
+   "position": "C",
+   "nba_team": "ATL"
+  },
+  {
+   "pick": 43,
+   "round": 6,
+   "pick_in_round": 3,
+   "team": "ER",
+   "player": "LeBron James",
+   "position": "SF",
+   "nba_team": "PHI"
+  },
+  {
+   "pick": 44,
+   "round": 6,
+   "pick_in_round": 4,
+   "team": "Naim Merlon",
+   "player": "Stephen Curry",
+   "position": "PG",
+   "nba_team": "GS"
+  },
+  {
+   "pick": 45,
+   "round": 6,
+   "pick_in_round": 5,
+   "team": "Israel Samson",
+   "player": "Kon Knueppel",
+   "position": "SF",
+   "nba_team": "CHA"
+  },
+  {
+   "pick": 46,
+   "round": 6,
+   "pick_in_round": 6,
+   "team": "Team The Mushroom",
+   "player": "Desmond Bane",
+   "position": "SG",
+   "nba_team": "ORL"
+  },
+  {
+   "pick": 47,
+   "round": 6,
+   "pick_in_round": 7,
+   "team": "Omer's Team",
+   "player": "Joel Embiid",
+   "position": "C",
+   "nba_team": "PHI"
+  },
+  {
+   "pick": 48,
+   "round": 6,
+   "pick_in_round": 8,
+   "team": "The Pigs orsurf",
+   "player": "Stephon Castle",
+   "position": "PG",
+   "nba_team": "SA"
+  },
+  {
+   "pick": 49,
+   "round": 7,
+   "pick_in_round": 1,
+   "team": "The Pigs orsurf",
+   "player": "Dyson Daniels",
+   "position": "SG",
+   "nba_team": "ATL"
+  },
+  {
+   "pick": 50,
+   "round": 7,
+   "pick_in_round": 2,
+   "team": "Omer's Team",
+   "player": "Lauri Markkanen",
+   "position": "PF",
+   "nba_team": "UTAH"
+  },
+  {
+   "pick": 51,
+   "round": 7,
+   "pick_in_round": 3,
+   "team": "Team The Mushroom",
+   "player": "Julius Randle",
+   "position": "PF",
+   "nba_team": "BKN"
+  },
+  {
+   "pick": 52,
+   "round": 7,
+   "pick_in_round": 4,
+   "team": "Israel Samson",
+   "player": "Franz Wagner",
+   "position": "SF",
+   "nba_team": "ORL"
+  },
+  {
+   "pick": 53,
+   "round": 7,
+   "pick_in_round": 5,
+   "team": "Naim Merlon",
+   "player": "Michael Porter Jr.",
+   "position": "SF",
+   "nba_team": "BKN"
+  },
+  {
+   "pick": 54,
+   "round": 7,
+   "pick_in_round": 6,
+   "team": "ER",
+   "player": "De'Aaron Fox",
+   "position": "PG",
+   "nba_team": "SA"
+  },
+  {
+   "pick": 55,
+   "round": 7,
+   "pick_in_round": 7,
+   "team": "Team Mamba Mentality",
+   "player": "Trey Murphy III",
+   "position": "SF",
+   "nba_team": "NO"
+  },
+  {
+   "pick": 56,
+   "round": 7,
+   "pick_in_round": 8,
+   "team": "DanKen",
+   "player": "Nickeil Alexander-Walker",
+   "position": "SG",
+   "nba_team": "ATL"
+  },
+  {
+   "pick": 57,
+   "round": 8,
+   "pick_in_round": 1,
+   "team": "DanKen",
+   "player": "Keyonte George",
+   "position": "PG",
+   "nba_team": "UTAH"
+  },
+  {
+   "pick": 58,
+   "round": 8,
+   "pick_in_round": 2,
+   "team": "Team Mamba Mentality",
+   "player": "Damian Lillard",
+   "position": "PG",
+   "nba_team": "POR"
+  },
+  {
+   "pick": 59,
+   "round": 8,
+   "pick_in_round": 3,
+   "team": "ER",
+   "player": "Mikal Bridges",
+   "position": "SF",
+   "nba_team": "NY"
+  },
+  {
+   "pick": 60,
+   "round": 8,
+   "pick_in_round": 4,
+   "team": "Naim Merlon",
+   "player": "Jarrett Allen",
+   "position": "C",
+   "nba_team": "CLE"
+  },
+  {
+   "pick": 61,
+   "round": 8,
+   "pick_in_round": 5,
+   "team": "Israel Samson",
+   "player": "Walker Kessler",
+   "position": "C",
+   "nba_team": "LAL"
+  },
+  {
+   "pick": 62,
+   "round": 8,
+   "pick_in_round": 6,
+   "team": "Team The Mushroom",
+   "player": "Chet Holmgren",
+   "position": "C",
+   "nba_team": "OKC"
+  },
+  {
+   "pick": 63,
+   "round": 8,
+   "pick_in_round": 7,
+   "team": "Omer's Team",
+   "player": "Dejounte Murray",
+   "position": "SG",
+   "nba_team": "NO"
+  },
+  {
+   "pick": 64,
+   "round": 8,
+   "pick_in_round": 8,
+   "team": "The Pigs orsurf",
+   "player": "AJ Dybantsa",
+   "position": "SF",
+   "nba_team": "WSH"
+  },
+  {
+   "pick": 65,
+   "round": 9,
+   "pick_in_round": 1,
+   "team": "The Pigs orsurf",
+   "player": "Norman Powell",
+   "position": "SG",
+   "nba_team": "CHI"
+  },
+  {
+   "pick": 66,
+   "round": 9,
+   "pick_in_round": 2,
+   "team": "Omer's Team",
+   "player": "Brandon Miller",
+   "position": "SF",
+   "nba_team": "CHA"
+  },
+  {
+   "pick": 67,
+   "round": 9,
+   "pick_in_round": 3,
+   "team": "Team The Mushroom",
+   "player": "Tyler Herro",
+   "position": "SG",
+   "nba_team": "MIL"
+  },
+  {
+   "pick": 68,
+   "round": 9,
+   "pick_in_round": 4,
+   "team": "Israel Samson",
+   "player": "Cameron Boozer",
+   "position": "PF",
+   "nba_team": "MEM"
+  },
+  {
+   "pick": 69,
+   "round": 9,
+   "pick_in_round": 5,
+   "team": "Naim Merlon",
+   "player": "Kyrie Irving",
+   "position": "PG",
+   "nba_team": "DAL"
+  },
+  {
+   "pick": 70,
+   "round": 9,
+   "pick_in_round": 6,
+   "team": "ER",
+   "player": "Rudy Gobert",
+   "position": "C",
+   "nba_team": "MIN"
+  },
+  {
+   "pick": 71,
+   "round": 9,
+   "pick_in_round": 7,
+   "team": "Team Mamba Mentality",
+   "player": "Jaren Jackson Jr.",
+   "position": "C",
+   "nba_team": "UTAH"
+  },
+  {
+   "pick": 72,
+   "round": 9,
+   "pick_in_round": 8,
+   "team": "DanKen",
+   "player": "Kel'el Ware",
+   "position": "C",
+   "nba_team": "MIL"
+  },
+  {
+   "pick": 73,
+   "round": 10,
+   "pick_in_round": 1,
+   "team": "DanKen",
+   "player": "Matas Buzelis",
+   "position": "SF",
+   "nba_team": "CHI"
+  },
+  {
+   "pick": 74,
+   "round": 10,
+   "pick_in_round": 2,
+   "team": "Team Mamba Mentality",
+   "player": "Ty Jerome",
+   "position": "SG",
+   "nba_team": "MEM"
+  },
+  {
+   "pick": 75,
+   "round": 10,
+   "pick_in_round": 3,
+   "team": "ER",
+   "player": "Ja Morant",
+   "position": "PG",
+   "nba_team": "POR"
+  },
+  {
+   "pick": 76,
+   "round": 10,
+   "pick_in_round": 4,
+   "team": "Naim Merlon",
+   "player": "DeMar DeRozan",
+   "position": "SF",
+   "nba_team": "DEN"
+  },
+  {
+   "pick": 77,
+   "round": 10,
+   "pick_in_round": 5,
+   "team": "Israel Samson",
+   "player": "Dylan Harper",
+   "position": "PG",
+   "nba_team": "SA"
+  },
+  {
+   "pick": 78,
+   "round": 10,
+   "pick_in_round": 6,
+   "team": "Team The Mushroom",
+   "player": "Miles Bridges",
+   "position": "SF",
+   "nba_team": "PHX"
+  },
+  {
+   "pick": 79,
+   "round": 10,
+   "pick_in_round": 7,
+   "team": "Omer's Team",
+   "player": "OG Anunoby",
+   "position": "SF",
+   "nba_team": "NY"
+  },
+  {
+   "pick": 80,
+   "round": 10,
+   "pick_in_round": 8,
+   "team": "The Pigs orsurf",
+   "player": "Fred VanVleet",
+   "position": "PG",
+   "nba_team": "HOU"
+  },
+  {
+   "pick": 81,
+   "round": 11,
+   "pick_in_round": 1,
+   "team": "The Pigs orsurf",
+   "player": "Caleb Wilson",
+   "position": "SF",
+   "nba_team": "CHI"
+  },
+  {
+   "pick": 82,
+   "round": 11,
+   "pick_in_round": 2,
+   "team": "Omer's Team",
+   "player": "Alex Sarr",
+   "position": "C",
+   "nba_team": "WSH"
+  },
+  {
+   "pick": 83,
+   "round": 11,
+   "pick_in_round": 3,
+   "team": "Team The Mushroom",
+   "player": "Kristaps Porzingis",
+   "position": "C",
+   "nba_team": "GS"
+  },
+  {
+   "pick": 84,
+   "round": 11,
+   "pick_in_round": 4,
+   "team": "Israel Samson",
+   "player": "Donovan Clingan",
+   "position": "C",
+   "nba_team": "POR"
+  },
+  {
+   "pick": 85,
+   "round": 11,
+   "pick_in_round": 5,
+   "team": "Naim Merlon",
+   "player": "CJ McCollum",
+   "position": "SG",
+   "nba_team": "ATL"
+  },
+  {
+   "pick": 86,
+   "round": 11,
+   "pick_in_round": 6,
+   "team": "ER",
+   "player": "Coby White",
+   "position": "PG",
+   "nba_team": "CHA"
+  },
+  {
+   "pick": 87,
+   "round": 11,
+   "pick_in_round": 7,
+   "team": "Team Mamba Mentality",
+   "player": "Ivica Zubac",
+   "position": "C",
+   "nba_team": "IND"
+  },
+  {
+   "pick": 88,
+   "round": 11,
+   "pick_in_round": 8,
+   "team": "DanKen",
+   "player": "Jaden McDaniels",
+   "position": "SF",
+   "nba_team": "MIN"
+  },
+  {
+   "pick": 89,
+   "round": 12,
+   "pick_in_round": 1,
+   "team": "DanKen",
+   "player": "Jalen Green",
+   "position": "SG",
+   "nba_team": "PHX"
+  },
+  {
+   "pick": 90,
+   "round": 12,
+   "pick_in_round": 2,
+   "team": "Team Mamba Mentality",
+   "player": "VJ Edgecombe",
+   "position": "SG",
+   "nba_team": "PHI"
+  },
+  {
+   "pick": 91,
+   "round": 12,
+   "pick_in_round": 3,
+   "team": "ER",
+   "player": "Immanuel Quickley",
+   "position": "PG",
+   "nba_team": "TOR"
+  },
+  {
+   "pick": 92,
+   "round": 12,
+   "pick_in_round": 4,
+   "team": "Naim Merlon",
+   "player": "Zach LaVine",
+   "position": "SG",
+   "nba_team": "SAC"
+  },
+  {
+   "pick": 93,
+   "round": 12,
+   "pick_in_round": 5,
+   "team": "Israel Samson",
+   "player": "Darius Acuff Jr.",
+   "position": "PG",
+   "nba_team": "SAC"
+  },
+  {
+   "pick": 94,
+   "round": 12,
+   "pick_in_round": 6,
+   "team": "Team The Mushroom",
+   "player": "Andrew Wiggins",
+   "position": "SF",
+   "nba_team": "MIA"
+  },
+  {
+   "pick": 95,
+   "round": 12,
+   "pick_in_round": 7,
+   "team": "Omer's Team",
+   "player": "Ausar Thompson",
+   "position": "SF",
+   "nba_team": "DET"
+  },
+  {
+   "pick": 96,
+   "round": 12,
+   "pick_in_round": 8,
+   "team": "The Pigs orsurf",
+   "player": "Paul George",
+   "position": "SF",
+   "nba_team": "BOS"
+  },
+  {
+   "pick": 97,
+   "round": 13,
+   "pick_in_round": 1,
+   "team": "The Pigs orsurf",
+   "player": "Derik Queen",
+   "position": "C",
+   "nba_team": "NO"
+  },
+  {
+   "pick": 98,
+   "round": 13,
+   "pick_in_round": 2,
+   "team": "Omer's Team",
+   "player": "Jaime Jaquez Jr.",
+   "position": "SF",
+   "nba_team": "MIL"
+  },
+  {
+   "pick": 99,
+   "round": 13,
+   "pick_in_round": 3,
+   "team": "Team The Mushroom",
+   "player": "Ryan Rollins",
+   "position": "SG",
+   "nba_team": "MIL"
+  },
+  {
+   "pick": 100,
+   "round": 13,
+   "pick_in_round": 4,
+   "team": "Israel Samson",
+   "player": "Payton Pritchard",
+   "position": "PG",
+   "nba_team": "BOS"
+  },
+  {
+   "pick": 101,
+   "round": 13,
+   "pick_in_round": 5,
+   "team": "Naim Merlon",
+   "player": "Jabari Smith Jr.",
+   "position": "PF",
+   "nba_team": "HOU"
+  },
+  {
+   "pick": 102,
+   "round": 13,
+   "pick_in_round": 6,
+   "team": "ER",
+   "player": "Josh Hart",
+   "position": "SF",
+   "nba_team": "NY"
+  },
+  {
+   "pick": 103,
+   "round": 13,
+   "pick_in_round": 7,
+   "team": "Team Mamba Mentality",
+   "player": "Darryn Peterson",
+   "position": "SG",
+   "nba_team": "UTAH"
+  },
+  {
+   "pick": 104,
+   "round": 13,
+   "pick_in_round": 8,
+   "team": "DanKen",
+   "player": "Rui Hachimura",
+   "position": "PF",
+   "nba_team": "LAC"
+  }
+ ]
+}

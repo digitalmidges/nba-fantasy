@@ -275,12 +275,53 @@ js=r'''
         document.getElementById('valueView').addEventListener('change', renderValue);
         document.getElementById('valueTeam').addEventListener('change', renderValue);
 '''
-if 'const DRAFT = ' not in html:
+# Always refresh baked draft snapshots from draft_value.json (standings-only
+# rebuilds used to leave the Oct shell numbers in place).
+draft_at = dv.get('generated_at') or ''
+if draft_at:
+    html, n_iso = re.subn(
+        r'const DRAFT_REFRESH_ISO = "[^"]*";',
+        'const DRAFT_REFRESH_ISO = %s;' % json.dumps(draft_at),
+        html, count=1)
+    if n_iso != 1 and 'DRAFT_REFRESH_ISO' not in html:
+        html = html.replace(
+            'const LAST_REFRESH_ISO = "',
+            'const DRAFT_REFRESH_ISO = %s;\n        const LAST_REFRESH_ISO = "' % json.dumps(draft_at),
+            1)
+
+def _replace_const(html, name, value_js):
+    pat = r'const %s = .*?;' % name
+    repl = 'const %s = %s;' % (name, value_js)
+    html2, n = re.subn(pat, repl, html, count=1, flags=re.S)
+    if n == 1:
+        return html2
+    return None
+
+picks_js = json.dumps(picks, separators=(',', ':'))
+teams_js = json.dumps(teams_order)
+by_round_js = json.dumps(dv['best_by_round'], separators=(',', ':'))
+grades_js = json.dumps(dv['team_draft_grades'], separators=(',', ':'))
+und_js = json.dumps(dv['undrafted_gems'][:10], separators=(',', ':'))
+
+if 'const DRAFT = ' in html:
+    # Longer names first so DRAFT does not steal a prefix match.
+    for name, val in [
+        ('DRAFT_TEAMS', teams_js),
+        ('DRAFT', picks_js),
+        ('BY_ROUND', by_round_js),
+        ('TEAM_GRADES', grades_js),
+        ('UNDRAFTED', und_js),
+    ]:
+        replaced = _replace_const(html, name, val)
+        if replaced is None:
+            raise SystemExit('Failed to replace const %s in index shell' % name)
+        html = replaced
+else:
     html=html.replace('        const MUSHROOM = "Team The Mushroom";\n','        const MUSHROOM = "Team The Mushroom";\n'+data_js,1)
     html=html.replace('        showLastRefresh();\n', js+'\n        showLastRefresh();\n',1)
     html=html.replace('        renderCustom();\n    </script>','        renderCustom();\n        renderValue();\n        renderByRound();\n        renderBoard();\n        renderGrades();\n        renderUndrafted();\n    </script>',1)
 open(B+'index.html','w').write(html)
-print('ok',now,len(html),'history',len(hist['points']))
+print('ok',now,len(html),'history',len(hist['points']),'draft',draft_at)
 
 # ---- tabs: Leaderboard / Draft value ----
 html=open(B+'index.html').read()
