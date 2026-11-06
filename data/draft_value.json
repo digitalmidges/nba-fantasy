@@ -1,5 +1,5 @@
 {
- "generated_at": "2026-11-05T22:50:06-06:00",
+ "generated_at": "2026-11-05T23:06:35-06:00",
  "method": "Production rank = order of the average of FPts-total rank and FPts/G rank among drafted players who have played. Value = overall pick # minus production rank among the drafted players who have played (1 = most fantasy points). Positive = outperforming draft slot. STEAL = round>=4 and top-20 FPts, or value>=40. BUST = rounds 1-3 and value<=-25. Players with no games yet are excluded from ranks.",
  "picks": [
   {
@@ -101,8 +101,8 @@
    "nba_team": "MIA",
    "status": "rostered",
    "injury": null,
-   "fpts_tot": 466.0,
-   "fpts_avg": 51.8,
+   "fpts_tot": 467.0,
+   "fpts_avg": 51.9,
    "gp_est": 9,
    "played": true,
    "fpts_rank": 3,
@@ -607,12 +607,12 @@
    "nba_team": "MIA",
    "status": "rostered",
    "injury": null,
-   "fpts_tot": 345.0,
-   "fpts_avg": 38.3,
+   "fpts_tot": 348.0,
+   "fpts_avg": 38.7,
    "gp_est": 9,
    "played": true,
    "fpts_rank": 10,
-   "avg_rank": 35,
+   "avg_rank": 34,
    "prod_rank": 19,
    "value": 9,
    "steal": true,
@@ -722,7 +722,7 @@
    "gp_est": 8,
    "played": true,
    "fpts_rank": 26,
-   "avg_rank": 34,
+   "avg_rank": 35,
    "prod_rank": 26,
    "value": 7,
    "steal": false,
@@ -809,10 +809,10 @@
    "fpts_avg": 46.4,
    "gp_est": 7,
    "played": true,
-   "fpts_rank": 18,
-   "avg_rank": 13,
-   "prod_rank": 14,
-   "value": 23,
+   "fpts_rank": 17,
+   "avg_rank": 12,
+   "prod_rank": 12,
+   "value": 25,
    "steal": true,
    "bust": false
   },
@@ -959,14 +959,14 @@
    "nba_team": "GS",
    "status": "rostered",
    "injury": null,
-   "fpts_tot": 326.0,
-   "fpts_avg": 46.6,
+   "fpts_tot": 322.0,
+   "fpts_avg": 46.0,
    "gp_est": 7,
    "played": true,
-   "fpts_rank": 17,
-   "avg_rank": 12,
-   "prod_rank": 12,
-   "value": 32,
+   "fpts_rank": 19,
+   "avg_rank": 13,
+   "prod_rank": 14,
+   "value": 30,
    "steal": true,
    "bust": false
   },
@@ -2059,8 +2059,8 @@
    "nba_team": "MIA",
    "status": "dropped",
    "injury": null,
-   "fpts_tot": 141.0,
-   "fpts_avg": 15.7,
+   "fpts_tot": 140.0,
+   "fpts_avg": 15.6,
    "gp_est": 9,
    "played": true,
    "fpts_rank": 89,
@@ -2217,7 +2217,7 @@
    "fpts_avg": 36.0,
    "gp_est": 9,
    "played": true,
-   "fpts_rank": 19,
+   "fpts_rank": 18,
    "avg_rank": 41,
    "prod_rank": 25,
    "value": 76,
@@ -2307,7 +2307,7 @@
    "fpts_avg": 36.0,
    "gp_est": 9,
    "played": true,
-   "fpts_rank": 19,
+   "fpts_rank": 18,
    "avg_rank": 41,
    "prod_rank": 25,
    "value": 76,
@@ -2535,28 +2535,6 @@
    "bust": false
   },
   {
-   "pick": 44,
-   "round": 6,
-   "pick_in_round": 4,
-   "drafted_by": "Naim Merlon",
-   "current_team": "Naim Merlon",
-   "player": "Stephen Curry",
-   "position": "PG",
-   "nba_team": "GS",
-   "status": "rostered",
-   "injury": null,
-   "fpts_tot": 326.0,
-   "fpts_avg": 46.6,
-   "gp_est": 7,
-   "played": true,
-   "fpts_rank": 17,
-   "avg_rank": 12,
-   "prod_rank": 12,
-   "value": 32,
-   "steal": true,
-   "bust": false
-  },
-  {
    "pick": 84,
    "round": 11,
    "pick_in_round": 4,
@@ -2576,6 +2554,28 @@
    "prod_rank": 53,
    "value": 31,
    "steal": false,
+   "bust": false
+  },
+  {
+   "pick": 44,
+   "round": 6,
+   "pick_in_round": 4,
+   "drafted_by": "Naim Merlon",
+   "current_team": "Naim Merlon",
+   "player": "Stephen Curry",
+   "position": "PG",
+   "nba_team": "GS",
+   "status": "rostered",
+   "injury": null,
+   "fpts_tot": 322.0,
+   "fpts_avg": 46.0,
+   "gp_est": 7,
+   "played": true,
+   "fpts_rank": 19,
+   "avg_rank": 13,
+   "prod_rank": 14,
+   "value": 30,
+   "steal": true,
    "bust": false
   },
   {
@@ -2812,7 +2812,7 @@
    "worst": "Jalen Johnson",
    "worst_pick": 6,
    "worst_fpts": 286.0,
-   "round_avg_fpts": 415.0
+   "round_avg_fpts": 415.1
   },
   {
    "round": 2,
@@ -2848,7 +2848,7 @@
    "worst": "Jalen Williams",
    "worst_pick": 25,
    "worst_fpts": 67.0,
-   "round_avg_fpts": 228.1
+   "round_avg_fpts": 228.5
   },
   {
    "round": 5,
@@ -2856,7 +2856,7 @@
    "best_team": "Naim Merlon",
    "best_pick": 37,
    "best_fpts": 325.0,
-   "best_rank": 14,
+   "best_rank": 12,
    "worst": "Josh Giddey",
    "worst_pick": 35,
    "worst_fpts": 208.0,
@@ -2867,12 +2867,12 @@
    "best": "Stephen Curry",
    "best_team": "Naim Merlon",
    "best_pick": 44,
-   "best_fpts": 326.0,
-   "best_rank": 12,
+   "best_fpts": 322.0,
+   "best_rank": 14,
    "worst": "Kon Knueppel",
    "worst_pick": 45,
    "worst_fpts": -2.0,
-   "round_avg_fpts": 237.6
+   "round_avg_fpts": 237.1
   },
   {
    "round": 7,
@@ -2943,8 +2943,8 @@
    "best_rank": 21,
    "worst": "Andrew Wiggins",
    "worst_pick": 94,
-   "worst_fpts": 141.0,
-   "round_avg_fpts": 231.6
+   "worst_fpts": 140.0,
+   "round_avg_fpts": 231.5
   },
   {
    "round": 13,
@@ -3022,7 +3022,7 @@
   },
   {
    "team": "Team The Mushroom",
-   "draft_fpts": 2830.0,
+   "draft_fpts": 2829.0,
    "value_sum": -109,
    "steals": 1,
    "busts": 0,
@@ -3046,9 +3046,17 @@
    "player": "Davion Mitchell",
    "fantasy_team": "Team The Mushroom",
    "position": "PG",
-   "fpts_tot": 321.0,
-   "fpts_avg": 35.7,
-   "would_rank": 20
+   "fpts_tot": 324.0,
+   "fpts_avg": 36.0,
+   "would_rank": 18
+  },
+  {
+   "player": "Yaxel Lendeborg",
+   "fantasy_team": "DanKen",
+   "position": "SF, PF",
+   "fpts_tot": 319.0,
+   "fpts_avg": 35.4,
+   "would_rank": 23
   },
   {
    "player": "Ayo Dosunmu",
@@ -3057,14 +3065,6 @@
    "fpts_tot": 316.0,
    "fpts_avg": 35.1,
    "would_rank": 24
-  },
-  {
-   "player": "Yaxel Lendeborg",
-   "fantasy_team": "DanKen",
-   "position": "SF, PF",
-   "fpts_tot": 306.0,
-   "fpts_avg": 34.0,
-   "would_rank": 27
   },
   {
    "player": "Duncan Robinson",
@@ -3150,9 +3150,9 @@
    "player": "Brandin Podziemski",
    "fantasy_team": "Team Mamba Mentality",
    "position": "SG, PG",
-   "fpts_tot": 222.0,
-   "fpts_avg": 31.7,
-   "would_rank": 69
+   "fpts_tot": 225.0,
+   "fpts_avg": 32.1,
+   "would_rank": 66
   },
   {
    "player": "Christian Braun",

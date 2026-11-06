@@ -109,8 +109,8 @@
    "rank": 4,
    "team": "Team The Mushroom",
    "owner": "The Mushroom",
-   "season_points_TOT": 3171,
-   "chg": 142,
+   "season_points_TOT": 3174,
+   "chg": 145,
    "GP": 90,
    "moves": 5,
    "points_by_stat": {
@@ -144,8 +144,8 @@
    "rank": 5,
    "team": "DanKen",
    "owner": "Dan Frydman",
-   "season_points_TOT": 3120,
-   "chg": 39,
+   "season_points_TOT": 3133,
+   "chg": 52,
    "GP": 92,
    "moves": 13,
    "points_by_stat": {
@@ -214,8 +214,8 @@
    "rank": 7,
    "team": "Team Mamba Mentality",
    "owner": "Itay Funt",
-   "season_points_TOT": 2802,
-   "chg": 14,
+   "season_points_TOT": 2805,
+   "chg": 17,
    "GP": 82,
    "moves": 8,
    "points_by_stat": {
@@ -284,5 +284,5 @@
  "note": "Season-long POINTS league",
  "season": 2027,
  "source_url": "https://fantasy.espn.com/basketball/league/standings?leagueId=683874011",
- "scraped_at": "2026-11-05T22:49:42-06:00"
+ "scraped_at": "2026-11-05T23:06:29-06:00"
 }
