@@ -39,35 +39,35 @@
    "rank": 2,
    "team": "Israel Samson",
    "owner": "Asaf Samson",
-   "season_points_TOT": 3559,
-   "chg": 224,
+   "season_points_TOT": 3563,
+   "chg": 228,
    "GP": 96,
    "moves": 3,
    "points_by_stat": {
     "FGM": 1250,
-    "FGA": -1354,
-    "FTM": 350,
-    "FTA": -447,
+    "FGA": -1355,
+    "FTM": 352,
+    "FTA": -449,
     "3PM": 131,
-    "REB": 652,
-    "AST": 910,
+    "REB": 653,
+    "AST": 912,
     "STL": 408,
     "BLK": 400,
     "TO": -472,
-    "PTS": 1731
+    "PTS": 1733
    },
    "raw_stats": {
     "FGM": 625,
-    "FGA": 1354,
-    "FTM": 350,
-    "FTA": 447,
+    "FGA": 1355,
+    "FTM": 352,
+    "FTA": 449,
     "3PM": 131,
-    "REB": 652,
-    "AST": 455,
+    "REB": 653,
+    "AST": 456,
     "STL": 102,
     "BLK": 100,
     "TO": 236,
-    "PTS": 1731
+    "PTS": 1733
    }
   },
   {
@@ -142,80 +142,80 @@
   },
   {
    "rank": 5,
+   "team": "Team The Mushroom",
+   "owner": "The Mushroom",
+   "season_points_TOT": 3284,
+   "chg": 91,
+   "GP": 92,
+   "moves": 5,
+   "points_by_stat": {
+    "FGM": 1194,
+    "FGA": -1309,
+    "FTM": 354,
+    "FTA": -435,
+    "3PM": 215,
+    "REB": 492,
+    "AST": 856,
+    "STL": 392,
+    "BLK": 204,
+    "TO": -442,
+    "PTS": 1763
+   },
+   "raw_stats": {
+    "FGM": 597,
+    "FGA": 1309,
+    "FTM": 354,
+    "FTA": 435,
+    "3PM": 215,
+    "REB": 492,
+    "AST": 428,
+    "STL": 98,
+    "BLK": 51,
+    "TO": 221,
+    "PTS": 1763
+   }
+  },
+  {
+   "rank": 6,
    "team": "ER",
    "owner": "Eliro Rha",
-   "season_points_TOT": 3275,
-   "chg": 188,
+   "season_points_TOT": 3274,
+   "chg": 187,
    "GP": 99,
    "moves": 6,
    "points_by_stat": {
     "FGM": 1048,
-    "FGA": -1160,
-    "FTM": 326,
-    "FTA": -416,
+    "FGA": -1161,
+    "FTM": 327,
+    "FTA": -418,
     "3PM": 131,
     "REB": 699,
     "AST": 972,
     "STL": 432,
     "BLK": 192,
     "TO": -454,
-    "PTS": 1505
+    "PTS": 1506
    },
    "raw_stats": {
     "FGM": 524,
-    "FGA": 1160,
-    "FTM": 326,
-    "FTA": 416,
+    "FGA": 1161,
+    "FTM": 327,
+    "FTA": 418,
     "3PM": 131,
     "REB": 699,
     "AST": 486,
     "STL": 108,
     "BLK": 48,
     "TO": 227,
-    "PTS": 1505
-   }
-  },
-  {
-   "rank": 6,
-   "team": "Team The Mushroom",
-   "owner": "The Mushroom",
-   "season_points_TOT": 3274,
-   "chg": 81,
-   "GP": 92,
-   "moves": 5,
-   "points_by_stat": {
-    "FGM": 1190,
-    "FGA": -1307,
-    "FTM": 354,
-    "FTA": -435,
-    "3PM": 214,
-    "REB": 492,
-    "AST": 854,
-    "STL": 392,
-    "BLK": 204,
-    "TO": -442,
-    "PTS": 1758
-   },
-   "raw_stats": {
-    "FGM": 595,
-    "FGA": 1307,
-    "FTM": 354,
-    "FTA": 435,
-    "3PM": 214,
-    "REB": 492,
-    "AST": 427,
-    "STL": 98,
-    "BLK": 51,
-    "TO": 221,
-    "PTS": 1758
+    "PTS": 1506
    }
   },
   {
    "rank": 7,
    "team": "Team Mamba Mentality",
    "owner": "Itay Funt",
-   "season_points_TOT": 3063,
-   "chg": 249,
+   "season_points_TOT": 3061,
+   "chg": 247,
    "GP": 89,
    "moves": 9,
    "points_by_stat": {
@@ -228,7 +228,7 @@
     "AST": 698,
     "STL": 344,
     "BLK": 228,
-    "TO": -382,
+    "TO": -384,
     "PTS": 1625
    },
    "raw_stats": {
@@ -241,7 +241,7 @@
     "AST": 349,
     "STL": 86,
     "BLK": 57,
-    "TO": 191,
+    "TO": 192,
     "PTS": 1625
    }
   },
@@ -260,10 +260,10 @@
     "FTA": -439,
     "3PM": 166,
     "REB": 545,
-    "AST": 642,
+    "AST": 644,
     "STL": 340,
     "BLK": 204,
-    "TO": -446,
+    "TO": -448,
     "PTS": 1719
    },
    "raw_stats": {
@@ -273,10 +273,10 @@
     "FTA": 439,
     "3PM": 166,
     "REB": 545,
-    "AST": 321,
+    "AST": 322,
     "STL": 85,
     "BLK": 51,
-    "TO": 223,
+    "TO": 224,
     "PTS": 1719
    }
   }
@@ -284,5 +284,5 @@
  "note": "Season-long POINTS league",
  "season": 2027,
  "source_url": "https://fantasy.espn.com/basketball/league/standings?leagueId=683874011",
- "scraped_at": "2026-11-06T23:00:41-06:00"
+ "scraped_at": "2026-11-06T23:08:48-06:00"
 }
