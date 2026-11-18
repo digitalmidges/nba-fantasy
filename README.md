@@ -10,7 +10,9 @@ Pace is rebuilt with the standings refresh (`scripts/build_index.py` reads `data
 
 The shell lives in `data/raw/index.prev.html` so a standings-only rebuild keeps the tabs.
 
-Draft value sections: Best bang for the buck, Steals by round, Draft board, Draft report card, Best undrafted pickups.
+Draft value sections: Worst drafts, Top 15 steals, Biggest busts, All drafted, Steals by round, Draft board, Draft report card, Best undrafted pickups.
+
+Draft value and Draft retro share an **Avg / Total** toggle (same pill style as the Leaderboard). Avg ranks drafted players by fantasy points per game and needs at least 3 games so a 1- or 2-game spike cannot jump the board. Total ranks by season fantasy points among anyone who has played. Value, steals, busts, the draft board, team grades, undrafted pickups, and retro “best available” all re-score against the chosen metric. The choice is stored in `localStorage` (`barchashim.draftMetric`) and defaults to Avg. `scripts/draft_value.py` emits both metrics so a normal refresh does not need extra steps.
 
 
 ## Refreshing Draft value / Draft retro

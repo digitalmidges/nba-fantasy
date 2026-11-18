@@ -36,12 +36,12 @@ html2, n=re.subn(r'/\*AVG_HISTORY\*/.*?/\*END_AVG_HISTORY\*/', lambda m: '/*AVG_
 if n!=1:
     raise SystemExit('Avg history placeholder was not injected')
 html=html2
-keep=['pick','round','pick_in_round','drafted_by','current_team','player','position','nba_team','status','fpts_tot','fpts_avg','gp_est','prod_rank','value','steal','bust','played']
-picks=[{k:p[k] for k in keep} for p in dv['picks']]
+keep=['pick','round','pick_in_round','drafted_by','current_team','player','position','nba_team','status','fpts_tot','fpts_avg','gp_est','prod_rank','value','steal','bust','played','rank_tot','rank_avg','value_tot','value_avg','steal_tot','steal_avg','bust_tot','bust_avg','qualifies_avg']
+picks=[{k:p.get(k) for k in keep} for p in dv['picks']]
 teams_order=[p['drafted_by'] for p in dv['picks'] if p['round']==1]
 data_js='        const DRAFT = %s;\n        const DRAFT_TEAMS = %s;\n        const BY_ROUND = %s;\n        const TEAM_GRADES = %s;\n        const UNDRAFTED = %s;\n'%(
     json.dumps(picks,separators=(',',':')),json.dumps(teams_order),json.dumps(dv['best_by_round'],separators=(',',':')),
-    json.dumps(dv['team_draft_grades'],separators=(',',':')),json.dumps(dv['undrafted_gems'][:10],separators=(',',':')))
+    json.dumps(dv['team_draft_grades'],separators=(',',':')),json.dumps(dv['undrafted_gems'],separators=(',',':')))
 css='''        .badge { display: inline-block; padding: 2px 8px; border-radius: 999px; font-size: 0.72em; font-weight: 700; letter-spacing: 0.4px; margin-left: 6px; vertical-align: middle; }
         .badge.steal { background: #e6f7ee; color: #127a43; }
         .badge.bust { background: #fdecec; color: #b42318; }
@@ -292,28 +292,39 @@ if draft_at:
 def _replace_const(html, name, value_js):
     pat = r'const %s = .*?;' % name
     repl = 'const %s = %s;' % (name, value_js)
-    html2, n = re.subn(pat, repl, html, count=1, flags=re.S)
-    if n == 1:
-        return html2
-    return None
+    m = re.search(pat, html, flags=re.S)
+    if not m:
+        return None
+    return html[:m.start()] + repl + html[m.end():]
 
 picks_js = json.dumps(picks, separators=(',', ':'))
 teams_js = json.dumps(teams_order)
 by_round_js = json.dumps(dv['best_by_round'], separators=(',', ':'))
 grades_js = json.dumps(dv['team_draft_grades'], separators=(',', ':'))
-und_js = json.dumps(dv['undrafted_gems'][:10], separators=(',', ':'))
+und_js = json.dumps(dv['undrafted_gems'], separators=(',', ':'))
 
 if 'const DRAFT = ' in html:
     # Longer names first so DRAFT does not steal a prefix match.
+    meta_js = json.dumps(dict(
+        avg_min_gp=dv.get('avg_min_gp', 3),
+        method=dv.get('method') or '',
+    ), separators=(',', ':'))
     for name, val in [
         ('DRAFT_TEAMS', teams_js),
         ('DRAFT', picks_js),
         ('BY_ROUND', by_round_js),
         ('TEAM_GRADES', grades_js),
         ('UNDRAFTED', und_js),
+        ('DRAFT_META', meta_js),
     ]:
         replaced = _replace_const(html, name, val)
         if replaced is None:
+            if name == 'DRAFT_META' and 'const UNDRAFTED =' in html:
+                html = html.replace(
+                    'const UNDRAFTED =',
+                    'const DRAFT_META = %s;\n        const UNDRAFTED =' % meta_js,
+                    1)
+                continue
             raise SystemExit('Failed to replace const %s in index shell' % name)
         html = replaced
 else:
@@ -936,3 +947,5 @@ if '/*AVG_HISTORY*/null/*END_AVG_HISTORY*/' in final:
     raise SystemExit('Avg history was not injected into index.html')
 if 'function teamAvgSeries(' not in final or 'class="lb-hit"' not in final or 'lb-chev' not in final:
     raise SystemExit('Built index.html lost the leaderboard sparklines')
+if 'id="draftMetric"' not in final or 'id="retroMetric"' not in final or 'function saveDraftMetric(' not in final:
+    raise SystemExit('Built index.html lost the draft Avg/Total metric toggle')
