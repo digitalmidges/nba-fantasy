@@ -1592,6 +1592,59 @@
      "gp": 185
     }
    ]
+  },
+  {
+   "at": "2026-11-26T22:56:19-06:00",
+   "teams": [
+    {
+     "team": "DanKen",
+     "avg": 34.4604,
+     "tot": 6961,
+     "gp": 202
+    },
+    {
+     "team": "ER",
+     "avg": 33.798,
+     "tot": 6861,
+     "gp": 203
+    },
+    {
+     "team": "Israel Samson",
+     "avg": 39.3681,
+     "tot": 7165,
+     "gp": 182
+    },
+    {
+     "team": "Naim Merlon",
+     "avg": 37.1117,
+     "tot": 7645,
+     "gp": 206
+    },
+    {
+     "team": "Omer's Team",
+     "avg": 33.8225,
+     "tot": 5716,
+     "gp": 169
+    },
+    {
+     "team": "Team Mamba Mentality",
+     "avg": 33.8225,
+     "tot": 5716,
+     "gp": 169
+    },
+    {
+     "team": "Team The Mushroom",
+     "avg": 35.8085,
+     "tot": 6732,
+     "gp": 188
+    },
+    {
+     "team": "The Pigs orsurf",
+     "avg": 38.5677,
+     "tot": 7405,
+     "gp": 192
+    }
+   ]
   }
  ]
 }
