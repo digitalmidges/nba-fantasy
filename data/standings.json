@@ -5,7 +5,7 @@
    "team": "Naim Merlon",
    "owner": "Meir Naim",
    "season_points_TOT": 7645,
-   "chg": 290,
+   "chg": 0,
    "GP": 206,
    "moves": 3,
    "points_by_stat": {
@@ -53,9 +53,9 @@
    "team": "The Pigs orsurf",
    "owner": "Or Frydman",
    "season_points_TOT": 7405,
-   "chg": 226,
+   "chg": 0,
    "GP": 192,
-   "moves": 7,
+   "moves": 8,
    "points_by_stat": {
     "FGM": 2646,
     "FGA": -2742,
@@ -101,9 +101,9 @@
    "team": "Israel Samson",
    "owner": "Asaf Samson",
    "season_points_TOT": 7165,
-   "chg": 144,
+   "chg": 0,
    "GP": 182,
-   "moves": 7,
+   "moves": 8,
    "points_by_stat": {
     "FGM": 2530,
     "FGA": -2635,
@@ -149,7 +149,7 @@
    "team": "DanKen",
    "owner": "Dan Frydman",
    "season_points_TOT": 6961,
-   "chg": 229,
+   "chg": 0,
    "GP": 202,
    "moves": 21,
    "points_by_stat": {
@@ -197,7 +197,7 @@
    "team": "ER",
    "owner": "Eliro Rha",
    "season_points_TOT": 6861,
-   "chg": 195,
+   "chg": 0,
    "GP": 203,
    "moves": 9,
    "points_by_stat": {
@@ -244,10 +244,10 @@
    "rank": 6,
    "team": "Team The Mushroom",
    "owner": "The Mushroom",
-   "season_points_TOT": 6732,
-   "chg": 321,
+   "season_points_TOT": 6736,
+   "chg": 4,
    "GP": 188,
-   "moves": 8,
+   "moves": 9,
    "points_by_stat": {
     "FGM": 2440,
     "FGA": -2649,
@@ -256,7 +256,7 @@
     "3PM": 413,
     "REB": 994,
     "AST": 1894,
-    "STL": 760,
+    "STL": 764,
     "BLK": 392,
     "TO": -892,
     "PTS": 3530
@@ -269,7 +269,7 @@
     "3PM": 413,
     "REB": 994,
     "AST": 947,
-    "STL": 190,
+    "STL": 191,
     "BLK": 98,
     "TO": 446,
     "PTS": 3530
@@ -293,7 +293,7 @@
    "team": "Team Mamba Mentality",
    "owner": "Itay Funt",
    "season_points_TOT": 5716,
-   "chg": 177,
+   "chg": 0,
    "GP": 169,
    "moves": 19,
    "points_by_stat": {
@@ -341,7 +341,7 @@
    "team": "Omer's Team",
    "owner": "Omer Bar Oz",
    "season_points_TOT": 5716,
-   "chg": 267,
+   "chg": 0,
    "GP": 169,
    "moves": 5,
    "points_by_stat": {
@@ -388,5 +388,5 @@
  "note": "Season-long POINTS league",
  "season": 2027,
  "source_url": "https://fantasy.espn.com/basketball/league/standings?leagueId=683874011",
- "scraped_at": "2026-11-26T22:56:19-06:00"
+ "scraped_at": "2026-11-27T22:56:35-06:00"
 }
